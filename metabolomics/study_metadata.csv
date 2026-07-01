@@ -1,0 +1,31 @@
+SampleNumber,SampleID,Cage,Group,Age,Total_stone_volume,Stone_number,Stone_surface_area
+ur_1,M4,1,heterozygote,6 wks,0,0,0
+ur_2,M5,1,heterozygote,6 wks,0,0,0
+ur_3,M18,3,homozygote,6 wks,0,0,0
+ur_4,M1,1,heterozygote,6 wks,0,0,0
+ur_5,M14,3,homozygote,6 wks,35.3498,19,229.916
+ur_6,M11,2,a-LA treated homozygote,6 wks,7.75,11,41.339
+ur_7,M3,1,heterozygote,6 wks,0,0,0
+ur_8,M17,3,homozygote,6 wks,33.369,29,158.503
+ur_9,M2,1,heterozygote,6 wks,0,0,0
+ur_10,M8,2,a-LA treated homozygote,6 wks,0,0,0
+ur_11,M15,3,homozygote,6 wks,25.3086,16,162.58
+ur_12,M6,1,heterozygote,6 wks,0,0,0
+ur_14,M7,2,a-LA treated homozygote,9 wks,0,0,0
+se_1,M10,2,a-LA treated homozygote,9 wks,0,0,0
+se_2,M17,3,homozygote,9 wks,33.369,29,158.503
+se_3,M2,1,heterozygote,9 wks,0,0,0
+se_4,M11,2,a-LA treated homozygote,9 wks,7.75,11,41.339
+se_5,M5,1,heterozygote,9 wks,0,0,0
+se_6,M18,3,homozygote,9 wks,0,0,0
+se_7,M16,3,homozygote,9 wks,0,0,0
+se_8,M1,1,heterozygote,9 wks,0,0,0
+se_9,M13,3,homozygote,9 wks,26.8567,9,102.9
+se_10,M6,1,heterozygote,9 wks,0,0,0
+se_11,M7,2,a-LA treated homozygote,9 wks,0,0,0
+se_12,M9,2,a-LA treated homozygote,9 wks,0,0,0
+se_13,M4,1,heterozygote,9 wks,0,0,0
+se_14,M14,3,homozygote,9 wks,35.3498,19,229.916
+se_15,M8,2,a-LA treated homozygote,9 wks,0,0,0
+se_16,M15,3,homozygote,9 wks,25.3086,16,162.58
+se_17,M3,1,heterozygote,9 wks,0,0,0

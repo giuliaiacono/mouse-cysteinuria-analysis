@@ -1,0 +1,810 @@
+---
+title: "Cysteinuria Project"
+author: "Giulia Iacono"
+date: "30th June 2026"
+output: 
+  
+---
+
+
+```{r}
+knitr::opts_chunk$set(error = FALSE, warning = FALSE, message = FALSE)
+```
+
+```{r libraries}
+# Get the R version
+# version$version.string
+
+# Define a vector of required packages
+pkgs <- c('here', 'data.table', 'tidyverse', 'kableExtra', 'ggplot2', 'pmp', 
+          'SummarizedExperiment', 'S4Vectors', 'ComplexHeatmap', 'circlize', 'parallel',
+          'ggsci', 'ggpubr', 'r2symbols', 'xml2',
+          'doParallel', 'foreach', 'gridExtra', 'patchwork', 'readxl',
+          'ggrepel', 'gplots', 'ggVennDiagram',
+          'limma', 'FELLA', 'igraph', 'vegan', 'Hmisc', 'sjmisc')
+
+# For each of the packages, load it and display the version number
+for (pkg in pkgs) {
+  suppressPackageStartupMessages(library(pkg, character.only = TRUE))
+   print(paste0(pkg, ': ', packageVersion(pkg)))
+}
+
+#source(here::here("functions", "extra.functions.R"))
+```
+
+# Theme and palettes
+
+```{r}
+#group_type_palette <- c('#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00')
+group_type_palette <- c('#7D83F8', "#1c2175", "#7DB8F3", '#3971a8', "grey", '#5C6378')
+names(group_type_palette) <- c("Homo-ALA-Serum", "Homo-ALA-Urine", "Homo-Ctrl-Serum", "Homo-Ctrl-Urine", "Hetero-Ctrl-Serum","Hetero-Ctrl-Urine")
+
+group_palette_serum <- c('#7D83F8', '#7DB8F3', 'grey')
+names(group_palette_serum) <- c("Homo-ALA", "Homo-Ctrl", "Hetero-Ctrl")
+
+group_palette_urine <- c('#1c2175', '#3971a8', '#5C6378')
+names(group_palette_urine) <- c("Homo-ALA", "Homo-Ctrl", "Hetero-Ctrl")
+
+group_palette <- c('#7D83F8', '#7DB8F3', 'grey')
+names(group_palette) <- c("Homo-ALA", "Homo-Ctrl", "Hetero-Ctrl")
+
+theme <- theme_classic() + 
+         theme(plot.title = element_text(face = "bold"),
+               strip.background = element_rect(fill = "lightgrey", linewidth = 0),
+               strip.text = element_text(face = "bold", colour = "black"),
+               legend.position = "right", legend.justification = "left",
+               text = element_text(family = "Arial", size = 8)
+)
+
+metabolism_palette <- c("Tryptophan" = "#A8DCD1", 
+                        "Lysine and carnitine" = "#995de3", 
+                        "Arginine" = "#5F72A1", 
+                        "Cysteine and methionine" = "#1c97ba", 
+                        "Histidine" = "#083D77", 
+                       # "Lipid and fatty acyl" = "#035443", 
+                        "Nucleotide" = "#209179", 
+                        "Glycolysis" = "#224ebd", 
+                        "Vitamin, flavonoid and folate" = "#89e2fa", 
+                        "Sulfur" = "#4a1f80",
+                        "Other" = "grey")
+
+```
+
+
+# Import/Format Data
+
+```{r}
+metadata <- read.csv(here::here("data", "metadata.csv"),  strip.white = T, sep = "\t")
+
+## Remove Serum and urine mixed QC
+metadata <- metadata[!grepl("se_ur", metadata$SampleNumber),]
+
+## edit names in Group for easier selection
+metadata <- metadata %>% mutate(class = case_when(
+  grepl("a-LA treated homozygote", Group) ~ "Homo-ALA",
+  grepl("homozygote", Group) ~ "Homo-Ctrl",
+  grepl("heterozygote", Group) ~ "Hetero-Ctrl",
+  grepl("Blank", SampleNumber) ~ "blank",
+  grepl("QC", SampleNumber) ~ "QC",
+))
+
+metadata$SampleType <- case_when(
+  grepl("^se", metadata$SampleNumber) & !(grepl ("QC", metadata$SampleNumber)) ~ "Serum",
+  grepl("^ur", metadata$SampleNumber) & !(grepl ("QC", metadata$SampleNumber)) & !(grepl ("blank", metadata$SampleNumber)) ~ "Urine",
+  grepl("Blank", metadata$SampleNumber) ~ "blank",
+  grepl("QC", metadata$SampleNumber) ~ "QC"
+)
+
+rownames(metadata) <- metadata$SampleNumber
+```
+
+```{r, results='hide'}
+# Load the metabolomics height data
+metab_pos <- read_csv(here::here('data', '2024_09_23_height_pos.csv'))
+metab_neg <- read_csv(here::here('data', '2024_09_23_height_neg.csv'))
+
+# Remove the MS/MS samples (not acquired in the same way)
+metab_pos <- metab_pos[,-(grep('MSMS.*', names(metab_pos)))]
+metab_neg <- metab_neg[,-(grep('MSMS.*', names(metab_neg)))]
+
+identical(colnames(metab_pos), colnames(metab_neg)) # TRUE
+
+# Separate into intensity and information data.frames for the SummarizedExperiment object
+metab_pos_counts <- as.matrix(metab_pos[, c(36:79)]) #column numbers that contain Blanks, QCs, and samples
+metab_neg_counts <- as.matrix(metab_neg[, c(36:79)])
+
+metab_pos_info <- data.frame(metab_pos[, 1:35])
+metab_neg_info <- data.frame(metab_neg[, 1:35])
+metab_pos_info$ionisation <- "pos"
+metab_neg_info$ionisation <- "neg"
+# Rename the data to indicate ionisation mode (using the MS-DIAL alignment ID)
+pos_rownames <- paste0(metab_pos_info$Alignment.ID, '_pos')
+neg_rownames <- paste0(metab_neg_info$Alignment.ID, '_neg')
+
+## add as rownames for easy selection
+rownames(metab_pos_counts) <- pos_rownames
+rownames(metab_pos_info) <- pos_rownames
+metab_pos_info$MetabID <- pos_rownames
+rownames(metab_neg_counts) <- neg_rownames
+rownames(metab_neg_info) <- neg_rownames
+metab_neg_info$MetabID <- neg_rownames
+
+# Merge the positive and negative ionisation modes using rbind
+metab_counts <- rbind(metab_pos_counts, metab_neg_counts)
+metab_info <- rbind(metab_pos_info, metab_neg_info)
+```
+
+# SummarizedExperiment
+
+```{r}
+# Reorder so that sample name order matches
+metab_counts <- metab_counts[,rownames(metadata)]
+metab_pos_counts <- metab_pos_counts[,rownames(metadata)]
+metab_neg_counts <- metab_neg_counts[,rownames(metadata)]
+# Check that the metadata matches the samples
+identical(rownames(metadata), colnames(metab_counts)) # should return 'TRUE'
+
+## Split into urine and serum
+metadata_urine <- metadata[grep("ur", metadata$SampleNumber), ]
+metab_counts_ur <- metab_counts[, rownames(metadata_urine)]
+metab_pos_ur <- metab_pos_counts[, rownames(metadata_urine)] ## create to check TIC
+metab_neg_ur <- metab_neg_counts[, rownames(metadata_urine)]
+
+metadata_serum <- metadata[grep("se", metadata$SampleNumber),]
+metab_counts_se <- metab_counts[, rownames(metadata_serum)]
+metab_pos_se <- metab_pos_counts[, rownames(metadata_serum)] ## create to check TIC
+metab_neg_se <- metab_neg_counts[, rownames(metadata_serum)]
+
+# Create the SummarizedExperiment (SE) object
+metab_ur <- SummarizedExperiment(assays = list(counts = metab_counts_ur),
+                                       metadata = metadata_urine,
+                                       rowData = list(info = metab_info),
+                                       colData = metadata_urine)
+
+metab_se <- SummarizedExperiment(assays = list(counts = metab_counts_se),
+                                       metadata = metadata_serum,
+                                       rowData = list(info = metab_info),
+                                       colData = metadata_serum)
+
+metab_obj <- SummarizedExperiment(assays = list(counts = metab_counts),
+                                       metadata = metadata,
+                                       rowData = list(info = metab_info),
+                                       colData = metadata)
+```
+
+```{r}
+# Check TIC across samples
+TIC <- function(intensity_table, metatdata){
+  total <- data.frame(Total.intensity = colSums(intensity_table)) %>%
+    mutate(SampleType = metatdata$SampleType) %>%
+    rownames_to_column(., var = "SampleID") 
+  total$SampleID <- factor(total$SampleID, levels = total$SampleID)
+  
+  ggplot(total, aes(x = SampleID, y = Total.intensity, fill = SampleType)) +
+    geom_bar(stat = "identity") +
+    labs(title = "Total intensity across samples") +
+    theme(axis.text.x = element_text(angle = 90))
+}
+
+# split by sample type
+TIC(metab_pos_se, metadata_serum)
+TIC(metab_neg_se, metadata_serum)
+TIC(metab_pos_ur, metadata_urine)
+TIC(metab_neg_ur, metadata_urine)
+
+# all together
+TIC(metab_pos_counts, metadata)
+TIC(metab_neg_counts, metadata)
+```
+
+```{r}
+# Perform the PCA and retrieve the explained variance values
+pca_function <- function(data){
+  
+  PCA <- prcomp(t(assay(data)), center = TRUE)
+  varexp <- c(summary(PCA)$importance[2,1]*100,summary(PCA)$importance[2,2]*100)
+  
+  # Create a dataset for plotting
+  data.PCA <- cbind(data.frame(Samples = rownames(PCA$x),
+                                     PC1 = PCA$x[,1],
+                                     PC2 = PCA$x[,2],
+                                     SampleType = data$SampleType))
+  
+  # Plot results
+  ggplot(data.PCA, aes(x = PC1, y = PC2)) +
+    geom_point(aes(colour = SampleType)) +
+    stat_ellipse(aes(group = SampleType), geom = 'polygon', type = 't', level = 0.95, alpha = 0.2) +
+    labs(title = 'Serum - combined modes',
+           x = paste0('PC1 ', round(varexp[1], 2), '%'),
+           y = paste0('PC2 ', round(varexp[2], 2), '%'))
+}
+
+pca_function(metab_se)
+pca_function(metab_ur)
+pca_function(metab_obj)
+# Extr_blank_2 of the serum blanks is falling within the area of the samples this blank will be removed and we will continue with the other 2
+```
+
+# Filtering and normalisation
+
+```{r}
+# Check the original number of features
+dim(metab_ur) #87211    18 now 50740
+dim(metab_se) #87211    23 now 50740
+
+# Replace missing values with NA to be compatible with downstream filtering
+assay(metab_ur) <- replace(assay(metab_ur), assay(metab_ur) == 0, NA)
+assay(metab_se) <- replace(assay(metab_se), assay(metab_se) == 0, NA)
+assay(metab_obj) <- replace(assay(metab_obj), assay(metab_obj) == 0, NA) # will not be filtered based on blanks, but based on retained features across sample types
+
+# Filter peaks and optionally samples based on blanks
+metab_filt_ur <- filter_peaks_by_blank(df = metab_ur,
+                                           fold_change = 10, # # how many times more in samples over blanks
+                                           classes = metab_ur$class,
+                                           remove_samples = TRUE,
+                                           remove_peaks = TRUE,
+                                           blank_label = 'blank') # from the class vector
+
+# Filter peaks and optionally samples based on blanks
+metab_filt_se <- filter_peaks_by_blank(df = metab_se,
+                                           fold_change = 10, 
+                                           classes = metab_se$class,
+                                           remove_samples = TRUE,
+                                           remove_peaks = TRUE,
+                                           blank_label = 'blank') # from the class vector
+
+                                           
+# Check the number of features/samples remaining
+dim(metab_filt_ur) #72163 now 41961    16 14 + 2 QCs
+dim(metab_filt_se) #63246 now 35667    20 17 + 3 QCs
+```
+
+## Filtering on missing values and QC intensity variation
+
+```{r}
+### Urine Filtering ###
+# Filter samples based on the percentage of missing values
+metab_filt_ur <- filter_samples_by_mv(df = metab_filt_ur,
+                                           max_perc_mv = 0.8, 
+                                      classes = metab_filt_ur$class) 
+print(paste0("Filter samples based on the percentage of missing values. Results col: ", ncol(metab_filt_ur))  )  # 16 all samples retained
+
+# Filter peaks based on fraction of missing values per feature within QC samples
+metab_filt_ur <- filter_peaks_by_fraction(df=metab_filt_ur, 
+                                       min_frac=0.9,
+                                       classes=metab_filt_ur$class,
+                                       method="QC",
+                                       qc_label="QC")
+print(paste0("Filter peaks based on fraction of missing values per feature within QC samples. Results features: ", nrow(metab_filt_ur)) )     #32999   now 25331      
+
+## We will not use this filter because we expect metabolite variation between groups
+# # Filter peaks based on missing values across all samples
+# metab_filt_ur <- filter_peaks_by_fraction(df = metab_filt_ur,
+#                                                min_frac = 0.20, # features should have values for >80% of samples
+#                                                classes = metab_filt_ur$class,
+#                                                method = 'across')
+#   
+# # Check the number of features/samples
+# print(paste0("Filter peaks based on missing values across all samples. Results features: ", nrow(metab_filt_ur)) )            
+  
+# Filter peaks based on the percentage of variation in the QC samples
+metab_filt_ur <- filter_peaks_by_rsd(df = metab_filt_ur, # was previously called metab_filt_ur_qc but not used later on
+                                          max_rsd = 30,
+                                          classes = metab_filt_ur$class,
+                                          qc_label = 'QC')
+ # Check the number of features/samples
+print(paste0("Filter peaks based on the percentage of variation in the QC samples. Results features: ", nrow(metab_filt_ur)) ) #20309 now 19127
+
+saveRDS(metab_filt_ur, paste0(drive_path, "data/rstudio/metab_filt_ur.rds") )
+
+dim(metab_filt_ur) #20309 now 19127    16
+```
+
+```{r}
+### Serum Filtering ###
+# Filter samples based on the percentage of missing values
+metab_filt_se <- filter_samples_by_mv(df = metab_filt_se,
+                                           max_perc_mv = 0.8, 
+                                        classes=metab_filt_se$class)
+
+print(paste0("Filter samples based on the percentage of missing values. Results col: ", ncol(metab_filt_se))  )  # 30 all samples retained
+  
+# Filter peaks based on fraction of missing values per feature within QC samples
+metab_filt_se <- filter_peaks_by_fraction(df=metab_filt_se, 
+                                         min_frac=0.9,
+                                         classes=metab_filt_se$class,
+                                         method="QC",
+                                         qc_label="QC")
+print(paste0("Filter peaks based on fraction of missing values per feature within QC samples. Results features: ", nrow(metab_filt_se)) )      #11328   now 9523       
+  
+## We will not use this filter because we expect metabolite variation between groups
+# # Filter peaks based on missing values across all samples
+# metab_filt_se <- filter_peaks_by_fraction(df = metab_filt_se,
+#                                              min_frac = 0.20, # features should have values for >80% of samples
+#                                              classes = metab_filt_se$class,
+#                                              method = 'across')
+# 
+# # Check the number of features/samples
+# print(paste0("Filter peaks based on missing values across all samples. Results features: ", nrow(metab_filt_se)) )            
+
+# Filter peaks based on the percentage of variation in the QC samples
+metab_filt_se <- filter_peaks_by_rsd(df = metab_filt_se,
+                                        max_rsd = 30, # previously 35
+                                        classes = metab_filt_se$class,
+                                        qc_label = 'QC')
+# Check the number of features/samples
+print(paste0("Filter peaks based on the percentage of variation in the QC samples. Results features: ", nrow(metab_filt_se)) ) #6057 now 6022
+
+saveRDS(metab_filt_se, paste0(drive_path, "data/rstudio/metab_filt_se.rds") )
+
+dim(metab_filt_se) #6057 now 6022 20 
+```
+
+## PQN normalisation and glog scaling
+
+```{r, eval = F}
+SE_list <- list(serum = metab_filt_se, urine = metab_filt_ur)
+
+norm_scale_function <- function(metab_filt){
+  # PQN data normalisation
+  metab_norm <- pqn_normalisation(df = metab_filt,
+                                        classes = metab_filt$class,
+                                        qc_label = 'QC')
+                                        
+  # Missing values imputation
+  metab_imp <- mv_imputation(df = metab_norm,
+                                   method = 'rf') # or rf, bcpa, sv, mn, md.
+                                   
+  # Data scaling
+  metab_glog <- glog_transformation(df = metab_imp,
+                                          classes = metab_imp$class,
+                                          qc_label = 'QC')
+  
+  
+  opt_lambda <- processing_history(metab_glog)$glog_transformation$lambda_opt
+  
+  lambda <- glog_plot_optimised_lambda(df = metab_imp,
+                             optimised_lambda = opt_lambda,
+                             classes = metab_imp$class,
+                             qc_label = 'QC')
+  
+  return(list(norm = metab_norm,
+              imp = metab_imp,
+              glog = metab_glog,
+              opt_lambda = opt_lambda,
+              lambda = lambda))
+}
+
+SE_list_proc <- mclapply(SE_list, norm_scale_function, mc.cores = 6)
+
+table(rowData(SE_list_proc$serum$glog)@listData[['info.Metabolite.name']] != 'Unknown') #1846   395 now 5193   864 > 276   746
+table(rowData(SE_list_proc$urine$glog)@listData[['info.Metabolite.name']] != 'Unknown') #8903  1678  now 17305  3004 > 17236  1891
+
+dim(SE_list_proc$serum$glog) #6057   20 # previously 2241   20 > 6022   
+dim(SE_list_proc$urine$glog) #20309  16 # previously 10581    16 > 19127
+
+saveRDS(SE_list_proc, paste0(drive_path, "data/rstudio/SE_list_proc.rds") )
+
+# SE_list_proc <- readRDS("data/new/SE_list_proc.rds")
+```
+
+# -----------------------
+# Metabolite Annotation
+
+```{r}
+## create master info file with all remaining alignmentIDs
+metIDs <- c(rownames(SE_list_proc$urine$glog), rownames(SE_list_proc$serum$glog) )
+metIDs <- metIDs[!duplicated(metIDs)]
+master_info <- metab_info[metIDs,] %>% arrange(ionisation, Alignment.ID) 
+```
+
+## HMDB
+
+```{r}
+# Load HMDB dataset
+hmdb_df <- readRDS(here::here('data', 'hmdb_metabolites_detect_quant_v5_20231102.rds'))
+
+# Search annotations in HMDB and add master_info 
+master_info_annotated <- add_hmdb(metab_SE = master_info, hmdb = hmdb_df, mass_tol = 0.002, 6) # 1h with v5 database, 15min with v4 
+dim(master_info_annotated) #23235    41 > 22140 44
+saveRDS(master_info_annotated, paste0(drive_path, "data/rstudio/master_info_annotated_v5.rds") )
+
+# master_info_annotated <- readRDS("data/new/master_info_annotated_v5.rds")
+```
+
+## Compare Annotatings
+
+```{r}
+# Prepare data.frame with alignment IDs and all four annotations and filter for at least one annotation
+msdial_hmdb_glog <- compare_annotations(master_info_annotated)
+
+# Keep only annotated rows and generate shortname column
+master_info_annotated_filtered <- keep_annotated(master_info_annotated) #previously overwritten as master_info
+dim(master_info_annotated_filtered) #6142   42 with v4 and 9943   42 with v5 > 7843   45
+
+## Add column for those features found in Serumn and Urine
+master_info_annotated_filtered$Serum <- ifelse(master_info_annotated_filtered$MetabID %in% rownames(SE_list_proc$serum$glog), TRUE, FALSE)
+master_info_annotated_filtered$Urine <- ifelse(master_info_annotated_filtered$MetabID %in% rownames(SE_list_proc$urine$glog), TRUE, FALSE)
+
+saveRDS(master_info_annotated_filtered, paste0(drive_path, "data/rstudio/master_info_annotated_filtered.rds") )
+
+# master_info_annotated_filtered <- readRDS("data/new/master_info_annotated_filtered.rds")
+```
+
+# ----------------------
+# Quality filtering
+
+```{r}
+# # Save the curation table
+df <- data.frame('MetabID' = master_info_annotated_filtered$MetabID,
+                  "RT" = master_info_annotated_filtered$Average.Rt.min.,
+                  "MZ" = master_info_annotated_filtered$Average.Mz,
+                  "SNratio" = master_info_annotated_filtered$S.N.average,
+                  "Fill" = master_info_annotated_filtered$Fill..,
+                  'MSDIAL_name' = master_info_annotated_filtered$Metabolite.name,
+                  'HMDB_name' = master_info_annotated_filtered$HMDB,
+                  'shortname' = master_info_annotated_filtered$shortname,
+                  'Serum' = master_info_annotated_filtered$Serum,
+                  'Urine' = master_info_annotated_filtered$Urine,
+                 "Ionisation" = master_info_annotated_filtered$ionisation,
+                 "AlignmentID" = master_info_annotated_filtered$Alignment.ID
+                 )
+
+# Flag duplicates
+df$shortname <- gsub("_pos\\.\\d+|_neg\\.\\d+|_pos|_neg", "", df$shortname)
+df$shortname <- gsub("\"", "", df$shortname) # remove quotation marks
+df$shortname <- sub("^([a-z])", "\\U\\1", df$shortname, perl = TRUE) # capitalise first letter
+df$shortname <- gsub("_", "/", df$shortname)
+df$shortname <- tolower(df$shortname)
+df$shortname <- str_to_sentence(df$shortname)
+```
+
+```{r}
+# Merge tables based on previous filtering
+#table1 <- read.csv("data/originals/manual_curation2_edit.csv") %>% mutate(Peak_quality = as.character(Peak_quality)) %>% dplyr::select(MetabID, Peak_quality, Shortname)
+
+table <- df %>%
+  #left_join(table1) %>%
+  mutate(Peak_quality = ifelse(Fill > 0.5 & SNratio > 100, "Pre_assigned_TRUE", FALSE)) # pre-assign TRUE to good peaks
+
+table(table$Peak_quality) # 7133 710 with v5
+
+write_csv(table, "data/20240923_manual_curation_v5.csv")
+```
+
+
+## Edit XML file
+
+```{r}
+for (i in c("neg", "pos")){
+  
+check <- table %>% 
+  filter(Ionisation == i) %>% 
+  pull(AlignmentID) %>% 
+  as.numeric()
+  
+xml_real <- read_xml(paste0("data/2024_09_23_AlignmentResult_", i, "_tags.xml")) 
+
+# Create backup
+write_xml(xml_real, file = paste0("data/2024_09_23_AlignmentResult_", i, "_tags_BACKUP.xml"), encoding = "utf-8")
+
+xml <- xml_real
+for (a in check) {
+  # Find the parent node where you want to add the child
+  parent_node <- xml_find_first(xml, "//Peaks")
+  # Create the new child node
+  val <- paste0('Peak Id="', a, '"', sep = "")
+  new_child <- xml_add_child(parent_node, val)
+  new_child2 <- xml_add_child(new_child, "Tag")
+  # Set text content for the new child node
+  xml_text(new_child2) <- "1"
+  # Convert the XML back to a string
+  modified_xml <- as.character(xml)
+}
+
+# Overwrite file
+write_xml(xml, file = paste0("data/2024_09_23_AlignmentResult_", i, "_tags.xml"), encoding = "utf-8")
+
+}
+
+# Do manually for each ionisation in Notepad++ or apple XCode
+# Do replace:   /Peak.* with /Peak>    - regular expression
+#then replace \n with \r\n       - wrap around and extended
+#Peaks and PeakSpotTags last two - remove CRLF at end
+```
+
+# Read XML (not used)
+
+```{r}
+#xml_Annotated <- xml2::read_xml("./Met_Lip/Exp18_lip/BAL/Neg/EXP18_CSL_Mouse_Lip_BAL_Neg_tags.xml")
+#nodes <- xml_find_all(xml_Annotated, "//Peaks")
+#rows <- xml_Annotated %>% xml_find_all("//Peaks")
+#Ids <- xml_contents(rows) %>% xml_attrs() %>% as.character()
+#Quality_Peaks <- xml_contents(rows) %>% as.character() %>% as.list()
+
+#Peak_Data <- data.frame(Ids = paste0(Ids,"_neg"), A1 = FALSE, A2 = FALSE, A3 = FALSE, A4 = FALSE, A5 = FALSE)
+
+#for (i in c(1:length(Quality_Peaks))) {
+#  temp <- Quality_Peaks[[i]]
+#  str_temp <- strsplit(temp,"  ")[[1]]
+#  str_temp <- str_temp[2:length(str_temp)] %>% gsub("[[:punct:]]", "", .) %>% 
+#    gsub("Tag", "", .) %>% substr(.,1,1) %>% as.numeric()
+#  Vec <- rep(FALSE,5)
+#  Vec[str_temp] <- TRUE
+#  Peak_Data[i,c(2:6)] <- Vec
+#}
+```
+
+```{r}
+keep <- table[which(duplicated(table$shortname)),] %>% 
+  dplyr::select(MetabID, Fill, shortname, Peak_quality) %>%
+  arrange(desc(shortname), Peak_quality) %>%
+  group_by(shortname) %>%
+  filter(Peak_quality == TRUE) %>% 
+  filter(sum(Peak_quality) >= 1) %>% # if 1 or multiple duplicates have been flagged as TRUE, keep the one with the highest fill
+  slice_max(Fill) %>%
+  slice_head(., n = 1) %>% 
+  pull(MetabID)
+length(keep) # 930
+
+remove <- table[which(duplicated(table$shortname)),] %>% 
+  filter(!MetabID %in% keep) %>%
+  pull(MetabID)
+length(remove) # 3336
+
+dim(table[which(duplicated(table$shortname)),]) #5547
+
+# Remove duplicates in quality table
+table <- table %>% 
+  mutate(Peak_quality = ifelse(MetabID %in% remove, FALSE, Peak_quality))
+sum(is.na(table$Peak_quality)) # 2433 with v5
+dim(table) #7843
+
+# view(table[which(duplicated(table$shortname)),])
+```
+
+```{r}
+ggplot(table, aes(x = Fill, y = log(SNratio))) +
+  geom_point(aes(fill = Peak_quality), shape = 21) +
+  geom_vline(xintercept = 0.25) +
+  geom_hline(yintercept = 3)
+
+ggplot(table, aes(x = RT, y = MZ)) +
+  geom_point(aes(fill = Peak_quality), shape = 21)
+```
+
+## Curated table
+
+```{r}
+# Load quality data
+metab_quality <- read.csv("data/20240923_manual_curation_v5_curated.csv")
+
+## check identical so that we can replace shortname with non unique short name - this was a previous mistake
+identical(metab_quality$MetabID, master_info_annotated_filtered$MetabID)
+```
+
+## Metab info table
+
+```{r}
+# Filter info table
+metab_info_se_ur <- master_info_annotated_filtered[metab_quality$Peak_quality, ] %>%
+  dplyr::select(MetabID, shortname, Fill.., S.N.average, Ontology, Metabolite.name, Formula, HMDB, KEGG, HMDB_accession, CHEBI_ID, PubChem_ID, BiGG_ID, INCHIKEY, SMILES, Serum, Urine) 
+
+# Fix up shortnames
+metab_info_se_ur$shortname <- gsub("_pos\\.\\d+|_neg\\.\\d+|_pos|_neg", "", metab_info_se_ur$shortname)
+metab_info_se_ur$shortname <- gsub("\"", "", metab_info_se_ur$shortname) # remove quotation marks
+metab_info_se_ur$shortname <- sub("^([a-z])", "\\U\\1", metab_info_se_ur$shortname, perl = TRUE) # capitalise first letter
+metab_info_se_ur$shortname <- gsub("_", "/", metab_info_se_ur$shortname)
+metab_info_se_ur$shortname <- tolower(metab_info_se_ur$shortname)
+metab_info_se_ur$shortname <- gsub("no ms2: ", "", metab_info_se_ur$shortname, fixed = TRUE)
+metab_info_se_ur$shortname <- gsub(" esa", "", metab_info_se_ur$shortname, fixed = TRUE)
+metab_info_se_ur$shortname <- str_to_sentence(metab_info_se_ur$shortname)
+
+dim(metab_info_se_ur) #3618
+
+# Remove duplicates
+metab_info_se_ur <- metab_info_se_ur %>% 
+  group_by(shortname) %>%
+  slice_max(Fill.., n = 1) %>%
+  group_by(shortname) %>%
+  slice_max(S.N.average, n = 1)
+
+table(duplicated(metab_info_se_ur$shortname))
+
+# view(metab_info_se_ur[which(duplicated(metab_info_se_ur$shortname)),] )
+
+dim(metab_info_se_ur) #2757
+```
+
+
+```{r}
+metab_info_se_ur <- metab_info_se_ur %>%
+  left_join(hmdb_df[, c("name", "direct_parent", "class", "sub_class")] %>%
+              dplyr::rename(shortname = name, CATEGORY = class, MAIN_CLASS = sub_class, SUB_CLASS = direct_parent)) %>%
+  as.data.frame()
+
+# Change names so can merge with lipid MSDial annotations
+metab_info_se_ur <- metab_info_se_ur %>%
+  mutate(SUB_CLASS = ifelse(grepl("erine|itol|glycerol|amine|choline", SUB_CLASS) & 
+                              !grepl(paste0(paste0(c("erine", "itol", "glycerol", "amine", "choline"), "s"), collapse = "|"), SUB_CLASS), paste0(SUB_CLASS, "s"), SUB_CLASS),
+         SUB_CLASS = gsub("ss", "s", SUB_CLASS),
+         SUB_CLASS = gsub("Cholesterol and derivatives", "Cholesterols and derivatives", SUB_CLASS),
+         Ontology = ifelse(Ontology == "Phosphatidylglycerols", "PG",
+                                ifelse(Ontology == "Phosphatidylethanolamines", "PE",
+                                       ifelse(Ontology == "Phosphatidylserines", "PS", 
+                                              ifelse(Ontology == "Phosphatidylinositols", "PI", Ontology)))))
+
+msdial_annotations <- read_excel("data/new/MSDIAL_annotations.xlsx", sheet = "Data") %>% distinct() %>% dplyr::rename(Ontology = info.Ontology) %>%
+  filter(Ontology != "ST") %>%
+  mutate(SUB_CLASS = ifelse(grepl("erine|itol|glycerol|amine|choline", SUB_CLASS) & 
+                              !grepl(paste0(paste0(c("erine", "itol", "glycerol", "amine", "choline"), "s"), collapse = "|"), SUB_CLASS), paste0(SUB_CLASS, "s"), SUB_CLASS),
+         SUB_CLASS = gsub("ss", "s", SUB_CLASS),
+         SUB_CLASS = gsub("Cholesterol and derivatives", "Cholesterols and derivatives", SUB_CLASS)) %>% 
+  as.data.frame()
+
+metab_info_se_ur <- metab_info_se_ur %>% 
+  mutate(Ontology = as.character(Ontology),
+    Ontology = ifelse(Ontology == "null", NA, Ontology)) %>%
+  left_join(msdial_annotations) %>%
+    mutate(CATEGORY = str_squish(gsub("\\[.*?\\]", "", CATEGORY)),
+         CATEGORY = gsub("Fatty Acyls", "Fatty acyls", CATEGORY),
+         CATEGORY = gsub("Prenol Lipids", "Prenol lipids", CATEGORY),
+         MAIN_CLASS = str_squish(gsub("\\[.*?\\]", "", MAIN_CLASS)),
+         SUB_CLASS = str_squish(gsub("\\[.*?\\]", "", SUB_CLASS)) )
+
+rownames(metab_info_se_ur) <- metab_info_se_ur$MetabID
+dim(metab_info_se_ur) #2757
+```
+
+
+```{r}
+# Separate info into sample type
+a <- metab_quality[which(metab_quality$Urine == TRUE & metab_quality$Peak_quality == TRUE),] %>% pull(MetabID)
+metab_info_ur <- metab_info_se_ur %>% filter(MetabID %in% a) %>% as.data.frame()
+a <- metab_quality[which(metab_quality$Serum == TRUE & metab_quality$Peak_quality == TRUE),] %>% pull(MetabID)
+metab_info_se <- metab_info_se_ur %>% filter(MetabID %in% a) %>% as.data.frame()
+
+# Filter assay tables
+metab_ur_df <- as.data.frame(assay(SE_list_proc$urine$glog))[metab_info_ur$MetabID, ]
+metab_se_df <- as.data.frame(assay(SE_list_proc$serum$glog))[metab_info_se$MetabID, ]
+
+identical(rownames(metab_ur_df), metab_info_ur$MetabID) # TRUE
+identical(rownames(metab_se_df), metab_info_se$MetabID) # TRUE
+
+rownames(metab_ur_df) <- metab_info_ur$shortname
+rownames(metab_se_df) <- metab_info_se$shortname
+
+rownames(metab_info_ur) <- metab_info_ur$shortname
+rownames(metab_info_se) <- metab_info_se$shortname
+
+dim(metab_ur_df) #previously 1379 now 2415
+dim(metab_se_df) #previously 481 now 1034
+```
+
+## Combine Urine and Serum
+
+```{r}
+length(intersect(metab_info_ur$shortname, metab_info_se$shortname)) # 692 overlapping metabolites
+```
+
+```{r}
+# Filter raw dataset by common metabolites between both sample types and include all samples across sample types, then scale and normalise
+overlapping_metabolites <- metab_info_se_ur %>% filter(Serum == TRUE & Urine == TRUE) %>% pull(MetabID)
+metab_obj_filt <- metab_obj[overlapping_metabolites, c(colnames(metab_ur_df), colnames(metab_se_df))] #metab_info_se_ur$MetabID
+metab_obj_norm <- norm_scale_function(metab_obj_filt)
+saveRDS(metab_obj_norm, paste0(drive_path, "data/rstudio/metab_obj_norm.rds") )
+
+metab_se_ur_df <- data.frame(assay(metab_obj_norm$glog)) %>% dplyr::select(!contains("QC")) %>% dplyr::select(!contains("ur_13")) # remove ur13 mixed sample
+metab_info_se_ur <- metab_info_se_ur %>% filter(MetabID %in% rownames(metab_se_ur_df))
+identical(rownames(metab_se_ur_df), rownames(metab_info_se_ur)) # TRUE
+rownames(metab_se_ur_df) <- metab_info_se_ur$shortname
+dim(metab_se_ur_df) #692   30
+
+# Remove QC samples
+metab_ur_df <- metab_ur_df %>% dplyr::select(!contains("QC")) %>% dplyr::select(!contains("ur_13")) # remove ur13 mixed sample
+metab_se_df <- metab_se_df %>% dplyr::select(!contains("QC"))
+
+dim(metab_ur_df) # 2415 13
+dim(metab_se_df) # 1034 17
+
+length(unique(c(rownames(metab_ur_df), rownames(metab_se_df))))
+
+# Remove QC samples
+#SE_list_proc$serum$glog <- SummarizedExperiment::subset(SE_list_proc$serum$glog, select = colData(SE_list_proc$serum$glog)$class != "QC") 
+
+metadata_urine <- metadata_urine %>% 
+  filter(SampleNumber %in% colnames(metab_ur_df)) %>% 
+  dplyr::select(SampleNumber, SampleID, Cage, Group, Weight..g., Vol..Collected..uL., Class) %>% 
+  mutate(Class = factor(Class, levels = c("Homo-Ctrl", "Homo-ALA", "Hetero-Ctrl")) )
+metadata_serum <- metadata_serum %>% 
+  filter(SampleNumber %in% colnames(metab_se_df)) %>% 
+  dplyr::select(SampleNumber, SampleID, Cage, Group, Weight..g., Vol..Collected..uL., Class) %>%
+  mutate(Class = factor(Class, levels = c("Homo-Ctrl", "Homo-ALA", "Hetero-Ctrl")) )
+
+# Add stones metadata
+metadata_urine <- metadata_urine %>%
+  left_join(read.csv(paste0(drive_path, "stones-metadata.csv")))
+metadata_serum <- metadata_serum %>%
+left_join(read.csv(paste0(drive_path, "stones-metadata.csv")))
+
+metadata_ur_se <- metadata_urine %>% 
+  mutate(SampleType = "Urine") %>% 
+  full_join(metadata_serum %>% mutate(SampleType = "Serum")) %>%
+  mutate(Class = as.character(Class),
+         Group_type = paste0(Class, "-", SampleType),
+         Group_type = factor(Group_type, levels = c("Homo-ALA-Serum", "Homo-ALA-Urine",
+                                               "Homo-Ctrl-Serum", "Homo-Ctrl-Urine",
+                                               "Hetero-Ctrl-Serum","Hetero-Ctrl-Urine") ),
+         Class = factor(Class, levels = c("Hetero-Ctrl", "Homo-Ctrl", "Homo-ALA")))
+
+saveRDS(metab_se_ur_df, paste0(drive_path, "rstudio/metab_se_ur_df.rds") )
+saveRDS(metab_ur_df, paste0(drive_path, "rstudio/metab_ur_df.rds") )
+saveRDS(metab_se_df, paste0(drive_path, "rstudio/metab_se_df.rds") )
+
+write.csv(metab_ur_df, paste0(drive_path, "rstudio/metab_ur_df.csv") )
+write.csv(metab_se_df, paste0(drive_path, "rstudio/metab_se_df.csv") )
+
+
+saveRDS(metab_info_ur, paste0(drive_path, "rstudio/metab_info_ur.rds") )
+saveRDS(metab_info_se, paste0(drive_path, "rstudio/metab_info_se.rds") )
+saveRDS(metab_info_se_ur, paste0(drive_path, "rstudio/metab_info_se_ur.rds") )
+
+write.csv(metab_info_ur, paste0(drive_path, "rstudio/metab_info_ur.csv"))
+write.csv(metab_info_se, paste0(drive_path, "rstudio/metab_info_se.csv"))
+write.csv(master_info_annotated_filtered, paste0(drive_path, "rstudio/master_info_annotated_filtered.csv"))
+
+saveRDS(metadata_urine, paste0(drive_path, "rstudio/metadata_urine.rds") )
+saveRDS(metadata_serum, paste0(drive_path, "rstudio/metadata_serum.rds") )
+saveRDS(metadata_ur_se, paste0(drive_path, "rstudio/metadata_ur_se.rds") )
+```
+
+```{r}
+#mmu <- buildGraphFromKEGGREST(organism = "mmu")
+#buildDataFromGraph(keggdata.graph = mmu, matrices = c("hypergeom", "diffusion", "pagerank"), normality = c("diffusion", "pagerank"))
+#mmu.hsa <- loadKEGGdata(loadMatrix = c("hypergeom", "diffusion", "pagerank"))
+#saveRDS(mmu.hsa, "limma/mmu.hsa.rds")
+```
+
+# Check misannotation
+
+```{r}
+# Urine
+## Homo vs Het 
+a <- metab_info_ur %>% left_join(master_info_annotated_filtered[, c("MetabID", "Adduct.type")]) %>%
+  relocate(Adduct.type) %>%
+  filter(!Adduct.type %in% c("[M+H]+", "[M-H]-")) %>%
+  dplyr::rename(Molecule = shortname) %>%
+  left_join(limma_list$urine$HomoCtrl_vs_HeteroCtrl$sig_hits[, c("Molecule", "direction")]) %>%
+  filter(!is.na(direction), !is.na(HMDB))
+write.csv(a, "urine-homo-het.csv", row.names = FALSE)
+
+## Homo vs ALA 
+a <- metab_info_ur %>% left_join(master_info_annotated_filtered[, c("MetabID", "Adduct.type")]) %>%
+  relocate(Adduct.type) %>%
+  filter(!Adduct.type %in% c("[M+H]+", "[M-H]-")) %>%
+  dplyr::rename(Molecule = shortname) %>%
+  left_join(limma_list$urine$HomoALA_vs_HomoCtrl$sig_hits[, c("Molecule", "direction")]) %>%
+  filter(!is.na(direction), !is.na(HMDB))
+write.csv(a, "urine-ala-homo.csv", row.names = FALSE)
+
+# Serum
+## Homo vs Het 
+a <- metab_info_se %>% left_join(master_info_annotated_filtered[, c("MetabID", "Adduct.type")]) %>%
+  relocate(Adduct.type) %>%
+  filter(!Adduct.type %in% c("[M+H]+", "[M-H]-")) %>%
+  dplyr::rename(Molecule = shortname) %>%
+  left_join(limma_list$serum$HomoCtrl_vs_HeteroCtrl$sig_hits[, c("Molecule", "direction")]) %>%
+  filter(!is.na(direction), !is.na(HMDB))
+write.csv(a, "serum-homo-het.csv", row.names = FALSE)
+
+## Homo vs ALA 
+a <- metab_info_se %>% left_join(master_info_annotated_filtered[, c("MetabID", "Adduct.type")]) %>%
+  relocate(Adduct.type) %>%
+  filter(!Adduct.type %in% c("[M+H]+", "[M-H]-")) %>%
+  dplyr::rename(Molecule = shortname) %>%
+  left_join(limma_list$serum$HomoALA_vs_HomoCtrl$sig_hits[, c("Molecule", "direction")]) %>%
+  filter(!is.na(direction), !is.na(HMDB))
+write.csv(a, "serum-ala-homo.csv", row.names = FALSE)
+```
+
+
