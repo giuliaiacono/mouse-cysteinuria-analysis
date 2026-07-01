@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Home</title>
+
+<script src="site_libs/header-attrs-2.24/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.29/datatables.js"></script>
+<link href="site_libs/dt-core-1.13.4/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.13.4/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.13.4/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Cystinuria Mouse faecal microbiome</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Home</h1>
+
+</div>
+
+
+<!-- Lightweight client-side loader that feature-detects and load polyfills only when necessary -->
+<script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2/webcomponents-loader.min.js"></script>
+
+<!-- Load the element definition -->
+<script type="module" src="https://cdn.jsdelivr.net/gh/zerodevx/zero-md@2/dist/zero-md.min.js"></script>
+
+<link rel="stylesheet" href="https://bioinformatics.erc.monash.edu/home/powell/mbp-report-template/mbp-style.css">
+
+<a href='https://bioinformatics.erc.monash.edu/'>
+<div id="bannerimage"></div>
+</a>
+
+<!-- Simply set the `src` attribute to your MD file and win -->
+<!--
+<zero-md id=app src="index.Rmd" manual-render>
+    <template data-merge='append'>
+        <link rel="stylesheet" href="https://bioinformatics.erc.monash.edu/home/powell/mbp-report-template/mbp-style.css">
+    </template>
+    <script type="text/markdown">
+      Markdown report index.Rmd is missing!
+    </script>
+</zero-md>
+<script type='module'>
+    import { IGVLink } from 'https://bioinformatics.erc.monash.edu/home/powell/mbp-report-template/igv-ext.js';
+    import { TableOfContents } from 'https://bioinformatics.erc.monash.edu/home/powell/mbp-report-template/toc.js';
+    const app = document.querySelector('#app')
+    const loc = new URLSearchParams(document.location.search).get('loc')
+    // Listen to the ready event
+    console.log("Pre-event")
+    const run = async () => {
+        app.src = loc ? loc : 'index.Rmd'
+        console.log("Render1")
+        await app.render()
+        console.log("Render2")
+        let toc = new TableOfContents(marked,false);
+        await app.render({ renderer: toc.renderer()})
+        app.shadowRoot.children[1].insertAdjacentHTML('afterbegin',toc.mk_toc());
+
+        //let js = new IGVLink(marked)
+        //await app.render({ renderer: js.renderer()})
+        //app.insertAdjacentHTML('beforebegin',toc.mk_toc());
+    };
+    run()
+</script>
+!-->
+<div id="cystinuria-mouse-gut-microbiome" class="section level1">
+<h1>Cystinuria Mouse Gut Microbiome</h1>
+<div id="nirmal-bhatt-malcolm-starkey" class="section level2">
+<h2>Nirmal Bhatt, Malcolm Starkey</h2>
+<p><strong>Author:</strong> Andrew Perry<br />
+<strong>BIP:</strong> BIP-1131 <strong>iLab:</strong> MBP-MS-466
+<strong>starting date:</strong> 14-Aug-2023</p>
+<hr />
+<div id="summary" class="section level3">
+<h3>Summary</h3>
+<p><strong>Goal:</strong> To explore the differences between faecal
+microbiomes of the homozygous cystinuria mice with heterozygotes.</p>
+<p><strong>Data:</strong> Mouse faecal microbiome, short read shotgun
+WGS.</p>
+<p>Three conditions with 5 samples each:</p>
+<ul>
+<li><code>Abx</code> (antibiotic treated)</li>
+<li><code>Het</code> (heterozygous)</li>
+<li><code>Homo</code> (homozygous)</li>
+</ul>
+<p>Potential covariates:</p>
+<ul>
+<li>all mice are male (so no sex covariate)</li>
+<li>box locations (some mice were housed together in the same box)</li>
+</ul>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-1ebfa5c335730ffc3d17" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-1ebfa5c335730ffc3d17">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"],["homo_1","homo_2","homo_3","homo_4","homo_5","het_1","het_2","het_3","het_4","het_5","abx_1","abx_2","abx_3","abx_4","abx_5"],["box5","box6","box7","box8","box8","box1","box1","box1","box1","box1","box2","box2","box3","box3","box4"],[79,38,34,33,68,null,null,null,null,null,null,null,null,null,null],[39,75,44,96,27,null,null,null,null,null,null,null,null,null,null],[199.423,199.268,155.741,272.304,160.7,null,null,null,null,null,null,null,null,null,null]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>sample<\/th>\n      <th>box<\/th>\n      <th>stone_mass_mg<\/th>\n      <th>stone_count<\/th>\n      <th>stones_total_surface_area<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"columnDefs":[{"targets":3,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":4,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":5,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"className":"dt-right","targets":[3,4,5]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":["options.columnDefs.0.render","options.columnDefs.1.render","options.columnDefs.2.render"],"jsHooks":[]}</script>
+<p>The cystinuria includes formation of cysteine stones in the
+predominantly in the kidney. Stone count, mass (mg) and total stone
+surface area (mm^2) was also provided.</p>
+</div>
+<div id="pipeline-overview" class="section level3">
+<h3>Pipeline overview</h3>
+<p>Host (Mus musculus) and PhiX reads were depleted from quality-filtered
+paired-end reads using Bowtie2. Taxonomic assignments of the remaining
+reads were made using MetaPhlAn4 against the ChocoPhlAn database
+(vOct22).</p>
+</div>
+<div id="analysis" class="section level3">
+<h3>Analysis</h3>
+<p>Data was analysed in R, primarily using the <code>mia</code> and
+<code>miaViz</code> Bioconductor pacakges. Taxonomic abundance was
+assessed using MetaPhlAn4, with differential abundance testing via
+ANCOM-BC2. Functional and pathway enrichment was assessed using
+HUMAnN, with differential pathway abundance testing via MaAsLin2.</p>
+<ul>
+<li><a href="multiqc/run1/multiqc_report.html">Raw read QC</a>
+<ul>
+<li>Raw sequencing data is of good quality. ~50-80M 100bp paired reads
+per sample. Most samples have ~3-5% mouse host reads (removed).</li>
+</ul></li>
+<li><a href="metaphlan.html">MetaPhlAn4 taxonomy and diversity</a></li>
+<li><a href="humann.html">HUMAnN functional and pathway
+enrichment</a></li>
+<li><a href="summary_notes.html">Summary notes &amp; proposed manuscript
+figures</a></li>
+</ul>
+<p>Higher resolution versions of some key plots can be found in: <a
+href="plots/">plots/</a></p>
+
+
+<hr/>
+
+<div class='acknowledge'>
+<h4>Acknowledging MBP</h4>
+<blockquote>
+We are very passionate and proud of supporting Monash researchers with their Bioinformatics needs and for being part of the published research work. Where appropriate please acknowledge the contributions of MBP as co-authors or by simply stating "Authors acknowledge support of Monash Bioinformatics Platform for this work".
+</blockquote>
+<strong>
+How did we do? Please complete the following feedback <a href='https://docs.google.com/forms/d/e/1FAIpQLSdVJnaZqexMFhOxPB_f8th-DZ_8D8AsO0g9HBtnQojpm66ihg/viewform?usp=sf_link'>survey</a> on your experience with the platform.
+</strong>
+
+</div>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre><code>R version 4.3.1 (2023-06-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 20.04.6 LTS
+
+Matrix products: default
+BLAS:   /persistent/software/apps/R/4.3.1/lib/R/lib/libRblas.so 
+LAPACK: /persistent/software/apps/R/4.3.1/lib/R/lib/libRlapack.so;  LAPACK version 3.11.0
+
+locale:
+ [1] LC_CTYPE=en_AU.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_AU.UTF-8        LC_COLLATE=en_AU.UTF-8    
+ [5] LC_MONETARY=en_AU.UTF-8    LC_MESSAGES=en_AU.UTF-8   
+ [7] LC_PAPER=en_AU.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C       
+
+time zone: Australia/Melbourne
+tzcode source: system (glibc)
+
+attached base packages:
+[1] stats4    stats     graphics  grDevices datasets  utils     methods  
+[8] base     
+
+other attached packages:
+ [1] BiocManager_1.30.22            miaViz_1.8.0                  
+ [3] ggraph_2.1.0                   mia_1.10.0                    
+ [5] MultiAssayExperiment_1.26.0    TreeSummarizedExperiment_2.8.0
+ [7] Biostrings_2.68.1              XVector_0.40.0                
+ [9] SingleCellExperiment_1.22.0    SummarizedExperiment_1.30.2   
+[11] Biobase_2.60.0                 GenomicRanges_1.52.0          
+[13] GenomeInfoDb_1.36.2            IRanges_2.34.1                
+[15] S4Vectors_0.38.1               BiocGenerics_0.46.0           
+[17] MatrixGenerics_1.12.3          matrixStats_1.0.0             
+[19] lubridate_1.9.2                forcats_1.0.0                 
+[21] stringr_1.5.0                  dplyr_1.1.2                   
+[23] purrr_1.0.2                    readr_2.1.4                   
+[25] tidyr_1.3.0                    tibble_3.2.1                  
+[27] ggplot2_3.4.3                  tidyverse_2.0.0               
+[29] workflowr_1.7.1               
+
+loaded via a namespace (and not attached):
+  [1] rstudioapi_0.15.0           jsonlite_1.8.7             
+  [3] magrittr_2.0.3              ggbeeswarm_0.7.2           
+  [5] farver_2.1.1                rmarkdown_2.24             
+  [7] fs_1.6.3                    zlibbioc_1.46.0            
+  [9] vctrs_0.6.3                 memoise_2.0.1              
+ [11] DelayedMatrixStats_1.22.6   RCurl_1.98-1.12            
+ [13] ggtree_3.8.2                htmltools_0.5.6            
+ [15] S4Arrays_1.0.5              BiocNeighbors_1.18.0       
+ [17] gridGraphics_0.5-1          sass_0.4.7                 
+ [19] bslib_0.5.1                 htmlwidgets_1.6.2          
+ [21] plyr_1.8.8                  DECIPHER_2.28.0            
+ [23] cachem_1.0.8                whisker_0.4.1              
+ [25] igraph_1.5.1                lifecycle_1.0.3            
+ [27] pkgconfig_2.0.3             rsvd_1.0.5                 
+ [29] Matrix_1.5-4.1              R6_2.5.1                   
+ [31] fastmap_1.1.1               GenomeInfoDbData_1.2.10    
+ [33] aplot_0.2.0                 digest_0.6.33              
+ [35] ggnewscale_0.4.9            colorspace_2.1-0           
+ [37] patchwork_1.1.3             ps_1.7.5                   
+ [39] rprojroot_2.0.3             scater_1.28.0              
+ [41] irlba_2.3.5.1               crosstalk_1.2.0            
+ [43] RSQLite_2.3.1               vegan_2.6-4                
+ [45] beachmat_2.16.0             fansi_1.0.4                
+ [47] timechange_0.2.0            polyclip_1.10-4            
+ [49] mgcv_1.8-42                 httr_1.4.7                 
+ [51] abind_1.4-5                 compiler_4.3.1             
+ [53] bit64_4.0.5                 withr_2.5.0                
+ [55] BiocParallel_1.34.2         viridis_0.6.4              
+ [57] DBI_1.1.3                   ggforce_0.4.1              
+ [59] MASS_7.3-60                 DelayedArray_0.26.7        
+ [61] bluster_1.12.0              permute_0.9-7              
+ [63] tools_4.3.1                 vipor_0.4.5                
+ [65] beeswarm_0.4.0              ape_5.7-1                  
+ [67] httpuv_1.6.11               glue_1.6.2                 
+ [69] callr_3.7.3                 nlme_3.1-162               
+ [71] promises_1.2.1              grid_4.3.1                 
+ [73] getPass_0.2-2               reshape2_1.4.4             
+ [75] cluster_2.1.4               generics_0.1.3             
+ [77] gtable_0.3.4                tzdb_0.4.0                 
+ [79] hms_1.1.3                   tidygraph_1.2.3            
+ [81] BiocSingular_1.16.0         ScaledMatrix_1.8.1         
+ [83] utf8_1.2.3                  ggrepel_0.9.3              
+ [85] pillar_1.9.0                yulab.utils_0.0.8          
+ [87] later_1.3.1                 splines_4.3.1              
+ [89] tweenr_2.0.2                treeio_1.24.3              
+ [91] lattice_0.21-8              renv_1.0.2                 
+ [93] bit_4.0.5                   tidyselect_1.2.0           
+ [95] DirichletMultinomial_1.42.0 scuttle_1.10.2             
+ [97] knitr_1.43                  git2r_0.32.0               
+ [99] gridExtra_2.3               xfun_0.40                  
+[101] graphlayouts_1.0.0          DT_0.29                    
+[103] stringi_1.7.12              ggfun_0.1.2                
+[105] lazyeval_0.2.2              yaml_2.3.7                 
+[107] evaluate_0.21               codetools_0.2-19           
+[109] ggplotify_0.1.2             cli_3.6.1                  
+[111] munsell_0.5.0               processx_3.8.2             
+[113] jquerylib_0.1.4             Rcpp_1.0.11                
+[115] parallel_4.3.1              ellipsis_0.3.2             
+[117] blob_1.2.4                  sparseMatrixStats_1.12.2   
+[119] bitops_1.0-7                decontam_1.20.0            
+[121] viridisLite_0.4.2           tidytree_0.4.5             
+[123] scales_1.2.1                crayon_1.5.2               
+[125] rlang_1.1.1                </code></pre>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

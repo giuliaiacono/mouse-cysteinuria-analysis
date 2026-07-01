@@ -1,0 +1,205 @@
+2024-03-04 13:52:28.949046 INFO::Writing function arguments to log file
+2024-03-04 13:52:28.963746 DEBUG::Function arguments
+2024-03-04 13:52:28.977285 DEBUG::Output folder: docs/maaslin_hethomo
+2024-03-04 13:52:28.97958 DEBUG::Min Abundance: 0.000000
+2024-03-04 13:52:28.992666 DEBUG::Min Prevalence: 0.000000
+2024-03-04 13:52:28.995756 DEBUG::Normalization: TSS
+2024-03-04 13:52:28.998312 DEBUG::Transform: AST
+2024-03-04 13:52:29.000642 DEBUG::Analysis method: LM
+2024-03-04 13:52:29.011882 DEBUG::Max significance: 0.250000
+2024-03-04 13:52:29.014371 DEBUG::Random effects:
+2024-03-04 13:52:29.041387 DEBUG::Fixed effects: group
+2024-03-04 13:52:29.044916 DEBUG::Correction method: BH
+2024-03-04 13:52:29.047703 DEBUG::Standardize: FALSE
+2024-03-04 13:52:30.681127 DEBUG::Cores: 1
+2024-03-04 13:52:30.686909 INFO::Verifying options selected are valid
+2024-03-04 13:52:30.742569 INFO::Determining format of input files
+2024-03-04 13:52:30.745913 INFO::Input format is data samples as rows and metadata samples as rows
+2024-03-04 13:52:30.749606 DEBUG::A total of 10 samples were found in both the data and metadata
+2024-03-04 13:52:30.751858 DEBUG::Reordering data/metadata to use same sample ordering
+2024-03-04 13:52:30.755357 INFO::Formula for fixed effects: expr ~  group
+2024-03-04 13:52:30.758072 INFO::Filter data based on min abundance and min prevalence
+2024-03-04 13:52:30.760986 INFO::Total samples in data: 10
+2024-03-04 13:52:30.764045 INFO::Min samples required with min abundance for a feature not to be filtered: 0.000000
+2024-03-04 13:52:30.78248 INFO::Total filtered features: 0
+2024-03-04 13:52:30.786054 INFO::Filtered feature names from abundance and prevalence filtering:
+2024-03-04 13:52:30.791521 INFO::Total filtered features with variance filtering: 0
+2024-03-04 13:52:30.794181 INFO::Filtered feature names from variance filtering:
+2024-03-04 13:52:30.796824 INFO::Running selected normalization method: TSS
+2024-03-04 13:52:30.801449 INFO::Bypass z-score application to metadata
+2024-03-04 13:52:30.804054 INFO::Running selected transform method: AST
+2024-03-04 13:52:30.808383 INFO::Running selected analysis method: LM
+2024-03-04 13:52:30.820425 INFO::Fitting model to feature number 1, SPAdes.MaxBin2Refined.group.Abx.004_sub
+2024-03-04 13:52:30.829164 INFO::Fitting model to feature number 2, SPAdes.MaxBin2Refined.group.Abx.005_sub
+2024-03-04 13:52:30.83455 INFO::Fitting model to feature number 3, SPAdes.MetaBAT2Refined.group.Abx.2
+2024-03-04 13:52:30.839457 INFO::Fitting model to feature number 4, SPAdes.MetaBAT2Refined.group.Abx.3
+2024-03-04 13:52:30.843849 INFO::Fitting model to feature number 5, SPAdes.MetaBAT2Refined.group.Abx.7
+2024-03-04 13:52:30.84901 INFO::Fitting model to feature number 6, SPAdes.MaxBin2Refined.group.HetHomo.040_sub
+2024-03-04 13:52:30.854076 INFO::Fitting model to feature number 7, SPAdes.MaxBin2Refined.group.HetHomo.050_sub
+2024-03-04 13:52:30.858462 INFO::Fitting model to feature number 8, SPAdes.MaxBin2Refined.group.HetHomo.054_sub
+2024-03-04 13:52:30.863205 INFO::Fitting model to feature number 9, SPAdes.MaxBin2Refined.group.HetHomo.055_sub
+2024-03-04 13:52:30.867761 INFO::Fitting model to feature number 10, SPAdes.MaxBin2Refined.group.HetHomo.058
+2024-03-04 13:52:30.872386 INFO::Fitting model to feature number 11, SPAdes.MaxBin2Refined.group.HetHomo.081
+2024-03-04 13:52:30.876862 INFO::Fitting model to feature number 12, SPAdes.MaxBin2Refined.group.HetHomo.083
+2024-03-04 13:52:30.881314 INFO::Fitting model to feature number 13, SPAdes.MaxBin2Refined.group.HetHomo.086_sub
+2024-03-04 13:52:30.886134 INFO::Fitting model to feature number 14, SPAdes.MaxBin2Refined.group.HetHomo.103_sub
+2024-03-04 13:52:30.890922 INFO::Fitting model to feature number 15, SPAdes.MaxBin2Refined.group.HetHomo.109_sub
+2024-03-04 13:52:30.895535 INFO::Fitting model to feature number 16, SPAdes.MaxBin2Refined.group.HetHomo.131_sub
+2024-03-04 13:52:30.908046 INFO::Fitting model to feature number 17, SPAdes.MaxBin2Refined.group.HetHomo.144_sub
+2024-03-04 13:52:30.912997 INFO::Fitting model to feature number 18, SPAdes.MaxBin2Refined.group.HetHomo.145
+2024-03-04 13:52:30.932323 INFO::Fitting model to feature number 19, SPAdes.MaxBin2Refined.group.HetHomo.146_sub
+2024-03-04 13:52:30.937598 INFO::Fitting model to feature number 20, SPAdes.MaxBin2Refined.group.HetHomo.147_sub
+2024-03-04 13:52:30.942415 INFO::Fitting model to feature number 21, SPAdes.MaxBin2Refined.group.HetHomo.174_sub
+2024-03-04 13:52:30.946869 INFO::Fitting model to feature number 22, SPAdes.MaxBin2Refined.group.HetHomo.180_sub
+2024-03-04 13:52:30.951489 INFO::Fitting model to feature number 23, SPAdes.MaxBin2Refined.group.HetHomo.181_sub
+2024-03-04 13:52:30.978523 INFO::Fitting model to feature number 24, SPAdes.MetaBAT2Refined.group.HetHomo.10
+2024-03-04 13:52:30.984461 INFO::Fitting model to feature number 25, SPAdes.MetaBAT2Refined.group.HetHomo.100
+2024-03-04 13:52:30.989613 INFO::Fitting model to feature number 26, SPAdes.MetaBAT2Refined.group.HetHomo.101
+2024-03-04 13:52:30.994212 INFO::Fitting model to feature number 27, SPAdes.MetaBAT2Refined.group.HetHomo.102
+2024-03-04 13:52:30.999048 INFO::Fitting model to feature number 28, SPAdes.MetaBAT2Refined.group.HetHomo.109
+2024-03-04 13:52:31.003616 INFO::Fitting model to feature number 29, SPAdes.MetaBAT2Refined.group.HetHomo.11
+2024-03-04 13:52:31.022719 INFO::Fitting model to feature number 30, SPAdes.MetaBAT2Refined.group.HetHomo.110
+2024-03-04 13:52:31.028458 INFO::Fitting model to feature number 31, SPAdes.MetaBAT2Refined.group.HetHomo.113_sub
+2024-03-04 13:52:31.033217 INFO::Fitting model to feature number 32, SPAdes.MetaBAT2Refined.group.HetHomo.114
+2024-03-04 13:52:31.037607 INFO::Fitting model to feature number 33, SPAdes.MetaBAT2Refined.group.HetHomo.118_sub
+2024-03-04 13:52:31.045735 INFO::Fitting model to feature number 34, SPAdes.MetaBAT2Refined.group.HetHomo.119
+2024-03-04 13:52:31.050436 INFO::Fitting model to feature number 35, SPAdes.MetaBAT2Refined.group.HetHomo.121
+2024-03-04 13:52:31.055107 INFO::Fitting model to feature number 36, SPAdes.MetaBAT2Refined.group.HetHomo.126_sub
+2024-03-04 13:52:31.059756 INFO::Fitting model to feature number 37, SPAdes.MetaBAT2Refined.group.HetHomo.128_sub
+2024-03-04 13:52:31.064303 INFO::Fitting model to feature number 38, SPAdes.MetaBAT2Refined.group.HetHomo.13
+2024-03-04 13:52:31.068745 INFO::Fitting model to feature number 39, SPAdes.MetaBAT2Refined.group.HetHomo.139_sub
+2024-03-04 13:52:31.078179 INFO::Fitting model to feature number 40, SPAdes.MetaBAT2Refined.group.HetHomo.140
+2024-03-04 13:52:31.0838 INFO::Fitting model to feature number 41, SPAdes.MetaBAT2Refined.group.HetHomo.141
+2024-03-04 13:52:31.088804 INFO::Fitting model to feature number 42, SPAdes.MetaBAT2Refined.group.HetHomo.144_sub
+2024-03-04 13:52:31.093798 INFO::Fitting model to feature number 43, SPAdes.MetaBAT2Refined.group.HetHomo.145
+2024-03-04 13:52:31.118316 INFO::Fitting model to feature number 44, SPAdes.MetaBAT2Refined.group.HetHomo.14_sub
+2024-03-04 13:52:31.123736 INFO::Fitting model to feature number 45, SPAdes.MetaBAT2Refined.group.HetHomo.154
+2024-03-04 13:52:31.128961 INFO::Fitting model to feature number 46, SPAdes.MetaBAT2Refined.group.HetHomo.155
+2024-03-04 13:52:31.133463 INFO::Fitting model to feature number 47, SPAdes.MetaBAT2Refined.group.HetHomo.16
+2024-03-04 13:52:31.138514 INFO::Fitting model to feature number 48, SPAdes.MetaBAT2Refined.group.HetHomo.160
+2024-03-04 13:52:31.142979 INFO::Fitting model to feature number 49, SPAdes.MetaBAT2Refined.group.HetHomo.162
+2024-03-04 13:52:31.148147 INFO::Fitting model to feature number 50, SPAdes.MetaBAT2Refined.group.HetHomo.163
+2024-03-04 13:52:31.153178 INFO::Fitting model to feature number 51, SPAdes.MetaBAT2Refined.group.HetHomo.164
+2024-03-04 13:52:31.157976 INFO::Fitting model to feature number 52, SPAdes.MetaBAT2Refined.group.HetHomo.168
+2024-03-04 13:52:31.162241 INFO::Fitting model to feature number 53, SPAdes.MetaBAT2Refined.group.HetHomo.17
+2024-03-04 13:52:31.175261 INFO::Fitting model to feature number 54, SPAdes.MetaBAT2Refined.group.HetHomo.170
+2024-03-04 13:52:31.22647 INFO::Fitting model to feature number 55, SPAdes.MetaBAT2Refined.group.HetHomo.173
+2024-03-04 13:52:31.233852 INFO::Fitting model to feature number 56, SPAdes.MetaBAT2Refined.group.HetHomo.174
+2024-03-04 13:52:31.251 INFO::Fitting model to feature number 57, SPAdes.MetaBAT2Refined.group.HetHomo.178
+2024-03-04 13:52:31.256788 INFO::Fitting model to feature number 58, SPAdes.MetaBAT2Refined.group.HetHomo.179_sub
+2024-03-04 13:52:31.261424 INFO::Fitting model to feature number 59, SPAdes.MetaBAT2Refined.group.HetHomo.18
+2024-03-04 13:52:31.266367 INFO::Fitting model to feature number 60, SPAdes.MetaBAT2Refined.group.HetHomo.180_sub
+2024-03-04 13:52:31.270726 INFO::Fitting model to feature number 61, SPAdes.MetaBAT2Refined.group.HetHomo.181_sub
+2024-03-04 13:52:31.275296 INFO::Fitting model to feature number 62, SPAdes.MetaBAT2Refined.group.HetHomo.183
+2024-03-04 13:52:31.279716 INFO::Fitting model to feature number 63, SPAdes.MetaBAT2Refined.group.HetHomo.185
+2024-03-04 13:52:31.301642 INFO::Fitting model to feature number 64, SPAdes.MetaBAT2Refined.group.HetHomo.186_sub
+2024-03-04 13:52:31.307601 INFO::Fitting model to feature number 65, SPAdes.MetaBAT2Refined.group.HetHomo.187
+2024-03-04 13:52:31.340761 INFO::Fitting model to feature number 66, SPAdes.MetaBAT2Refined.group.HetHomo.19
+2024-03-04 13:52:31.347079 INFO::Fitting model to feature number 67, SPAdes.MetaBAT2Refined.group.HetHomo.190_sub
+2024-03-04 13:52:31.351794 INFO::Fitting model to feature number 68, SPAdes.MetaBAT2Refined.group.HetHomo.191
+2024-03-04 13:52:31.356331 INFO::Fitting model to feature number 69, SPAdes.MetaBAT2Refined.group.HetHomo.22
+2024-03-04 13:52:31.36078 INFO::Fitting model to feature number 70, SPAdes.MetaBAT2Refined.group.HetHomo.26
+2024-03-04 13:52:31.365257 INFO::Fitting model to feature number 71, SPAdes.MetaBAT2Refined.group.HetHomo.28
+2024-03-04 13:52:31.372973 INFO::Fitting model to feature number 72, SPAdes.MetaBAT2Refined.group.HetHomo.30_sub
+2024-03-04 13:52:31.377616 INFO::Fitting model to feature number 73, SPAdes.MetaBAT2Refined.group.HetHomo.36
+2024-03-04 13:52:31.407406 INFO::Fitting model to feature number 74, SPAdes.MetaBAT2Refined.group.HetHomo.39
+2024-03-04 13:52:31.414498 INFO::Fitting model to feature number 75, SPAdes.MetaBAT2Refined.group.HetHomo.40
+2024-03-04 13:52:31.41919 INFO::Fitting model to feature number 76, SPAdes.MetaBAT2Refined.group.HetHomo.41
+2024-03-04 13:52:31.423552 INFO::Fitting model to feature number 77, SPAdes.MetaBAT2Refined.group.HetHomo.43
+2024-03-04 13:52:31.427931 INFO::Fitting model to feature number 78, SPAdes.MetaBAT2Refined.group.HetHomo.44
+2024-03-04 13:52:31.432719 INFO::Fitting model to feature number 79, SPAdes.MetaBAT2Refined.group.HetHomo.5
+2024-03-04 13:52:31.437352 INFO::Fitting model to feature number 80, SPAdes.MetaBAT2Refined.group.HetHomo.50
+2024-03-04 13:52:31.441763 INFO::Fitting model to feature number 81, SPAdes.MetaBAT2Refined.group.HetHomo.52
+2024-03-04 13:52:31.446253 INFO::Fitting model to feature number 82, SPAdes.MetaBAT2Refined.group.HetHomo.54_sub
+2024-03-04 13:52:31.451065 INFO::Fitting model to feature number 83, SPAdes.MetaBAT2Refined.group.HetHomo.57
+2024-03-04 13:52:31.471356 INFO::Fitting model to feature number 84, SPAdes.MetaBAT2Refined.group.HetHomo.58
+2024-03-04 13:52:31.478254 INFO::Fitting model to feature number 85, SPAdes.MetaBAT2Refined.group.HetHomo.60
+2024-03-04 13:52:31.483203 INFO::Fitting model to feature number 86, SPAdes.MetaBAT2Refined.group.HetHomo.61_sub
+2024-03-04 13:52:31.494834 INFO::Fitting model to feature number 87, SPAdes.MetaBAT2Refined.group.HetHomo.65
+2024-03-04 13:52:31.506468 INFO::Fitting model to feature number 88, SPAdes.MetaBAT2Refined.group.HetHomo.67
+2024-03-04 13:52:31.5115 INFO::Fitting model to feature number 89, SPAdes.MetaBAT2Refined.group.HetHomo.69_sub
+2024-03-04 13:52:31.51943 INFO::Fitting model to feature number 90, SPAdes.MetaBAT2Refined.group.HetHomo.7
+2024-03-04 13:52:31.531489 INFO::Fitting model to feature number 91, SPAdes.MetaBAT2Refined.group.HetHomo.72
+2024-03-04 13:52:31.536424 INFO::Fitting model to feature number 92, SPAdes.MetaBAT2Refined.group.HetHomo.73
+2024-03-04 13:52:31.541592 INFO::Fitting model to feature number 93, SPAdes.MetaBAT2Refined.group.HetHomo.75
+2024-03-04 13:52:31.546026 INFO::Fitting model to feature number 94, SPAdes.MetaBAT2Refined.group.HetHomo.77
+2024-03-04 13:52:31.550623 INFO::Fitting model to feature number 95, SPAdes.MetaBAT2Refined.group.HetHomo.78
+2024-03-04 13:52:31.555077 INFO::Fitting model to feature number 96, SPAdes.MetaBAT2Refined.group.HetHomo.79
+2024-03-04 13:52:31.55991 INFO::Fitting model to feature number 97, SPAdes.MetaBAT2Refined.group.HetHomo.8
+2024-03-04 13:52:31.564711 INFO::Fitting model to feature number 98, SPAdes.MetaBAT2Refined.group.HetHomo.80
+2024-03-04 13:52:31.569505 INFO::Fitting model to feature number 99, SPAdes.MetaBAT2Refined.group.HetHomo.82_sub
+2024-03-04 13:52:31.588389 INFO::Fitting model to feature number 100, SPAdes.MetaBAT2Refined.group.HetHomo.83
+2024-03-04 13:52:31.594449 INFO::Fitting model to feature number 101, SPAdes.MetaBAT2Refined.group.HetHomo.86
+2024-03-04 13:52:31.612466 INFO::Fitting model to feature number 102, SPAdes.MetaBAT2Refined.group.HetHomo.87_sub
+2024-03-04 13:52:31.618349 INFO::Fitting model to feature number 103, SPAdes.MetaBAT2Refined.group.HetHomo.89
+2024-03-04 13:52:31.622787 INFO::Fitting model to feature number 104, SPAdes.MetaBAT2Refined.group.HetHomo.90
+2024-03-04 13:52:31.627417 INFO::Fitting model to feature number 105, SPAdes.MetaBAT2Refined.group.HetHomo.92
+2024-03-04 13:52:31.632428 INFO::Fitting model to feature number 106, SPAdes.MetaBAT2Refined.group.HetHomo.93
+2024-03-04 13:52:31.637234 INFO::Fitting model to feature number 107, SPAdes.MetaBAT2Refined.group.HetHomo.94
+2024-03-04 13:52:31.642104 INFO::Fitting model to feature number 108, SPAdes.MetaBAT2Refined.group.HetHomo.96_sub
+2024-03-04 13:52:31.646554 INFO::Fitting model to feature number 109, SPAdes.MetaBAT2Refined.group.HetHomo.99
+2024-03-04 13:52:31.689391 INFO::Counting total values for each feature
+2024-03-04 13:52:31.698699 INFO::Writing filtered data to file docs/maaslin_hethomo/features/filtered_data.tsv
+2024-03-04 13:52:31.737079 INFO::Writing filtered, normalized data to file docs/maaslin_hethomo/features/filtered_data_norm.tsv
+2024-03-04 13:52:31.7512 INFO::Writing filtered, normalized, transformed data to file docs/maaslin_hethomo/features/filtered_data_norm_transformed.tsv
+2024-03-04 13:52:31.768661 WARNING::Deleting existing residuals file: docs/maaslin_hethomo/fits/residuals.rds
+2024-03-04 13:52:31.778267 INFO::Writing residuals to file docs/maaslin_hethomo/fits/residuals.rds
+2024-03-04 13:52:31.785008 WARNING::Deleting existing fitted file: docs/maaslin_hethomo/fits/fitted.rds
+2024-03-04 13:52:31.789339 INFO::Writing fitted values to file docs/maaslin_hethomo/fits/fitted.rds
+2024-03-04 13:52:31.80115 INFO::Writing all results to file (ordered by increasing q-values): docs/maaslin_hethomo/all_results.tsv
+2024-03-04 13:52:31.829484 INFO::Writing the significant results (those which are less than or equal to the threshold of 0.250000 ) to file (ordered by increasing q-values): docs/maaslin_hethomo/significant_results.tsv
+2024-03-04 13:52:31.838427 INFO::Writing heatmap of significant results to file: docs/maaslin_hethomo/heatmap.pdf
+2024-03-04 13:52:31.845592 INFO::Writing association plots (one for each significant association) to output folder: docs/maaslin_hethomo
+2024-03-04 13:52:31.852889 INFO::Plotting associations from most to least significant, grouped by metadata
+2024-03-04 13:52:31.855406 INFO::Plotting data for metadata number 1, group
+2024-03-04 13:52:31.899185 INFO::Creating boxplot for categorical data, group vs SPAdes.MaxBin2Refined.group.HetHomo.144_sub
+2024-03-04 13:52:32.155205 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.185
+2024-03-04 13:52:32.347062 INFO::Creating boxplot for categorical data, group vs SPAdes.MaxBin2Refined.group.HetHomo.103_sub
+2024-03-04 13:52:32.527107 INFO::Creating boxplot for categorical data, group vs SPAdes.MaxBin2Refined.group.HetHomo.174_sub
+2024-03-04 13:52:32.706339 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.11
+2024-03-04 13:52:32.895094 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.160
+2024-03-04 13:52:33.08281 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.50
+2024-03-04 13:52:33.306935 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.61_sub
+2024-03-04 13:52:33.484222 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.83
+2024-03-04 13:52:33.679669 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.86
+2024-03-04 13:52:33.866929 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.87_sub
+2024-03-04 13:52:34.049251 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.170
+2024-03-04 13:52:34.232981 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.30_sub
+2024-03-04 13:52:34.417028 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.52
+2024-03-04 13:52:34.599545 INFO::Creating boxplot for categorical data, group vs SPAdes.MaxBin2Refined.group.Abx.004_sub
+2024-03-04 13:52:34.825523 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.18
+2024-03-04 13:52:35.006441 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.41
+2024-03-04 13:52:35.18884 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.90
+2024-03-04 13:52:35.368369 INFO::Creating boxplot for categorical data, group vs SPAdes.MaxBin2Refined.group.HetHomo.109_sub
+2024-03-04 13:52:35.545604 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.190_sub
+2024-03-04 13:52:35.723214 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.Abx.2
+2024-03-04 13:52:35.902703 INFO::Creating boxplot for categorical data, group vs SPAdes.MaxBin2Refined.group.HetHomo.146_sub
+2024-03-04 13:52:36.084675 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.100
+2024-03-04 13:52:36.271165 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.141
+2024-03-04 13:52:36.4926 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.99
+2024-03-04 13:52:36.672279 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.19
+2024-03-04 13:52:36.852602 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.14_sub
+2024-03-04 13:52:37.042364 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.Abx.3
+2024-03-04 13:52:37.221682 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.139_sub
+2024-03-04 13:52:37.403387 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.145
+2024-03-04 13:52:37.583759 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.168
+2024-03-04 13:52:37.764193 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.44
+2024-03-04 13:52:37.951424 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.5
+2024-03-04 13:52:38.176456 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.57
+2024-03-04 13:52:38.353246 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.78
+2024-03-04 13:52:38.533792 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.79
+2024-03-04 13:52:38.716166 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.73
+2024-03-04 13:52:38.907634 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.Abx.7
+2024-03-04 13:52:39.09247 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.72
+2024-03-04 13:52:39.276786 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.96_sub
+2024-03-04 13:52:39.462012 INFO::Creating boxplot for categorical data, group vs SPAdes.MaxBin2Refined.group.HetHomo.083
+2024-03-04 13:52:39.685241 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.10
+2024-03-04 13:52:39.867707 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.114
+2024-03-04 13:52:40.046005 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.119
+2024-03-04 13:52:40.2247 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.65
+2024-03-04 13:52:40.415027 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.94
+2024-03-04 13:52:40.594555 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.118_sub
+2024-03-04 13:52:40.772715 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.180_sub
+2024-03-04 13:52:40.957139 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.187
+2024-03-04 13:52:41.144439 INFO::Creating boxplot for categorical data, group vs SPAdes.MetaBAT2Refined.group.HetHomo.28
+2024-03-04 13:52:41.361272 INFO::Creating boxplot for categorical data, group vs SPAdes.MaxBin2Refined.group.HetHomo.058

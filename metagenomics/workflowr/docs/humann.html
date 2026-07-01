@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>HUMAnN 3.0 functional and metabolic pathway analysis</title>
+
+<script src="site_libs/header-attrs-2.28/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.33/datatables.js"></script>
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+<script src="site_libs/jszip-1.13.6/jszip.min.js"></script>
+<link href="site_libs/dt-ext-buttons-1.13.6/css/buttons.dataTables.min.css" rel="stylesheet" />
+<script src="site_libs/dt-ext-buttons-1.13.6/js/dataTables.buttons.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.6/js/buttons.html5.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.6/js/buttons.colVis.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.6/js/buttons.print.min.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Cystinuria Mouse faecal microbiome</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">HUMAnN 3.0 functional and metabolic pathway
+analysis</h1>
+
+</div>
+
+
+<!-- Lightweight client-side loader that feature-detects and load polyfills only when necessary -->
+<script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2/webcomponents-loader.min.js"></script>
+
+<!-- Load the element definition -->
+<script type="module" src="https://cdn.jsdelivr.net/gh/zerodevx/zero-md@2/dist/zero-md.min.js"></script>
+
+<link rel="stylesheet" href="https://bioinformatics.erc.monash.edu/home/powell/mbp-report-template/mbp-style.css">
+
+<a href='https://bioinformatics.erc.monash.edu/'>
+<div id="bannerimage"></div>
+</a>
+
+<!-- Simply set the `src` attribute to your MD file and win -->
+<!--
+<zero-md id=app src="index.Rmd" manual-render>
+    <template data-merge='append'>
+        <link rel="stylesheet" href="https://bioinformatics.erc.monash.edu/home/powell/mbp-report-template/mbp-style.css">
+    </template>
+    <script type="text/markdown">
+      Markdown report index.Rmd is missing!
+    </script>
+</zero-md>
+<script type='module'>
+    import { IGVLink } from 'https://bioinformatics.erc.monash.edu/home/powell/mbp-report-template/igv-ext.js';
+    import { TableOfContents } from 'https://bioinformatics.erc.monash.edu/home/powell/mbp-report-template/toc.js';
+    const app = document.querySelector('#app')
+    const loc = new URLSearchParams(document.location.search).get('loc')
+    // Listen to the ready event
+    console.log("Pre-event")
+    const run = async () => {
+        app.src = loc ? loc : 'index.Rmd'
+        console.log("Render1")
+        await app.render()
+        console.log("Render2")
+        let toc = new TableOfContents(marked,false);
+        await app.render({ renderer: toc.renderer()})
+        app.shadowRoot.children[1].insertAdjacentHTML('afterbegin',toc.mk_toc());
+
+        //let js = new IGVLink(marked)
+        //await app.render({ renderer: js.renderer()})
+        //app.insertAdjacentHTML('beforebegin',toc.mk_toc());
+    };
+    run()
+</script>
+!-->
+<p>HUMAnN, like MetaPhlAn, maps reads to a reference database of
+microbial genomes. The abundance of known gene families (UniRef90) is
+quantified, and the abundance of <em>pathways</em> of genes is estimated
+(using the MetaCyc pathways database).</p>
+<p>Gene families and pathways can be viewed at the species level, or the
+community (whole-sample) level - we will focus on community level
+abundances here. Pathway abundances are proportional to the number of
+complete “copies” of the pathway in the community. Relative abundance
+values are shown here are copies-per-millon (CPM), where the abundances
+for any one sample sum to 1 million. This helps normalize for library
+size.</p>
+<p>Additional gene family and pathway groupings are available but not
+shown - these are EggNOG Orthologies, EC numbers, Gene Ontology (GO)
+anntoations, KEGG Orthologies, PFAM protein families and <a
+href="https://biocyc.org/META/class-tree?object=Reactions">MetaCyc
+Reactions</a>.</p>
+<pre><code>Removing low abundance/low prevalence pathways/families (at least 20% of samples must have abundance &gt; 0.0001)</code></pre>
+<pre><code>Pathways before abundance/prevalence filter: 1667</code></pre>
+<pre><code>Gene families before abundance/prevalence filter: 811851</code></pre>
+<pre><code>Pathways after abundance/prevalence filter: 1360</code></pre>
+<pre><code>Gene families after abundance/prevalence filter: 457691</code></pre>
+<p>Also recorded are the abundance of <code>UNMAPPED</code> reads (those
+that failed to map to any reference genome in the database).
+<code>UNGROUPED</code> or <code>UNINTEGRATED</code> features are those
+that aren’t present in the grouped database (eg, the UniRef90 family has
+no annotated reaction in MetaCyc, for instance). Reads that map but
+aren’t associated with a gene that has a Uniref90 family are labelled
+<code>UniRef90_unknown</code>.</p>
+<p>Percentage unmapped reads (for Uniref90 gene families):</p>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-1ebfa5c335730ffc3d17" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-1ebfa5c335730ffc3d17">{"x":{"filter":"none","vertical":false,"data":[["1"],[16.6936],[18.3343],[14.2358],[14.9712],[13.4776],[33.1407],[37.0023],[33.7444],[34.699],[34.2445],[43.0371],[29.0908],[33.1969],[38.1989],[43.9414]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Abx.1<\/th>\n      <th>Abx.2<\/th>\n      <th>Abx.3<\/th>\n      <th>Abx.4<\/th>\n      <th>Abx.5<\/th>\n      <th>Het.1<\/th>\n      <th>Het.2<\/th>\n      <th>Het.3<\/th>\n      <th>Het.4<\/th>\n      <th>Het.5<\/th>\n      <th>Homo.1<\/th>\n      <th>Homo.2<\/th>\n      <th>Homo.3<\/th>\n      <th>Homo.4<\/th>\n      <th>Homo.5<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"columnDefs":[{"targets":1,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 1, 3, \",\", \".\", null);\n  }"},{"targets":2,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 1, 3, \",\", \".\", null);\n  }"},{"targets":3,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 1, 3, \",\", \".\", null);\n  }"},{"targets":4,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 1, 3, \",\", \".\", null);\n  }"},{"targets":5,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 1, 3, \",\", \".\", null);\n  }"},{"targets":6,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 1, 3, \",\", \".\", null);\n  }"},{"targets":7,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 1, 3, \",\", \".\", null);\n  }"},{"targets":8,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 1, 3, \",\", \".\", null);\n  }"},{"targets":9,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 1, 3, \",\", \".\", null);\n  }"},{"targets":10,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 1, 3, \",\", \".\", null);\n  }"},{"targets":11,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 1, 3, \",\", \".\", null);\n  }"},{"targets":12,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 1, 3, \",\", \".\", null);\n  }"},{"targets":13,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 1, 3, \",\", \".\", null);\n  }"},{"targets":14,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 1, 3, \",\", \".\", null);\n  }"},{"targets":15,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 1, 3, \",\", \".\", null);\n  }"},{"className":"dt-right","targets":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"Abx.1","targets":1},{"name":"Abx.2","targets":2},{"name":"Abx.3","targets":3},{"name":"Abx.4","targets":4},{"name":"Abx.5","targets":5},{"name":"Het.1","targets":6},{"name":"Het.2","targets":7},{"name":"Het.3","targets":8},{"name":"Het.4","targets":9},{"name":"Het.5","targets":10},{"name":"Homo.1","targets":11},{"name":"Homo.2","targets":12},{"name":"Homo.3","targets":13},{"name":"Homo.4","targets":14},{"name":"Homo.5","targets":15}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":["options.columnDefs.0.render","options.columnDefs.1.render","options.columnDefs.2.render","options.columnDefs.3.render","options.columnDefs.4.render","options.columnDefs.5.render","options.columnDefs.6.render","options.columnDefs.7.render","options.columnDefs.8.render","options.columnDefs.9.render","options.columnDefs.10.render","options.columnDefs.11.render","options.columnDefs.12.render","options.columnDefs.13.render","options.columnDefs.14.render"],"jsHooks":[]}</script>
+<p>We can see between ~13% and 43% of reads do not map to the ChocoPhlAn
+(vOct22) database. This is not unusual, but worth noting this technique
+does not annotate the entire microbial diversity present in the sample
+due.</p>
+<div id="metabolic-pathways" class="section level2">
+<h2>Metabolic pathways</h2>
+<div id="metabolic-pathway-metacyc-heatmap" class="section level3">
+<h3>Metabolic pathway (MetaCyc) heatmap</h3>
+<p>A hierarchical clustered heatmap of using the abundance of MetaCyc
+pathways for each sample. To simplify the plot and only show pathways
+with larger between-sample diffferences, we only show pathways that have
+high variance between samples (greater than 75th percentle variance). We
+show log2(cpm), where cpm is complete pathway copies per million.</p>
+<ul>
+<li><a
+href="plots/pathways_heatmap.html">plots/pathways_heatmap.html</a></li>
+</ul>
+<p><img src="figure/humann.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-1">
+Past versions of unnamed-chunk-3-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+<tr>
+<td>
+971577a
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-09-06
+</td>
+</tr>
+<tr>
+<td>
+60590c3
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-03-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>A multidimensional scaling (MDS) plot showing dimensionality
+reduction of the pathway relativate abundance for each sample.</p>
+<p><img src="figure/humann.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
+Past versions of unnamed-chunk-4-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+<tr>
+<td>
+971577a
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-09-06
+</td>
+</tr>
+<tr>
+<td>
+60590c3
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-03-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><img src="figure/humann.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
+Past versions of unnamed-chunk-5-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-5-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The Abx samples are very different and cluster together (not
+surprising, they are mostly Lactococcus). If we look at the Het/Homo
+samples with reveals more detail - the Het samples cluster together
+(more similar within-group pathway abundances), while the Homo samples
+are more dispersed. This reflects the higher variance between biological
+replicates in the Homo samples, as seen in taxonomic abundance analysis
+previously.</p>
+</div>
+<div id="differential-pathway-abundance" class="section level3">
+<h3>Differential pathway abundance</h3>
+<p>We investigate pathways with differential abundance in
+<code>Homo</code> relative to <code>Het</code>, using a linear model
+with log-transformation of CPM abundances (MaAsLin2 method).</p>
+<div id="full-humannmaaslin2-association-table" class="section level4">
+<h4>Full HUMAnN/MaAsLin2 association table</h4>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-fda1362bde3a79a7dc88" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-fda1362bde3a79a7dc88">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6969\" target='_blank'>PWY-6969: TCA cycle V (2-oxoglutarate synthase)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=METHGLYUT-PWY\" target='_blank'>METHGLYUT-PWY: superpathway of methylglyoxal degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5913\" target='_blank'>PWY-5913: partial TCA cycle (obligate autotrophs)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6284\" target='_blank'>PWY-6284: superpathway of unsaturated fatty acids biosynthesis (E. coli)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5367\" target='_blank'>PWY-5367: petroselinate biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5971\" target='_blank'>PWY-5971: palmitate biosynthesis (type II fatty acid synthase)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7383\" target='_blank'>PWY-7383: anaerobic energy metabolism (invertebrates, cytosol)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5188\" target='_blank'>PWY-5188: tetrapyrrole biosynthesis I (from glutamate)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7199\" target='_blank'>PWY-7199: pyrimidine deoxyribonucleosides salvage<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=FERMENTATION-PWY\" target='_blank'>FERMENTATION-PWY: mixed acid fermentation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY0-1298\" target='_blank'>PWY0-1298: superpathway of pyrimidine deoxyribonucleosides degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=P164-PWY\" target='_blank'>P164-PWY: purine nucleobases degradation I (anaerobic)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=P621-PWY\" target='_blank'>P621-PWY: nylon-6 oligomer degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6292\" target='_blank'>PWY-6292: superpathway of L-cysteine biosynthesis (mammalian)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7883\" target='_blank'>PWY-7883: anhydromuropeptides recycling II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=GLYCOLYSIS-E-D\" target='_blank'>GLYCOLYSIS-E-D: superpathway of glycolysis and the Entner-Doudoroff pathway<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=METH-ACETATE-PWY\" target='_blank'>METH-ACETATE-PWY: methanogenesis from acetate<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6549\" target='_blank'>PWY-6549: L-glutamine biosynthesis III<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY4LZ-257\" target='_blank'>PWY4LZ-257: superpathway of fermentation (Chlamydomonas reinhardtii)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-8178\" target='_blank'>PWY-8178: pentose phosphate pathway (non-oxidative branch) II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-3001\" target='_blank'>PWY-3001: superpathway of L-isoleucine biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY4FS-7\" target='_blank'>PWY4FS-7: phosphatidylglycerol biosynthesis I (plastidic)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY4FS-8\" target='_blank'>PWY4FS-8: phosphatidylglycerol biosynthesis II (non-plastidic)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=RIBOSYN2-PWY\" target='_blank'>RIBOSYN2-PWY: flavin biosynthesis I (bacteria and plants)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6147\" target='_blank'>PWY-6147: 6-hydroxymethyl-dihydropterin diphosphate biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=NONOXIPENT-PWY\" target='_blank'>NONOXIPENT-PWY: pentose phosphate pathway (non-oxidative branch) I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6470\" target='_blank'>PWY-6470: peptidoglycan biosynthesis V (&beta;-lactam resistance)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY0-1479\" target='_blank'>PWY0-1479: tRNA processing<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=CALVIN-PWY\" target='_blank'>CALVIN-PWY: Calvin-Benson-Bassham cycle<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7237\" target='_blank'>PWY-7237: myo-, chiro- and scyllo-inositol degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=GOLPDLCAT-PWY\" target='_blank'>GOLPDLCAT-PWY: superpathway of glycerol degradation to 1,3-propanediol<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7242\" target='_blank'>PWY-7242: D-fructuronate degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=GLUCUROCAT-PWY\" target='_blank'>GLUCUROCAT-PWY: superpathway of &beta;-D-glucuronosides degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=GALACTUROCAT-PWY\" target='_blank'>GALACTUROCAT-PWY: D-galacturonate degradation I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY66-399\" target='_blank'>PWY66-399: gluconeogenesis III<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6609\" target='_blank'>PWY-6609: adenine and adenosine salvage III<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6270\" target='_blank'>PWY-6270: isoprene biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-8004\" target='_blank'>PWY-8004: Entner-Doudoroff pathway I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7560\" target='_blank'>PWY-7560: methylerythritol phosphate pathway II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=P185-PWY\" target='_blank'>P185-PWY: formaldehyde assimilation III (dihydroxyacetone cycle)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=HEMESYN2-PWY\" target='_blank'>HEMESYN2-PWY: heme b biosynthesis II (oxygen-independent)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY3O-4107\" target='_blank'>PWY3O-4107: NAD salvage pathway V (PNC V cycle)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5676\" target='_blank'>PWY-5676: acetyl-CoA fermentation to butanoate II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PYRIDNUCSAL-PWY\" target='_blank'>PYRIDNUCSAL-PWY: NAD salvage pathway I (PNC VI cycle)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY0-1241\" target='_blank'>PWY0-1241: ADP-L-glycero-&beta;-D-manno-heptose biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7942\" target='_blank'>PWY-7942: 5-oxo-L-proline metabolism<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=CENTFERM-PWY\" target='_blank'>CENTFERM-PWY: pyruvate fermentation to butanoate<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6590\" target='_blank'>PWY-6590: superpathway of Clostridium acetobutylicum acidogenic fermentation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7400\" target='_blank'>PWY-7400: L-arginine biosynthesis IV (archaebacteria)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7851\" target='_blank'>PWY-7851: coenzyme A biosynthesis II (eukaryotic)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6126\" target='_blank'>PWY-6126: superpathway of adenosine nucleotides de novo biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7228\" target='_blank'>PWY-7228: superpathway of guanosine nucleotides de novo biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7208\" target='_blank'>PWY-7208: superpathway of pyrimidine nucleobases salvage<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6125\" target='_blank'>PWY-6125: superpathway of guanosine nucleotides de novo biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7197\" target='_blank'>PWY-7197: pyrimidine deoxyribonucleotide phosphorylation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7220\" target='_blank'>PWY-7220: adenosine deoxyribonucleotides de novo biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7222\" target='_blank'>PWY-7222: guanosine deoxyribonucleotides de novo biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=P441-PWY\" target='_blank'>P441-PWY: superpathway of N-acetylneuraminate degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5918\" target='_blank'>PWY-5918: superpathway of heme b biosynthesis from glutamate<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=HEME-BIOSYNTHESIS-II\" target='_blank'>HEME-BIOSYNTHESIS-II: heme b biosynthesis I (aerobic)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=P42-PWY\" target='_blank'>P42-PWY: incomplete reductive TCA cycle<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5981\" target='_blank'>PWY-5981: CDP-diacylglycerol biosynthesis III<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5873\" target='_blank'>PWY-5873: ubiquinol-7 biosynthesis (late decarboxylation)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6606\" target='_blank'>PWY-6606: guanosine nucleotides degradation II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=CITRULBIO-PWY\" target='_blank'>CITRULBIO-PWY: L-citrulline biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-4984\" target='_blank'>PWY-4984: urea cycle<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=P23-PWY\" target='_blank'>P23-PWY: reductive TCA cycle I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PHOSLIPSYN-PWY\" target='_blank'>PHOSLIPSYN-PWY: superpathway of phospholipid biosynthesis I (bacteria)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-841\" target='_blank'>PWY-841: superpathway of purine nucleotides de novo biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7229\" target='_blank'>PWY-7229: superpathway of adenosine nucleotides de novo biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7209\" target='_blank'>PWY-7209: superpathway of pyrimidine ribonucleosides degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6901\" target='_blank'>PWY-6901: superpathway of glucose and xylose degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7198\" target='_blank'>PWY-7198: pyrimidine deoxyribonucleotides de novo biosynthesis IV<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6608\" target='_blank'>PWY-6608: guanosine nucleotides degradation III<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=P108-PWY\" target='_blank'>P108-PWY: pyruvate fermentation to propanoate I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5189\" target='_blank'>PWY-5189: tetrapyrrole biosynthesis II (from glycine)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5384\" target='_blank'>PWY-5384: sucrose degradation IV (sucrose phosphorylase)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=THRESYN-PWY\" target='_blank'>THRESYN-PWY: superpathway of L-threonine biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-4041\" target='_blank'>PWY-4041: &gamma;-glutamyl cycle<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6527\" target='_blank'>PWY-6527: stachyose degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7111\" target='_blank'>PWY-7111: pyruvate fermentation to isobutanol (engineered)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6628\" target='_blank'>PWY-6628: superpathway of L-phenylalanine biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6630\" target='_blank'>PWY-6630: superpathway of L-tyrosine biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=BIOTIN-BIOSYNTHESIS-PWY\" target='_blank'>BIOTIN-BIOSYNTHESIS-PWY: biotin biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6519\" target='_blank'>PWY-6519: 8-amino-7-oxononanoate biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5130\" target='_blank'>PWY-5130: 2-oxobutanoate degradation I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6305\" target='_blank'>PWY-6305: superpathway of putrescine biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=COA-PWY-1\" target='_blank'>COA-PWY-1: superpathway of coenzyme A biosynthesis III (mammals)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-2941\" target='_blank'>PWY-2941: L-lysine biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5659\" target='_blank'>PWY-5659: GDP-mannose biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5497\" target='_blank'>PWY-5497: purine nucleobases degradation II (anaerobic)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6823\" target='_blank'>PWY-6823: molybdopterin biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=FOLSYN-PWY\" target='_blank'>FOLSYN-PWY: superpathway of tetrahydrofolate biosynthesis and salvage<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6612\" target='_blank'>PWY-6612: superpathway of tetrahydrofolate biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-1269\" target='_blank'>PWY-1269: CMP-3-deoxy-D-manno-octulosonate biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY66-409\" target='_blank'>PWY66-409: superpathway of purine nucleotide salvage<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=FUCCAT-PWY\" target='_blank'>FUCCAT-PWY: fucose degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=SER-GLYSYN-PWY\" target='_blank'>SER-GLYSYN-PWY: superpathway of L-serine and glycine biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=TRPSYN-PWY\" target='_blank'>TRPSYN-PWY: L-tryptophan biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=FUC-RHAMCAT-PWY\" target='_blank'>FUC-RHAMCAT-PWY: superpathway of fucose and rhamnose degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=GLCMANNANAUT-PWY\" target='_blank'>GLCMANNANAUT-PWY: superpathway of N-acetylglucosamine, N-acetylmannosamine and N-acetylneuraminate degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7391\" target='_blank'>PWY-7391: isoprene biosynthesis II (engineered)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7039\" target='_blank'>PWY-7039: phosphatidate metabolism, as a signaling molecule<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=NADSYN-PWY\" target='_blank'>NADSYN-PWY: NAD de novo biosynthesis II (from tryptophan)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5651\" target='_blank'>PWY-5651: L-tryptophan degradation to 2-amino-3-carboxymuconate semialdehyde<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=GLYOXYLATE-BYPASS\" target='_blank'>GLYOXYLATE-BYPASS: glyoxylate cycle<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7118\" target='_blank'>PWY-7118: chitin deacetylation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-8187\" target='_blank'>PWY-8187: L-arginine degradation XIII (reductive Stickland reaction)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY0-1296\" target='_blank'>PWY0-1296: purine ribonucleosides degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=P41-PWY\" target='_blank'>P41-PWY: pyruvate fermentation to acetate and (S)-lactate I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5100\" target='_blank'>PWY-5100: pyruvate fermentation to acetate and lactate II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6353\" target='_blank'>PWY-6353: purine nucleotides degradation II (aerobic)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-1861\" target='_blank'>PWY-1861: formaldehyde assimilation II (assimilatory RuMP Cycle)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-724\" target='_blank'>PWY-724: superpathway of L-lysine, L-threonine and L-methionine biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6629\" target='_blank'>PWY-6629: superpathway of L-tryptophan biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5080\" target='_blank'>PWY-5080: very long chain fatty acid biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=NAD-BIOSYNTHESIS-II\" target='_blank'>NAD-BIOSYNTHESIS-II: NAD salvage pathway III (to nicotinamide riboside)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-1042\" target='_blank'>PWY-1042: glycolysis IV<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=ANAEROFRUCAT-PWY\" target='_blank'>ANAEROFRUCAT-PWY: homolactic fermentation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6922\" target='_blank'>PWY-6922: L-N&delta;-acetylornithine biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=HISDEG-PWY\" target='_blank'>HISDEG-PWY: L-histidine degradation I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY0-862\" target='_blank'>PWY0-862: (5Z)-dodecenoate biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7664\" target='_blank'>PWY-7664: oleate biosynthesis IV (anaerobic)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=FASYN-ELONG-PWY\" target='_blank'>FASYN-ELONG-PWY: fatty acid elongation -- saturated<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6282\" target='_blank'>PWY-6282: palmitoleate biosynthesis I (from (5Z)-dodec-5-enoate)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5989\" target='_blank'>PWY-5989: stearate biosynthesis II (bacteria and plants)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5136\" target='_blank'>PWY-5136: fatty acid &beta;-oxidation II (plant peroxisome)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6936\" target='_blank'>PWY-6936: seleno-amino acid biosynthesis (plants)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5154\" target='_blank'>PWY-5154: L-arginine biosynthesis III (via N-acetyl-L-citrulline)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5838\" target='_blank'>PWY-5838: superpathway of menaquinol-8 biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5897\" target='_blank'>PWY-5897: superpathway of menaquinol-11 biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5898\" target='_blank'>PWY-5898: superpathway of menaquinol-12 biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5899\" target='_blank'>PWY-5899: superpathway of menaquinol-13 biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5861\" target='_blank'>PWY-5861: superpathway of demethylmenaquinol-8 biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5837\" target='_blank'>PWY-5837: 2-carboxy-1,4-naphthoquinol biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY0-1061\" target='_blank'>PWY0-1061: superpathway of L-alanine biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7345\" target='_blank'>PWY-7345: superpathway of anaerobic sucrose degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7316\" target='_blank'>PWY-7316: dTDP-N-acetylviosamine biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5667\" target='_blank'>PWY-5667: CDP-diacylglycerol biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY0-1319\" target='_blank'>PWY0-1319: CDP-diacylglycerol biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5695\" target='_blank'>PWY-5695: inosine 5'-phosphate degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5840\" target='_blank'>PWY-5840: superpathway of menaquinol-7 biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY0-166\" target='_blank'>PWY0-166: superpathway of pyrimidine deoxyribonucleotides de novo biosynthesis (E. coli)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=RHAMCAT-PWY\" target='_blank'>RHAMCAT-PWY: L-rhamnose degradation I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=ARGININE-SYN4-PWY\" target='_blank'>ARGININE-SYN4-PWY: L-ornithine biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6168\" target='_blank'>PWY-6168: flavin biosynthesis III (fungi)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY0-162\" target='_blank'>PWY0-162: superpathway of pyrimidine ribonucleotides de novo biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PYRIDNUCSYN-PWY\" target='_blank'>PYRIDNUCSYN-PWY: NAD de novo biosynthesis I (from aspartate)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY0-1261\" target='_blank'>PWY0-1261: anhydromuropeptides recycling I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7315\" target='_blank'>PWY-7315: dTDP-N-acetylthomosamine biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7211\" target='_blank'>PWY-7211: superpathway of pyrimidine deoxyribonucleotides de novo biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-702\" target='_blank'>PWY-702: L-methionine biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=NAGLIPASYN-PWY\" target='_blank'>NAGLIPASYN-PWY: lipid IVA biosynthesis (E. coli)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-8073\" target='_blank'>PWY-8073: lipid IVA biosynthesis (P. putida)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7117\" target='_blank'>PWY-7117: C4 photosynthetic carbon assimilation cycle, PEPCK type<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6892\" target='_blank'>PWY-6892: thiazole component of thiamine diphosphate biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-241\" target='_blank'>PWY-241: C4 photosynthetic carbon assimilation cycle, NADP-ME type<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7328\" target='_blank'>PWY-7328: superpathway of UDP-glucose-derived O-antigen building blocks biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6317\" target='_blank'>PWY-6317: D-galactose degradation I (Leloir pathway)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=GLYCOGENSYNTH-PWY\" target='_blank'>GLYCOGENSYNTH-PWY: glycogen biosynthesis I (from ADP-D-Glucose)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5030\" target='_blank'>PWY-5030: L-histidine degradation III<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=UDPNAGSYN-PWY\" target='_blank'>UDPNAGSYN-PWY: UDP-N-acetyl-D-glucosamine biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=COA-PWY\" target='_blank'>COA-PWY: coenzyme A biosynthesis I (prokaryotic)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=KETOGLUCONMET-PWY\" target='_blank'>KETOGLUCONMET-PWY: ketogluconate metabolism<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6507\" target='_blank'>PWY-6507: 4-deoxy-L-threo-hex-4-enopyranuronate degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5941\" target='_blank'>PWY-5941: glycogen degradation II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=HSERMETANA-PWY\" target='_blank'>HSERMETANA-PWY: L-methionine biosynthesis III<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=P124-PWY\" target='_blank'>P124-PWY: Bifidobacterium shunt<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=UNINTEGRATED\" target='_blank'>UNINTEGRATED<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=NONMEVIPP-PWY\" target='_blank'>NONMEVIPP-PWY: methylerythritol phosphate pathway I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=MET-SAM-PWY\" target='_blank'>MET-SAM-PWY: superpathway of S-adenosyl-L-methionine biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=METSYN-PWY\" target='_blank'>METSYN-PWY: superpathway of L-homoserine and L-methionine biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5347\" target='_blank'>PWY-5347: superpathway of L-methionine biosynthesis (transsulfuration)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-8131\" target='_blank'>PWY-8131: 5'-deoxyadenosine degradation II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=HOMOSER-METSYN-PWY\" target='_blank'>HOMOSER-METSYN-PWY: L-methionine biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6595\" target='_blank'>PWY-6595: superpathway of guanosine nucleotides degradation (plants)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5103\" target='_blank'>PWY-5103: L-isoleucine biosynthesis III<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6293\" target='_blank'>PWY-6293: superpathway of L-cysteine biosynthesis (fungi)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-622\" target='_blank'>PWY-622: starch biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=GLYCOLYSIS\" target='_blank'>GLYCOLYSIS: glycolysis I (from glucose 6-phosphate)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-801\" target='_blank'>PWY-801: homocysteine and cysteine interconversion<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=ASPASN-PWY\" target='_blank'>ASPASN-PWY: superpathway of L-aspartate and L-asparagine biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7238\" target='_blank'>PWY-7238: sucrose biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7323\" target='_blank'>PWY-7323: superpathway of GDP-mannose-derived O-antigen building blocks biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6902\" target='_blank'>PWY-6902: chitin degradation II (Vibrio)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5005\" target='_blank'>PWY-5005: biotin biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7234\" target='_blank'>PWY-7234: inosine-5'-phosphate biosynthesis III<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7761\" target='_blank'>PWY-7761: NAD salvage pathway II (PNC IV cycle)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=GLUDEG-I-PWY\" target='_blank'>GLUDEG-I-PWY: GABA shunt<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5484\" target='_blank'>PWY-5484: glycolysis II (from fructose 6-phosphate)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7953\" target='_blank'>PWY-7953: UDP-N-acetylmuramoyl-pentapeptide biosynthesis III (meso-diaminopimelate containing)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6387\" target='_blank'>PWY-6387: UDP-N-acetylmuramoyl-pentapeptide biosynthesis I (meso-diaminopimelate containing)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=UNMAPPED\" target='_blank'>UNMAPPED<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=FASYN-INITIAL-PWY\" target='_blank'>FASYN-INITIAL-PWY: superpathway of fatty acid biosynthesis initiation (E. coli)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6163\" target='_blank'>PWY-6163: chorismate biosynthesis from 3-dehydroquinate<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=ILEUSYN-PWY\" target='_blank'>ILEUSYN-PWY: L-isoleucine biosynthesis I (from threonine)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=GLUCONEO-PWY\" target='_blank'>GLUCONEO-PWY: gluconeogenesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=ARO-PWY\" target='_blank'>ARO-PWY: chorismate biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7210\" target='_blank'>PWY-7210: pyrimidine deoxyribonucleotides biosynthesis from CTP<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PPGPPMET-PWY\" target='_blank'>PPGPPMET-PWY: ppGpp metabolism<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7184\" target='_blank'>PWY-7184: pyrimidine deoxyribonucleotides de novo biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5022\" target='_blank'>PWY-5022: 4-aminobutanoate degradation V<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-621\" target='_blank'>PWY-621: sucrose degradation III (sucrose invertase)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=BRANCHED-CHAIN-AA-SYN-PWY\" target='_blank'>BRANCHED-CHAIN-AA-SYN-PWY: superpathway of branched chain amino acid biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6124\" target='_blank'>PWY-6124: inosine-5'-phosphate biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-I9\" target='_blank'>PWY-I9: L-cysteine biosynthesis VI (from L-methionine)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6895\" target='_blank'>PWY-6895: superpathway of thiamine diphosphate biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=HISTSYN-PWY\" target='_blank'>HISTSYN-PWY: L-histidine biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=COLANSYN-PWY\" target='_blank'>COLANSYN-PWY: colanic acid building blocks biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PEPTIDOGLYCANSYN-PWY\" target='_blank'>PEPTIDOGLYCANSYN-PWY: peptidoglycan biosynthesis I (meso-diaminopimelate containing)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=GLUTORN-PWY\" target='_blank'>GLUTORN-PWY: L-ornithine biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY0-781\" target='_blank'>PWY0-781: aspartate superpathway<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=P4-PWY\" target='_blank'>P4-PWY: superpathway of L-lysine, L-threonine and L-methionine biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7385\" target='_blank'>PWY-7385: 1,3-propanediol biosynthesis (engineered)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=CRNFORCAT-PWY\" target='_blank'>CRNFORCAT-PWY: creatinine degradation I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=COBALSYN-PWY\" target='_blank'>COBALSYN-PWY: superpathway of adenosylcobalamin salvage from cobinamide I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=GALACT-GLUCUROCAT-PWY\" target='_blank'>GALACT-GLUCUROCAT-PWY: superpathway of hexuronide and hexuronate degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=P161-PWY\" target='_blank'>P161-PWY: acetylene degradation (anaerobic)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY0-1477\" target='_blank'>PWY0-1477: ethanolamine utilization<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=P122-PWY\" target='_blank'>P122-PWY: heterolactic fermentation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=OANTIGEN-PWY\" target='_blank'>OANTIGEN-PWY: O-antigen building blocks biosynthesis (E. coli)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=DAPLYSINESYN-PWY\" target='_blank'>DAPLYSINESYN-PWY: L-lysine biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=POLYISOPRENSYN-PWY\" target='_blank'>POLYISOPRENSYN-PWY: polyisoprenoid biosynthesis (E. coli)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7371\" target='_blank'>PWY-7371: 1,4-dihydroxy-6-naphthoate biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6607\" target='_blank'>PWY-6607: guanosine nucleotides degradation I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7663\" target='_blank'>PWY-7663: gondoate biosynthesis (anaerobic)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=COMPLETE-ARO-PWY\" target='_blank'>COMPLETE-ARO-PWY: superpathway of aromatic amino acid biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7456\" target='_blank'>PWY-7456: &beta;-(1,4)-mannan degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6123\" target='_blank'>PWY-6123: inosine-5'-phosphate biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6386\" target='_blank'>PWY-6386: UDP-N-acetylmuramoyl-pentapeptide biosynthesis II (lysine-containing)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6385\" target='_blank'>PWY-6385: peptidoglycan biosynthesis III (mycobacteria)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7115\" target='_blank'>PWY-7115: C4 photosynthetic carbon assimilation cycle, NAD-ME type<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7992\" target='_blank'>PWY-7992: superpathway of menaquinol-8 biosynthesis III<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=ARGSYNBSUB-PWY\" target='_blank'>ARGSYNBSUB-PWY: L-arginine biosynthesis II (acetyl cycle)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=GLYCOCAT-PWY\" target='_blank'>GLYCOCAT-PWY: glycogen degradation I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5121\" target='_blank'>PWY-5121: superpathway of geranylgeranyl diphosphate biosynthesis II (via MEP)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6859\" target='_blank'>PWY-6859: all-trans-farnesol biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6545\" target='_blank'>PWY-6545: pyrimidine deoxyribonucleotides de novo biosynthesis III<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-922\" target='_blank'>PWY-922: mevalonate pathway I (eukaryotes and bacteria)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7392\" target='_blank'>PWY-7392: taxadiene biosynthesis (engineered)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=ANAGLYCOLYSIS-PWY\" target='_blank'>ANAGLYCOLYSIS-PWY: glycolysis III (from glucose)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-2942\" target='_blank'>PWY-2942: L-lysine biosynthesis III<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=1CMET2-PWY\" target='_blank'>1CMET2-PWY: folate transformations III (E. coli)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7357\" target='_blank'>PWY-7357: thiamine phosphate formation from pyrithiamine and oxythiamine (yeast)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5973\" target='_blank'>PWY-5973: cis-vaccenate biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6122\" target='_blank'>PWY-6122: 5-aminoimidazole ribonucleotide biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6277\" target='_blank'>PWY-6277: superpathway of 5-aminoimidazole ribonucleotide biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY66-429\" target='_blank'>PWY66-429: fatty acid biosynthesis initiation (mitochondria)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6531\" target='_blank'>PWY-6531: mannitol cycle<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PANTOSYN-PWY\" target='_blank'>PANTOSYN-PWY: superpathway of coenzyme A biosynthesis I (bacteria)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=THISYN-PWY\" target='_blank'>THISYN-PWY: superpathway of thiamine diphosphate biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6731\" target='_blank'>PWY-6731: starch degradation III<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7185\" target='_blank'>PWY-7185: UTP and CTP dephosphorylation I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=TRNA-CHARGING-PWY\" target='_blank'>TRNA-CHARGING-PWY: tRNA charging<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=THISYNARA-PWY\" target='_blank'>THISYNARA-PWY: superpathway of thiamine diphosphate biosynthesis III (eukaryotes)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=SO4ASSIM-PWY\" target='_blank'>SO4ASSIM-PWY: assimilatory sulfate reduction I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5345\" target='_blank'>PWY-5345: superpathway of L-methionine biosynthesis (by sulfhydrylation)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6151\" target='_blank'>PWY-6151: S-adenosyl-L-methionine salvage I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7688\" target='_blank'>PWY-7688: dTDP-&alpha;-D-ravidosamine and dTDP-4-acetyl-&alpha;-D-ravidosamine biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7977\" target='_blank'>PWY-7977: L-methionine biosynthesis IV<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5910\" target='_blank'>PWY-5910: superpathway of geranylgeranyldiphosphate biosynthesis I (via mevalonate)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6700\" target='_blank'>PWY-6700: queuosine biosynthesis I (de novo)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=ARGSYN-PWY\" target='_blank'>ARGSYN-PWY: L-arginine biosynthesis I (via L-ornithine)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7356\" target='_blank'>PWY-7356: thiamine diphosphate salvage IV (yeast)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PANTO-PWY\" target='_blank'>PANTO-PWY: phosphopantothenate biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6703\" target='_blank'>PWY-6703: preQ0 biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=P125-PWY\" target='_blank'>P125-PWY: superpathway of (R,R)-butanediol biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=SULFATE-CYS-PWY\" target='_blank'>SULFATE-CYS-PWY: superpathway of sulfate assimilation and cysteine biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=VALSYN-PWY\" target='_blank'>VALSYN-PWY: L-valine biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-3841\" target='_blank'>PWY-3841: folate transformations II (plants)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7282\" target='_blank'>PWY-7282: 4-amino-2-methyl-5-diphosphomethylpyrimidine biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-821\" target='_blank'>PWY-821: superpathway of sulfur amino acid biosynthesis (Saccharomyces cerevisiae)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY0-845\" target='_blank'>PWY0-845: superpathway of pyridoxal 5'-phosphate biosynthesis and salvage<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6121\" target='_blank'>PWY-6121: 5-aminoimidazole ribonucleotide biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY1ZNC-1\" target='_blank'>PWY1ZNC-1: assimilatory sulfate reduction IV<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY0-1297\" target='_blank'>PWY0-1297: superpathway of purine deoxyribonucleosides degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=DTDPRHAMSYN-PWY\" target='_blank'>DTDPRHAMSYN-PWY: dTDP-&beta;-L-rhamnose biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5686\" target='_blank'>PWY-5686: UMP biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7790\" target='_blank'>PWY-7790: UMP biosynthesis II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7791\" target='_blank'>PWY-7791: UMP biosynthesis III<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=SALVADEHYPOX-PWY\" target='_blank'>SALVADEHYPOX-PWY: adenosine nucleotides degradation II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=LACTOSECAT-PWY\" target='_blank'>LACTOSECAT-PWY: lactose and galactose degradation I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5097\" target='_blank'>PWY-5097: L-lysine biosynthesis VI<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=P461-PWY\" target='_blank'>P461-PWY: hexitol fermentation to lactate, formate, ethanol and acetate<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6897\" target='_blank'>PWY-6897: thiamine diphosphate salvage II<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5920\" target='_blank'>PWY-5920: superpathway of heme b biosynthesis from glycine<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PYRIDOXSYN-PWY\" target='_blank'>PYRIDOXSYN-PWY: pyridoxal 5'-phosphate biosynthesis I<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6143\" target='_blank'>PWY-6143: CMP-pseudaminate biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7221\" target='_blank'>PWY-7221: guanosine ribonucleotides de novo biosynthesis<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5505\" target='_blank'>PWY-5505: L-glutamate and L-glutamine biosynthesis<\/a>"],[2.230448767961177,-4.407766550417943,2.155027026019875,-3.301898173370383,-3.701701912622346,-2.153998799878672,1.623594068632426,1.550393730793645,-0.5763881511954573,1.657088411476606,-0.7693378162254231,-1.828504525663294,-1.922429861445811,1.250533624440126,-2.090284917417043,-1.19760075770246,2.263482084655025,1.618089807639774,1.470812194194469,0.6093231118053448,-0.473416690444318,-0.6842167760698471,-0.6842167760698471,-0.7420156234301771,-1.162368298311851,0.5988495769835627,-2.20012292085342,-3.899580944138472,0.4098929316969633,-0.9244691336669503,1.870709438371936,1.249742255262319,1.184631913355121,1.082944702699555,0.6459189402773038,-0.2310111256336235,-0.6688858184036276,-0.6935978577239084,-0.6975502861980688,-1.037891719757642,-2.553978368078088,2.161197592733197,1.74828795682361,2.077333307954636,1.38054112463857,1.188176466640428,1.156864267023373,1.131926687086144,-0.1832471224872628,-0.2849370600331386,-0.5398069727353891,-0.5563407546279681,-0.587084390871122,-0.5910734358801313,-0.6350501103670613,-0.6576711884909368,-0.6576711884909368,-0.6736629481526595,-1.648292676062767,-1.846401819858161,-2.03656118348397,0.9607994961608133,0.7215205355102752,-0.8295633381131321,-0.8475078814178741,-0.8719347666533001,-0.8740450318445107,-1.30070280486279,-0.4407572489007238,-0.4501280285690956,0.8347677563459419,0.2786108765809845,-0.5043063843409977,-1.090621546089655,-0.9531437951337816,0.6604856361325759,0.5459929732072707,-0.3243302192562553,-1.999899193554303,0.5519214014164772,0.5480292405909259,-1.270157829988184,-1.287131593185884,-1.080140741752728,-1.100165955103956,-1.543510601277447,1.778097327957526,-0.2340958858013953,-0.5104110665837428,-1.146525295466047,-1.165549490176806,0.4811096639031286,-0.8615557717868234,-0.8736620796455223,-1.08614822112392,-0.7126981688599765,1.270470526126777,-0.3714823730213339,-0.9313828962911548,-2.17629801403194,-0.6975879940900016,0.4665701148075491,0.4490535549727528,0.4430036223006805,0.4428850599393421,0.4156766552147345,0.4062949141206112,0.3651007942852063,-0.3981121406144417,-0.6012233283619747,-0.6012233283619747,-1.023658226344422,2.237626307188345,-0.126131438863926,-0.5800073848160792,0.5697347267434215,0.5587630591565521,0.1885246491072582,-0.2939417639100948,0.6299662284823135,-0.4978599221999853,-0.9239003879427022,-0.9246447266475784,-0.9253111461818275,-0.9272982003457378,-0.9282718222556647,0.9113750294251564,0.4014088807062162,-0.5527039653836338,-0.7058899845158194,-0.7102737347804248,-0.7102737347804248,-0.7102737347804248,-0.7353801729552869,-0.7578313157211632,0.4063414393860794,-0.2880896844819765,1.630175786577533,-0.2062580478554158,-0.2062580478554158,-0.3050725613121272,-0.6447088365251383,1.09076444693333,-0.3265347711821183,-0.611201688471062,-0.7310070849167366,-0.2613121945727054,-0.370580539039663,-0.6873635627841698,0.5497015901255402,0.9270405936622623,-0.4908304996228445,-0.8015724827825482,-0.8015724827825482,-0.5545483264172487,-0.5907450590156099,-0.6007366815997999,0.373464375116108,0.2453298219446825,-0.3650134112794157,-0.7719634847371275,-0.3071720926068087,-0.1592922923920129,0.8645423706280071,0.5846670692546274,0.2626455621275229,0.254981289761718,0.1902020829626952,-0.07096416727324037,-0.1487937272141882,-0.5939826618992929,-0.6014015345613543,-0.6017744715281923,-0.6029180325028328,-0.6090056938245405,-0.7899421561654818,-0.1259731151240558,0.3803659308883077,0.2381897683513111,0.07450329449750184,0.3821540701291205,-0.1967865670687113,-0.2465904269470777,-0.5823123333106939,-0.7001107020168599,0.6265799871951633,0.2547526932116244,-0.5294306189186959,0.7683242970873775,0.06636178594840937,0.1362195901652257,0.1354996348878468,0.1009341571265376,0.3128887484275766,-0.1247514335884215,-0.1037046619093869,-0.09060074768371784,-0.1212244544820857,-0.3609095704599845,-0.4120814322913843,-0.3468007301327016,0.6062432126166888,0.2241222528218623,-0.09229018967903047,-0.117448075603358,-0.342565269020319,-0.5673480065902692,0.0955421373338828,-0.330766206846487,0.1069840095719195,-0.1440143523145596,-0.3941436600188312,-0.3968708362856702,0.4968364194223391,0.478958687725988,-0.4029258489605021,0.7222699386319975,0.2456551826184858,0.2456551826184858,0.1532971480732105,0.1252756147887765,-0.1700509823130685,-0.342135208941456,0.5887849173518719,0.4669937311720879,-0.1925615802831001,-0.05362332595561321,-0.1943859076625945,-0.09176766972212584,0.08340840799151145,0.0787733842098113,-0.1412183817066008,0.4835142236468463,0.076402197642484,-0.2526178867948443,-0.2759019661976873,-0.3090863033866862,-0.1893713096859921,0.3486421923690086,-0.2804665483689451,0.03253280000349128,-0.06354366599378521,-0.1093205231547845,0.1723559324494578,-0.1392191910750932,0.07116926463841222,0.07116926463841222,-0.0664103227306517,0.3575007417199193,-0.0861330617192424,-0.1889261461869033,-0.07548806103433942,-0.2222137555923393,0.03390010218989459,-0.2007083855062624,-0.301700948167992,-0.3020772732544261,-0.04769718100110217,-0.3845057424562691,-0.1080776469920747,0.2207070264401868,0.1042989036138562,0.04744615402796449,0.07449713131186704,-0.08708341504382644,-0.1141176881639637,-0.1927626405758333,-0.255611659811821,-0.03869587939155398,-0.03373380192593788,-0.123759810622114,-0.2140650975318124,0.0874300120165821,-0.02735235241482004,-0.1448749379762837,0.06371454940425247,0.0310096503848327,-0.02613428341032003,-0.02613428341032003,-0.02613428341032003,-0.1580999691679119,0.0667058336081944,-0.017379515366783,0.02252622779556488,-0.02148334753145417,0.01636562952203239,0.005796805711696008,0.005368784783882761,0.001148506401972146,-0.006309673333242401],[0.2620136702061781,0.4979768859921688,0.2707974476469392,0.4720069815678547,0.5605211378597106,0.3703589657515431,0.3090323338523661,0.3011375215128586,0.1118815574314304,0.3295391457029804,0.1547188934595488,0.3883684681353936,0.4050317561491017,0.2710955663900566,0.4851650724836737,0.2940326748577758,0.644272666143149,0.4940543623622923,0.4226920201314546,0.1762308549166012,0.1413272562071301,0.2090728926266419,0.2090728926266419,0.224456189410417,0.3438557392487908,0.1861633330274465,0.687670562947542,1.222163448705085,0.1369584959696444,0.3071755190196905,0.6744813604973163,0.4297055433245778,0.4104646608139718,0.3815380788537622,0.2317157831854207,0.08269228160786594,0.2384376907210514,0.2496645547571235,0.2477652312620892,0.3545385862275433,0.8978709121122711,0.7854241169852707,0.6390659850794653,0.7778428364096752,0.5332536687977329,0.4659633866765591,0.4550532742922017,0.4497279457208899,0.07295459908585505,0.1150156756194815,0.2174298618377978,0.2221939383635916,0.2338952978654013,0.2322527044496145,0.2452175384964556,0.2507707575581293,0.2507707575581293,0.2665645217420963,0.6655591662202816,0.6893835300395609,0.8074857732100762,0.4000255043491373,0.3011604124915562,0.3438790231142844,0.3506391146254,0.3567717575663903,0.3593593310601326,0.5346263693485857,0.1850417702292557,0.1914009637453334,0.3579442742975928,0.121398398016092,0.2189116350006955,0.4736081172542101,0.4210874219657116,0.2960833438061174,0.2540754347330953,0.1508432516168284,0.9388664533266106,0.2612055363763433,0.2613401937906279,0.6066395921485722,0.6222968247035009,0.5286363312893215,0.5369504673398044,0.7536063841450946,0.9042985565472293,0.1180338967354716,0.2592520523354377,0.5805199486328692,0.5987823012278471,0.2489728755492901,0.4677368127063254,0.4740059776392113,0.5958964894927502,0.4010633112202735,0.7351311036445317,0.2159785477866973,0.5436246205675395,1.265630863566511,0.4102068850517347,0.2905212808517734,0.2777090523322758,0.2734051905527467,0.2733215072909624,0.2548504543514528,0.2488535717645406,0.221364505357785,0.2463645867257928,0.3737981320347581,0.3737981320347581,0.6151942490752698,1.433511075194493,0.08098141502884972,0.370128423210475,0.3738051571148939,0.3644648497450917,0.1236574427763226,0.1912199779401939,0.4264672728206395,0.3394143629678174,0.6304524388197854,0.6257904803042941,0.621271697771829,0.6297927549007822,0.6279135637287232,0.630969763384443,0.2758930338899632,0.3809604506510542,0.4948341841057879,0.5010700773985978,0.5010700773985978,0.5010700773985978,0.5141179301557787,0.5321922196760607,0.2895686103687526,0.206077056913495,1.188013367901756,0.1500461686575105,0.1500461686575105,0.2277237790136608,0.4821651807936163,0.8266379739580341,0.2456371179328421,0.4645507202367538,0.5525211380240811,0.2008326160013944,0.2857117372229269,0.5492306759890143,0.4502101250954565,0.7633880189854447,0.4081223607084452,0.672024771585646,0.672024771585646,0.4669798265942869,0.5003629047912839,0.5126070229418614,0.321117054737683,0.2125732605529753,0.3184927923605418,0.6743967946049892,0.2736465853145286,0.1463918453552581,0.8113764589489697,0.5478371484397931,0.2550327287805402,0.2463570254935316,0.1849884401874876,0.0666444368654466,0.1407462356622315,0.5749271671106349,0.578628857607334,0.5737589927771022,0.580937834076297,0.5848652486813138,0.7461182471149437,0.1240914669033202,0.3803466523789356,0.2373712912285923,0.07427075457867827,0.3858190855749241,0.2001362178601116,0.252037393082797,0.6095267771149636,0.7462749946241061,0.6801342609043268,0.2761730944200821,0.5738167087929602,0.8417094812332542,0.07508674633855422,0.1577285600774016,0.1571778084392042,0.1163629083402317,0.37408165187075,0.1492303422030236,0.1263400531351371,0.1112439515876013,0.1509179673777514,0.4483401668069552,0.5156098704085018,0.4515804225799409,0.820793471400749,0.3017391021322934,0.1243686547976218,0.1590359062888907,0.4517974216382092,0.7529468830322888,0.1305970736164807,0.4565129621346085,0.1515903967987423,0.2038449550951839,0.5542854688173458,0.5557954391585286,0.716666518095071,0.694418170631445,0.5934192696284746,1.090878743226272,0.377235794875164,0.377235794875164,0.2343620905390537,0.1913359429198409,0.260481384397358,0.5420335920566459,0.9748671734685631,0.7714277481331776,0.3161813319004653,0.08993311045390759,0.3289528328873983,0.1574878824690754,0.1485043482882567,0.138530062720766,0.2505618066177819,0.9124053062346094,0.1446589551206363,0.4827495818065142,0.5275250453909667,0.5794231921923242,0.3660710547836094,0.7026502616654237,0.565039053011238,0.06770727291430541,0.1315343333633254,0.2271412141056368,0.3644702003155993,0.2958063421345767,0.1543507593448347,0.1543507593448347,0.1537425763433693,0.8468525215087672,0.2143786912082462,0.4669578937726816,0.1917630189627413,0.5603341779443536,0.09278544259566594,0.5560804949196405,0.8546316626379605,0.8490756414401477,0.1373701899387676,1.133710872158555,0.3247847719298806,0.6716637524109635,0.3213359632425044,0.1480005950332646,0.249314015635835,0.2808051071576603,0.3765293398964026,0.6368741452085775,0.8295140224007524,0.1336022321929918,0.1310855089105649,0.4808951212013796,0.8256357613266121,0.3682696522408258,0.1134022310356222,0.6006025035666825,0.2798753169758573,0.1379181763076104,0.1333466742028467,0.1333466742028467,0.1333466742028467,0.7797284099815932,0.4050213737113433,0.1296229764344913,0.2875727256828195,0.4113596537843625,0.5115112298199532,0.4556856959870045,0.430152039966407,0.1212202738091291,0.3055030412203594],[2.784880928656594e-05,2.094148807385063e-05,4.535058007208634e-05,0.0001131521151680685,0.0001686755753632658,0.000397857801500881,0.0007702740104176733,0.0008759812015100514,0.000872424437649044,0.001016057490662028,0.001089698060651495,0.00152527641449828,0.001452012755867207,0.001726143750629779,0.00258624132659896,0.003568465247579861,0.007923951417963647,0.01126957586110112,0.008324140668543966,0.008599001553819995,0.01008343518828577,0.01131178350039318,0.01131178350039318,0.01076477568878935,0.009636011470723651,0.01229817367308021,0.01262401067548026,0.01278954232827403,0.01725941092745173,0.01682432112439132,0.02416381040099708,0.01963813083528933,0.02032116485704698,0.02186686893379983,0.023647565812622,0.02342702119687227,0.02300961572221255,0.02399410412298795,0.0226549326328568,0.0190726398685814,0.02166207589296492,0.02499583957801972,0.02561928529980114,0.0283343971420415,0.03216800683622933,0.03417810961138621,0.03458881071435656,0.03598129614652006,0.0362692731219588,0.03826787443476219,0.0379532660146403,0.03672097463667113,0.0363691895851319,0.03444389980398999,0.03212600175015123,0.03052698942606844,0.03052698942606844,0.03540926659496631,0.03831698351293369,0.027998046767547,0.03569175879224845,0.04305255320155767,0.04346056037948115,0.04235131037625611,0.04204397919943256,0.04031492563336785,0.04105907159025483,0.04101503234706906,0.04441142892888304,0.0465535999934005,0.04800282245379094,0.05086528135578718,0.05018029016871554,0.05025124834296164,0.0534272597569689,0.05623182544618797,0.06388063557467108,0.06376393916049292,0.0657805688222962,0.06755956529619725,0.06926043637231383,0.06960983602785337,0.07241378772790129,0.07529205574561536,0.07463377773270935,0.07472069579960586,0.08483131236967925,0.08262642068690028,0.08450255073522302,0.08369412323711885,0.08745938294924226,0.08939201491427011,0.1027350035860609,0.1025494385647286,0.10581163783829,0.1134648166923966,0.1222111289655597,0.1237462296797391,0.125012293657422,0.1238326867336522,0.1274417097643045,0.1469465138207712,0.1445417089514004,0.1438227923823142,0.1438093554128869,0.1415232815829763,0.1411825035678443,0.137692039316109,0.1447684192450041,0.1464104652003902,0.1464104652003902,0.1346892752620366,0.1571603293220425,0.1579582744374345,0.1557395323095079,0.1659771467221802,0.1637907328169257,0.1658733313267944,0.1628018661871354,0.1778783537914486,0.1806014452583528,0.1809630275364218,0.1777767250240195,0.1747141836534911,0.1791329647671239,0.1775730209786723,0.1866244055933622,0.1837706717605159,0.1848833373398552,0.1915563282079074,0.1940824088850792,0.1940824088850792,0.1940824088850792,0.190483907590403,0.1922653309779356,0.198139432384325,0.1996655773416369,0.20724576124023,0.2065166492481953,0.2065166492481953,0.2171625164511173,0.2179565288761198,0.2235059145541861,0.2203939210713237,0.2247316623731209,0.2223859554026118,0.2294303274907721,0.2307705891240947,0.2461056789354403,0.2568515763007894,0.2592309137533513,0.2634935073990995,0.2671323243358794,0.2671323243358794,0.2690825332543095,0.2716581810476505,0.2749436518612944,0.2783377815631526,0.2817708815408906,0.2848906084690909,0.2854343567815822,0.2942009322187295,0.3082325917895112,0.3177371369171823,0.3170132180988527,0.3332074770807404,0.3309358658877557,0.3339442912109063,0.3180386081569098,0.3213061047261412,0.331755148330442,0.3290293659267791,0.3249067728615218,0.3296949596889879,0.3281908725505805,0.3206374349350788,0.3397431715514374,0.3465704343265513,0.345026590514894,0.3451704702552578,0.350938290183662,0.3542762112214363,0.3565379682078715,0.3673732591753844,0.3756273625143268,0.383855474880234,0.3832764390337633,0.3831738204861718,0.3880209885909572,0.4025815198907445,0.4129319967770145,0.413737454053167,0.4109802542022126,0.427195159329376,0.4274353048542593,0.4355140668227862,0.4389658397935637,0.4450394120063618,0.4440891591664159,0.4472446939347574,0.4645666620478517,0.4812506830483383,0.4788624043978048,0.4792628540399021,0.4813115576888153,0.47005958359944,0.4727382651521633,0.4853003849467027,0.4893739693430672,0.5003786394057896,0.4999393036639438,0.4972376994093407,0.4954934100569732,0.507770035981737,0.5098746598419845,0.5163026266210733,0.5265165053114599,0.5331735755401121,0.5331735755401121,0.5313940595165865,0.5310039590476048,0.5321715414622368,0.5455131112054995,0.5625982679108746,0.5617136125806417,0.5594026187394232,0.5674870143670379,0.5708853445465678,0.5761487213148565,0.5897339602886094,0.585206845574779,0.5884670685713073,0.6105458598259401,0.6117249115573814,0.6149537014330544,0.6151382613724199,0.6082277115159282,0.6189368336193291,0.6331099537639595,0.6329851418335601,0.6437418315999001,0.6419713306715527,0.6431997236599822,0.6489219031970992,0.6504608776621676,0.6570121668723212,0.6570121668723212,0.6771781983733898,0.6840303006642299,0.6983657489429798,0.6963810842501118,0.7041211167635649,0.702050359010157,0.7243137921610434,0.727494102010089,0.7331955834096386,0.7312103911524701,0.7373862602296825,0.7432227682539073,0.7478626843319784,0.7508962439280066,0.7538243245989044,0.7567417960352276,0.7727009635790838,0.7643942981422391,0.7695621418205103,0.7698618340384978,0.7658416951304061,0.7794602522211879,0.8034102633328658,0.8034020235875248,0.8019715578214615,0.8183075048802917,0.8154688696647182,0.8154551327165336,0.8256261566746745,0.82773972699654,0.8495067198522539,0.8495067198522539,0.8495067198522539,0.8443822671699414,0.8732678343623331,0.8966530072944427,0.939487577529364,0.9596297631136252,0.9752601385057498,0.9901618545430309,0.9903473981808519,0.992672532206512,0.9840279863659167],[0.004038077346552062,0.004038077346552062,0.004383889406968346,0.008203528349684965,0.009783183371069414,0.01922979373920925,0.0282260609375461,0.0282260609375461,0.0282260609375461,0.02872840341717578,0.02872840341717578,0.03402539693880777,0.03402539693880777,0.035755834834474,0.05000066564757989,0.06467843261238498,0.1312166886045609,0.1312166886045609,0.1312166886045609,0.1312166886045609,0.1312166886045609,0.1312166886045609,0.1312166886045609,0.1312166886045609,0.1312166886045609,0.1324631169714096,0.1324631169714096,0.1324631169714096,0.1668409722987,0.1668409722987,0.1709147564948574,0.1709147564948574,0.1709147564948574,0.1709147564948574,0.1709147564948574,0.1709147564948574,0.1709147564948574,0.1709147564948574,0.1709147564948574,0.1709147564948574,0.1709147564948574,0.1725903208958505,0.1727812264405194,0.182162708504111,0.182162708504111,0.182162708504111,0.182162708504111,0.182162708504111,0.182162708504111,0.182162708504111,0.182162708504111,0.182162708504111,0.182162708504111,0.182162708504111,0.182162708504111,0.182162708504111,0.182162708504111,0.182162708504111,0.182162708504111,0.182162708504111,0.182162708504111,0.1853465075007284,0.1853465075007284,0.1853465075007284,0.1853465075007284,0.1853465075007284,0.1853465075007284,0.1853465075007284,0.1866567302808128,0.1928649142583735,0.1960678663605545,0.1993369134213281,0.1993369134213281,0.1993369134213281,0.2065854043936131,0.214568807623612,0.2375049271365976,0.2375049271365976,0.2414729741577962,0.244903424198715,0.246181127415579,0.246181127415579,0.2530120294107394,0.2538918158863774,0.2538918158863774,0.2538918158863774,0.2733453398578554,0.2733453398578554,0.2733453398578554,0.2733453398578554,0.2787167148931896,0.2817791774471557,0.3169484153186984,0.3169484153186984,0.3230039470853062,0.342758300424948,0.3625356516065237,0.3625356516065237,0.3625356516065237,0.3625356516065237,0.3659217409074089,0.3804865090002112,0.3804865090002112,0.3804865090002112,0.3804865090002112,0.3804865090002112,0.3804865090002112,0.3804865090002112,0.3804865090002112,0.3804865090002112,0.3804865090002112,0.3804865090002112,0.3983295616248349,0.3983295616248349,0.3983295616248349,0.4044821222641366,0.4044821222641366,0.4044821222641366,0.4044821222641366,0.4165022062346216,0.4165022062346216,0.4165022062346216,0.4165022062346216,0.4165022062346216,0.4165022062346216,0.4165022062346216,0.4169177672346147,0.4169177672346147,0.4169177672346147,0.4169177672346147,0.4169177672346147,0.4169177672346147,0.4169177672346147,0.4169177672346147,0.4169177672346147,0.4225032014077518,0.4226497622560196,0.4292947911404765,0.4292947911404765,0.4292947911404765,0.4451224885498222,0.4451224885498222,0.4463848088233223,0.4463848088233223,0.4463848088233223,0.4463848088233223,0.4521856138242396,0.4521856138242396,0.4789976301428033,0.4965797141815261,0.4978606952878932,0.5027178759588082,0.5030413899831495,0.5030413899831495,0.5034447396370951,0.5050055929731965,0.5078577008902891,0.5108731433754067,0.5139217336280394,0.5141364190475705,0.5141364190475705,0.5266559897742689,0.5483892737359403,0.5502491161997888,0.5502491161997888,0.5502491161997888,0.5502491161997888,0.5502491161997888,0.5502491161997888,0.5502491161997888,0.5502491161997888,0.5502491161997888,0.5502491161997888,0.5502491161997888,0.5502491161997888,0.5502491161997888,0.5566413545193042,0.5583634775261104,0.5583634775261104,0.5583634775261104,0.5622768185263092,0.5645060508473435,0.5650055233895231,0.5790122019612036,0.5888212709684042,0.5921174878471694,0.5921174878471694,0.5921174878471694,0.5953761200601989,0.6144665303595575,0.6216780397690074,0.6216780397690074,0.6216780397690074,0.6356730174755651,0.6356730174755651,0.6443830580541223,0.6461933682240278,0.6485048062053982,0.6485048062053982,0.6485048062053982,0.6702703084272488,0.6743012160857799,0.6743012160857799,0.6743012160857799,0.6743012160857799,0.6743012160857799,0.6743012160857799,0.6766207290122297,0.6790356512415765,0.6812666921487277,0.6812666921487277,0.6812666921487277,0.6812666921487277,0.6877379132752349,0.6877379132752349,0.6931840820375521,0.6964880040839303,0.6964880040839303,0.6964880040839303,0.6964880040839303,0.6964880040839303,0.6964880040839303,0.7094116692806944,0.7219181313900603,0.7219181313900603,0.7219181313900603,0.72498341042485,0.7261260961337923,0.7296206514467616,0.7371674503607617,0.7371674503607617,0.7371674503607617,0.7527008261519061,0.7527008261519061,0.7527008261519061,0.7527008261519061,0.7527008261519061,0.7541667300403588,0.7650078607981177,0.7650078607981177,0.7682515685760124,0.7682515685760124,0.7682515685760124,0.7699332837633821,0.7699332837633821,0.7713908032104176,0.7713908032104176,0.7918616029366252,0.796661795954324,0.8068767617269488,0.8068767617269488,0.8070953512309638,0.8070953512309638,0.8269724398689078,0.8273413198007595,0.8273413198007595,0.8273413198007595,0.8288450211884028,0.8321799335661511,0.8341545325241299,0.8343291599200073,0.834385702800314,0.8344301173012016,0.8361316396937847,0.8361316396937847,0.8361316396937847,0.8361316396937847,0.8361316396937847,0.8403103090860389,0.8565771189945995,0.8565771189945995,0.8565771189945995,0.8629424596919439,0.8629424596919439,0.8629424596919439,0.8665867177942115,0.8665867177942115,0.8767151201322193,0.8767151201322193,0.8767151201322193,0.8767151201322193,0.8980413899470802,0.9188317035879449,0.959335906632097,0.9764653729928117,0.9889001404428931,0.992672532206512,0.992672532206512,0.992672532206512,0.992672532206512],[10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10],[10,6,10,7,7,7,10,10,10,10,10,9,5,10,7,10,10,10,10,10,10,10,10,10,10,10,9,8,10,10,10,10,10,10,10,10,10,10,10,7,8,9,10,9,10,5,10,10,10,10,10,10,10,10,10,10,10,10,8,8,8,10,3,10,9,9,7,10,10,10,3,10,10,10,7,10,10,10,10,10,10,9,9,9,9,10,3,10,10,10,9,10,10,10,10,10,10,10,10,8,10,2,2,2,2,2,2,10,10,10,10,10,6,10,10,2,2,10,10,2,10,9,9,9,9,9,10,10,10,10,10,10,10,10,10,10,10,8,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,8,10,10,10,10,10,10,10,10,10,8,10,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,3,10,10,10,10,10,10,10,10,10,10,10,10,6,10,10,10,10,10,10,5,4,10,6,10,10,10,10,10,10,9,10,10,10,10,10,10,10,10,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,3,10,10,10,10,10,10,6,6,10,5,10,10,10,10,10,10,10,10,6,10,10,10,6,10,10,6,10,10,10,10,10,10,10,10,10,10,5,10,10,10,10],["PWY-6969","METHGLYUT-PWY","PWY-5913","PWY-6284","PWY-5367","PWY-5971","PWY-7383","PWY-5188","PWY-7199","FERMENTATION-PWY","PWY0-1298","P164-PWY","P621-PWY","PWY-6292","PWY-7883","GLYCOLYSIS-E-D","METH-ACETATE-PWY","PWY-6549","PWY4LZ-257","PWY-8178","PWY-3001","PWY4FS-7","PWY4FS-8","RIBOSYN2-PWY","PWY-6147","NONOXIPENT-PWY","PWY-6470","PWY0-1479","CALVIN-PWY","PWY-7237","GOLPDLCAT-PWY","PWY-7242","GLUCUROCAT-PWY","GALACTUROCAT-PWY","PWY66-399","PWY-6609","PWY-6270","PWY-8004","PWY-7560","P185-PWY","HEMESYN2-PWY","PWY3O-4107","PWY-5676","PYRIDNUCSAL-PWY","PWY0-1241","PWY-7942","CENTFERM-PWY","PWY-6590","PWY-7400","PWY-7851","PWY-6126","PWY-7228","PWY-7208","PWY-6125","PWY-7197","PWY-7220","PWY-7222","P441-PWY","PWY-5918","HEME-BIOSYNTHESIS-II","P42-PWY","PWY-5981","PWY-5873","PWY-6606","CITRULBIO-PWY","PWY-4984","P23-PWY","PHOSLIPSYN-PWY","PWY-841","PWY-7229","PWY-7209","PWY-6901","PWY-7198","PWY-6608","P108-PWY","PWY-5189","PWY-5384","THRESYN-PWY","PWY-4041","PWY-6527","PWY-7111","PWY-6628","PWY-6630","BIOTIN-BIOSYNTHESIS-PWY","PWY-6519","PWY-5130","PWY-6305","COA-PWY-1","PWY-2941","PWY-5659","PWY-5497","PWY-6823","FOLSYN-PWY","PWY-6612","PWY-1269","PWY66-409","FUCCAT-PWY","SER-GLYSYN-PWY","TRPSYN-PWY","FUC-RHAMCAT-PWY","GLCMANNANAUT-PWY","PWY-7391","PWY-7039","NADSYN-PWY","PWY-5651","GLYOXYLATE-BYPASS","PWY-7118","PWY-8187","PWY0-1296","P41-PWY","PWY-5100","PWY-6353","PWY-1861","PWY-724","PWY-6629","PWY-5080","NAD-BIOSYNTHESIS-II","PWY-1042","ANAEROFRUCAT-PWY","PWY-6922","HISDEG-PWY","PWY0-862","PWY-7664","FASYN-ELONG-PWY","PWY-6282","PWY-5989","PWY-5136","PWY-6936","PWY-5154","PWY-5838","PWY-5897","PWY-5898","PWY-5899","PWY-5861","PWY-5837","PWY0-1061","PWY-7345","PWY-7316","PWY-5667","PWY0-1319","PWY-5695","PWY-5840","PWY0-166","RHAMCAT-PWY","ARGININE-SYN4-PWY","PWY-6168","PWY0-162","PYRIDNUCSYN-PWY","PWY0-1261","PWY-7315","PWY-7211","PWY-702","NAGLIPASYN-PWY","PWY-8073","PWY-7117","PWY-6892","PWY-241","PWY-7328","PWY-6317","GLYCOGENSYNTH-PWY","PWY-5030","UDPNAGSYN-PWY","COA-PWY","KETOGLUCONMET-PWY","PWY-6507","PWY-5941","HSERMETANA-PWY","P124-PWY","UNINTEGRATED","NONMEVIPP-PWY","MET-SAM-PWY","METSYN-PWY","PWY-5347","PWY-8131","HOMOSER-METSYN-PWY","PWY-6595","PWY-5103","PWY-6293","PWY-622","GLYCOLYSIS","PWY-801","ASPASN-PWY","PWY-7238","PWY-7323","PWY-6902","PWY-5005","PWY-7234","PWY-7761","GLUDEG-I-PWY","PWY-5484","PWY-7953","PWY-6387","UNMAPPED","FASYN-INITIAL-PWY","PWY-6163","ILEUSYN-PWY","GLUCONEO-PWY","ARO-PWY","PWY-7210","PPGPPMET-PWY","PWY-7184","PWY-5022","PWY-621","BRANCHED-CHAIN-AA-SYN-PWY","PWY-6124","PWY-I9","PWY-6895","HISTSYN-PWY","COLANSYN-PWY","PEPTIDOGLYCANSYN-PWY","GLUTORN-PWY","PWY0-781","P4-PWY","PWY-7385","CRNFORCAT-PWY","COBALSYN-PWY","GALACT-GLUCUROCAT-PWY","P161-PWY","PWY0-1477","P122-PWY","OANTIGEN-PWY","DAPLYSINESYN-PWY","POLYISOPRENSYN-PWY","PWY-7371","PWY-6607","PWY-7663","COMPLETE-ARO-PWY","PWY-7456","PWY-6123","PWY-6386","PWY-6385","PWY-7115","PWY-7992","ARGSYNBSUB-PWY","GLYCOCAT-PWY","PWY-5121","PWY-6859","PWY-6545","PWY-922","PWY-7392","ANAGLYCOLYSIS-PWY","PWY-2942","1CMET2-PWY","PWY-7357","PWY-5973","PWY-6122","PWY-6277","PWY66-429","PWY-6531","PANTOSYN-PWY","THISYN-PWY","PWY-6731","PWY-7185","TRNA-CHARGING-PWY","THISYNARA-PWY","SO4ASSIM-PWY","PWY-5345","PWY-6151","PWY-7688","PWY-7977","PWY-5910","PWY-6700","ARGSYN-PWY","PWY-7356","PANTO-PWY","PWY-6703","P125-PWY","SULFATE-CYS-PWY","VALSYN-PWY","PWY-3841","PWY-7282","PWY-821","PWY0-845","PWY-6121","PWY1ZNC-1","PWY0-1297","DTDPRHAMSYN-PWY","PWY-5686","PWY-7790","PWY-7791","SALVADEHYPOX-PWY","LACTOSECAT-PWY","PWY-5097","P461-PWY","PWY-6897","PWY-5920","PYRIDOXSYN-PWY","PWY-6143","PWY-7221","PWY-5505"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>PathwayLink<\/th>\n      <th>coef<\/th>\n      <th>stderr<\/th>\n      <th>pval<\/th>\n      <th>qval<\/th>\n      <th>N<\/th>\n      <th>N.not.zero<\/th>\n      <th>PathwayID<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":true,"lengthMenu":[5,10,20,100],"pageLength":20,"paging":true,"searching":true,"fixedColumns":true,"autoWidth":true,"ordering":true,"dom":"Blfrtip","buttons":["copy","csv","excel"],"columnDefs":[{"targets":1,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":2,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":3,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":4,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":5,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":6,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"className":"dt-right","targets":[1,2,3,4,5,6]},{"name":"PathwayLink","targets":0},{"name":"coef","targets":1},{"name":"stderr","targets":2},{"name":"pval","targets":3},{"name":"qval","targets":4},{"name":"N","targets":5},{"name":"N.not.zero","targets":6},{"name":"PathwayID","targets":7}],"order":[],"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[4]; $(row).css({'background-color':isNaN(parseFloat(value)) ? '' : value <= 0 ? \"white\" : value <= 0.05 ? \"lightgrey\" : \"white\"});\n}"}},"evals":["options.columnDefs.0.render","options.columnDefs.1.render","options.columnDefs.2.render","options.columnDefs.3.render","options.columnDefs.4.render","options.columnDefs.5.render","options.rowCallback"],"jsHooks":[]}</script>
+<blockquote>
+<ul>
+<li>The <code>qval</code> is the adjusted p-value - rows with
+<code>qval &lt;= 0.05</code> are highlighted grey.</li>
+<li>The <code>coef</code> is the model coef, indicating the strength of
+the association between the pathway and the group (+ve means pathway is
+more abudant in <code>Homo</code>)</li>
+<li>The <code>N</code> column is the total number of data points.</li>
+<li>The <code>N.not.zero</code> column is the total of non-zero data
+points.</li>
+</ul>
+</blockquote>
+</div>
+<div id="significant-humannmaaslin2-association-table"
+class="section level4">
+<h4>Significant HUMAnN/MaAsLin2 association table</h4>
+<p>Here is a filtered version of the same table, showing only
+associations with a adjusted p-value &lt;= 0.05, and only pathways
+detected in 90% of samples.</p>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-0b53afc8e0c502801d54" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-0b53afc8e0c502801d54">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6969\" target='_blank'>PWY-6969: TCA cycle V (2-oxoglutarate synthase)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5913\" target='_blank'>PWY-5913: partial TCA cycle (obligate autotrophs)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7383\" target='_blank'>PWY-7383: anaerobic energy metabolism (invertebrates, cytosol)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-5188\" target='_blank'>PWY-5188: tetrapyrrole biosynthesis I (from glutamate)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-7199\" target='_blank'>PWY-7199: pyrimidine deoxyribonucleosides salvage<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=FERMENTATION-PWY\" target='_blank'>FERMENTATION-PWY: mixed acid fermentation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY0-1298\" target='_blank'>PWY0-1298: superpathway of pyrimidine deoxyribonucleosides degradation<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=P164-PWY\" target='_blank'>P164-PWY: purine nucleobases degradation I (anaerobic)<\/a>","<a href=\"https://metacyc.org/META/NEW-IMAGE?object=PWY-6292\" target='_blank'>PWY-6292: superpathway of L-cysteine biosynthesis (mammalian)<\/a>"],[2.230448767961177,2.155027026019875,1.623594068632426,1.550393730793645,-0.5763881511954573,1.657088411476606,-0.7693378162254231,-1.828504525663294,1.250533624440126],[0.2620136702061781,0.2707974476469392,0.3090323338523661,0.3011375215128586,0.1118815574314304,0.3295391457029804,0.1547188934595488,0.3883684681353936,0.2710955663900566],[2.784880928656594e-05,4.535058007208634e-05,0.0007702740104176733,0.0008759812015100514,0.000872424437649044,0.001016057490662028,0.001089698060651495,0.00152527641449828,0.001726143750629779],[0.004038077346552062,0.004383889406968346,0.0282260609375461,0.0282260609375461,0.0282260609375461,0.02872840341717578,0.02872840341717578,0.03402539693880777,0.035755834834474],[10,10,10,10,10,10,10,10,10],[10,10,10,10,10,10,10,9,10],["PWY-6969","PWY-5913","PWY-7383","PWY-5188","PWY-7199","FERMENTATION-PWY","PWY0-1298","P164-PWY","PWY-6292"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>PathwayLink<\/th>\n      <th>coef<\/th>\n      <th>stderr<\/th>\n      <th>pval<\/th>\n      <th>qval<\/th>\n      <th>N<\/th>\n      <th>N.not.zero<\/th>\n      <th>PathwayID<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":true,"lengthMenu":[5,10,20,100],"pageLength":20,"paging":true,"searching":true,"fixedColumns":true,"autoWidth":true,"ordering":true,"dom":"Blfrtip","buttons":["copy","csv","excel"],"columnDefs":[{"targets":1,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":2,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":3,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":4,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":5,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":6,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"className":"dt-right","targets":[1,2,3,4,5,6]},{"name":"PathwayLink","targets":0},{"name":"coef","targets":1},{"name":"stderr","targets":2},{"name":"pval","targets":3},{"name":"qval","targets":4},{"name":"N","targets":5},{"name":"N.not.zero","targets":6},{"name":"PathwayID","targets":7}],"order":[],"orderClasses":false}},"evals":["options.columnDefs.0.render","options.columnDefs.1.render","options.columnDefs.2.render","options.columnDefs.3.render","options.columnDefs.4.render","options.columnDefs.5.render"],"jsHooks":[]}</script>
+<p>General themes for the identified differential pathways are basic
+energy metabolism (glycolsis and TCA cycle), pyrimidine and purine
+degradation, and of particular interest, on cysteine biosynthesis
+pathway.</p>
+<p><a href="https://metacyc.org/META/NEW-IMAGE?object=PWY-6292">PWY-6292
+- superpathway of L-cysteine biosynthesis (mammalian)</a> show
+significant (FDR=0.045) differential pathway abudance, with more
+complete pathways detected in the <code>Homo</code> microbial
+communities. (Note that although this is annotated as mammalian, the
+pathway exists in bacteria and archea).</p>
+<p><img src="figure/humann.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-7-1">
+Past versions of unnamed-chunk-7-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-7-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ul>
+<li>PDF version: <a
+href="plots/humann_boxplot_PWY-6292_het_homo_plot.pdf">plots/humann_boxplot_PWY-6292_het_homo_plot.pdf</a></li>
+</ul>
+<p>Which organism(s) is PWY-6292 the pathway most associated with in
+Het/Homo ?</p>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-3c99b9dc855f26bb4d5e" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-3c99b9dc855f26bb4d5e">{"x":{"filter":"none","vertical":false,"data":[["1","2","3"],["PWY-6292: superpathway of L-cysteine biosynthesis (mammalian)","PWY-6292: superpathway of L-cysteine biosynthesis (mammalian)|g__Lactobacillus.s__Lactobacillus_reuteri","PWY-6292: superpathway of L-cysteine biosynthesis (mammalian)|unclassified"],[76.6469,0,75.4937],[93.4278,0,91.82729999999999],[53.6705,0,53.1534],[64.56780000000001,0,63.8365],[49.9427,0,49.5116],[17.3017,7.2819,3.69987],[25.3923,6.09481,13.6107],[15.1836,4.62766,5.8863],[18.7317,6.15431,7.21317],[10.5403,0.744469,8.379020000000001],[48.3961,4.28791,38.0705],[38.3177,15.9628,6.48272],[31.3006,16.0499,2.35842],[30.4612,2.59096,22.2361],[56.7972,11.6321,35.8493]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Pathway<\/th>\n      <th>Abx.1<\/th>\n      <th>Abx.2<\/th>\n      <th>Abx.3<\/th>\n      <th>Abx.4<\/th>\n      <th>Abx.5<\/th>\n      <th>Het.1<\/th>\n      <th>Het.2<\/th>\n      <th>Het.3<\/th>\n      <th>Het.4<\/th>\n      <th>Het.5<\/th>\n      <th>Homo.1<\/th>\n      <th>Homo.2<\/th>\n      <th>Homo.3<\/th>\n      <th>Homo.4<\/th>\n      <th>Homo.5<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"columnDefs":[{"targets":2,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 9, 3, \",\", \".\", null);\n  }"},{"targets":3,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 9, 3, \",\", \".\", null);\n  }"},{"targets":4,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 9, 3, \",\", \".\", null);\n  }"},{"targets":5,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 9, 3, \",\", \".\", null);\n  }"},{"targets":6,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 9, 3, \",\", \".\", null);\n  }"},{"targets":7,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 9, 3, \",\", \".\", null);\n  }"},{"targets":8,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 9, 3, \",\", \".\", null);\n  }"},{"targets":9,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 9, 3, \",\", \".\", null);\n  }"},{"targets":10,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 9, 3, \",\", \".\", null);\n  }"},{"targets":11,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 9, 3, \",\", \".\", null);\n  }"},{"targets":12,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 9, 3, \",\", \".\", null);\n  }"},{"targets":13,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 9, 3, \",\", \".\", null);\n  }"},{"targets":14,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 9, 3, \",\", \".\", null);\n  }"},{"targets":15,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 9, 3, \",\", \".\", null);\n  }"},{"targets":16,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 9, 3, \",\", \".\", null);\n  }"},{"className":"dt-right","targets":[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"Pathway","targets":1},{"name":"Abx.1","targets":2},{"name":"Abx.2","targets":3},{"name":"Abx.3","targets":4},{"name":"Abx.4","targets":5},{"name":"Abx.5","targets":6},{"name":"Het.1","targets":7},{"name":"Het.2","targets":8},{"name":"Het.3","targets":9},{"name":"Het.4","targets":10},{"name":"Het.5","targets":11},{"name":"Homo.1","targets":12},{"name":"Homo.2","targets":13},{"name":"Homo.3","targets":14},{"name":"Homo.4","targets":15},{"name":"Homo.5","targets":16}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":["options.columnDefs.0.render","options.columnDefs.1.render","options.columnDefs.2.render","options.columnDefs.3.render","options.columnDefs.4.render","options.columnDefs.5.render","options.columnDefs.6.render","options.columnDefs.7.render","options.columnDefs.8.render","options.columnDefs.9.render","options.columnDefs.10.render","options.columnDefs.11.render","options.columnDefs.12.render","options.columnDefs.13.render","options.columnDefs.14.render"],"jsHooks":[]}</script>
+<p><strong>Lactobacillus reuteri</strong>, and unclassified species.</p>
+<p>All siginficant pathways relative abundance box plots:</p>
+<pre><code>[[1]]</code></pre>
+<p><img src="figure/humann.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-1">
+Past versions of unnamed-chunk-10-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+<tr>
+<td>
+971577a
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-09-06
+</td>
+</tr>
+<tr>
+<td>
+60590c3
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-03-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre><code>
+[[2]]</code></pre>
+<p><img src="figure/humann.Rmd/unnamed-chunk-10-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-2">
+Past versions of unnamed-chunk-10-2.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+<tr>
+<td>
+971577a
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-09-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre><code>
+[[3]]</code></pre>
+<p><img src="figure/humann.Rmd/unnamed-chunk-10-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-3">
+Past versions of unnamed-chunk-10-3.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre><code>
+[[4]]</code></pre>
+<p><img src="figure/humann.Rmd/unnamed-chunk-10-4.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-4">
+Past versions of unnamed-chunk-10-4.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-4" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre><code>
+[[5]]</code></pre>
+<p><img src="figure/humann.Rmd/unnamed-chunk-10-5.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-5">
+Past versions of unnamed-chunk-10-5.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-5" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre><code>
+[[6]]</code></pre>
+<p><img src="figure/humann.Rmd/unnamed-chunk-10-6.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-6">
+Past versions of unnamed-chunk-10-6.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-6" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre><code>
+[[7]]</code></pre>
+<p><img src="figure/humann.Rmd/unnamed-chunk-10-7.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-7">
+Past versions of unnamed-chunk-10-7.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-7" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre><code>
+[[8]]</code></pre>
+<p><img src="figure/humann.Rmd/unnamed-chunk-10-8.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-8">
+Past versions of unnamed-chunk-10-8.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-8" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre><code>
+[[9]]</code></pre>
+<p><img src="figure/humann.Rmd/unnamed-chunk-10-9.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-9">
+Past versions of unnamed-chunk-10-9.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-9" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre><code>
+[[10]]</code></pre>
+<p><img src="figure/humann.Rmd/unnamed-chunk-10-10.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-10">
+Past versions of unnamed-chunk-10-10.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-10" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre><code>
+[[11]]</code></pre>
+<p><img src="figure/humann.Rmd/unnamed-chunk-10-11.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-11">
+Past versions of unnamed-chunk-10-11.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-11" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre><code>
+[[12]]</code></pre>
+<p><img src="figure/humann.Rmd/unnamed-chunk-10-12.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-12">
+Past versions of unnamed-chunk-10-12.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-12" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre><code>
+[[13]]</code></pre>
+<p><img src="figure/humann.Rmd/unnamed-chunk-10-13.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-13">
+Past versions of unnamed-chunk-10-13.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-13" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre><code>
+[[14]]</code></pre>
+<p><img src="figure/humann.Rmd/unnamed-chunk-10-14.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-14">
+Past versions of unnamed-chunk-10-14.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-14" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+a19c761
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-11-12
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><img src="figure/humann.Rmd/pathway_density_plot_hethomo-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-pathway_density_plot_hethomo-1">
+Past versions of pathway_density_plot_hethomo-1.png
+</button>
+</p>
+<div id="fig-pathway_density_plot_hethomo-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+60590c3
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-03-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ul>
+<li><a
+href="plots/pathway_density_het_homo_plot.png">plots/pathway_density_het_homo_plot.png</a></li>
+</ul>
+<p>A heatmap of only the siginficant differentially abundant pathways.
+We show log2(cpm), where cpm is complete pathway copies per million.</p>
+<p><img src="figure/humann.Rmd/pathway_heatmap-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-pathway_heatmap-1">
+Past versions of pathway_heatmap-1.png
+</button>
+</p>
+<div id="fig-pathway_heatmap-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+971577a
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-09-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><img src="figure/humann.Rmd/pathway_heatmap-2.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-pathway_heatmap-2">
+Past versions of pathway_heatmap-2.png
+</button>
+</p>
+<div id="fig-pathway_heatmap-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+971577a
+</td>
+<td>
+Andrew Perry
+</td>
+<td>
+2024-09-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+<hr/>
+
+<div class='acknowledge'>
+<h4>Acknowledging MBP</h4>
+<blockquote>
+We are very passionate and proud of supporting Monash researchers with their Bioinformatics needs and for being part of the published research work. Where appropriate please acknowledge the contributions of MBP as co-authors or by simply stating "Authors acknowledge support of Monash Bioinformatics Platform for this work".
+</blockquote>
+<strong>
+How did we do? Please complete the following feedback <a href='https://docs.google.com/forms/d/e/1FAIpQLSdVJnaZqexMFhOxPB_f8th-DZ_8D8AsO0g9HBtnQojpm66ihg/viewform?usp=sf_link'>survey</a> on your experience with the platform.
+</strong>
+
+</div>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre><code>R version 4.3.1 (2023-06-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 20.04.6 LTS
+
+Matrix products: default
+BLAS:   /persistent/software/apps/R/4.3.1/lib/R/lib/libRblas.so 
+LAPACK: /persistent/software/apps/R/4.3.1/lib/R/lib/libRlapack.so;  LAPACK version 3.11.0
+
+locale:
+ [1] LC_CTYPE=en_AU.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_AU.UTF-8        LC_COLLATE=en_AU.UTF-8    
+ [5] LC_MONETARY=en_AU.UTF-8    LC_MESSAGES=en_AU.UTF-8   
+ [7] LC_PAPER=en_AU.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C       
+
+time zone: Australia/Melbourne
+tzcode source: system (glibc)
+
+attached base packages:
+[1] stats4    stats     graphics  grDevices datasets  utils     methods  
+[8] base     
+
+other attached packages:
+ [1] RColorBrewer_1.1-3             Maaslin2_1.14.1               
+ [3] heatmaply_1.5.0                viridis_0.6.5                 
+ [5] viridisLite_0.4.2              plotly_4.10.4                 
+ [7] pheatmap_1.0.12                scater_1.28.0                 
+ [9] scuttle_1.10.3                 miaViz_1.10.0                 
+[11] ggraph_2.2.1                   mia_1.10.0                    
+[13] MultiAssayExperiment_1.26.0    TreeSummarizedExperiment_2.8.0
+[15] Biostrings_2.68.1              XVector_0.40.0                
+[17] SingleCellExperiment_1.22.0    SummarizedExperiment_1.30.2   
+[19] Biobase_2.60.0                 GenomicRanges_1.52.1          
+[21] GenomeInfoDb_1.36.4            IRanges_2.34.1                
+[23] S4Vectors_0.38.2               BiocGenerics_0.46.0           
+[25] MatrixGenerics_1.12.3          matrixStats_1.3.0             
+[27] lubridate_1.9.3                forcats_1.0.0                 
+[29] stringr_1.5.1                  dplyr_1.1.4                   
+[31] purrr_1.0.2                    readr_2.1.5                   
+[33] tidyr_1.3.1                    tibble_3.2.1                  
+[35] ggplot2_3.5.1                  tidyverse_2.0.0               
+[37] workflowr_1.7.1               
+
+loaded via a namespace (and not attached):
+  [1] splines_4.3.1               later_1.3.2                
+  [3] bitops_1.0-8                ggplotify_0.1.2            
+  [5] polyclip_1.10-7             DirichletMultinomial_1.42.0
+  [7] lifecycle_1.0.4             rprojroot_2.0.4            
+  [9] processx_3.8.4              lattice_0.22-6             
+ [11] vroom_1.6.5                 MASS_7.3-60                
+ [13] crosstalk_1.2.1             dendextend_1.17.1          
+ [15] magrittr_2.0.3              sass_0.4.9                 
+ [17] rmarkdown_2.28              jquerylib_0.1.4            
+ [19] yaml_2.3.10                 httpuv_1.6.15              
+ [21] pbapply_1.7-2               cowplot_1.1.3              
+ [23] DBI_1.2.3                   abind_1.4-5                
+ [25] zlibbioc_1.46.0             RCurl_1.98-1.16            
+ [27] hash_2.2.6.3                yulab.utils_0.1.7          
+ [29] tweenr_2.0.3                git2r_0.33.0               
+ [31] seriation_1.5.6             GenomeInfoDbData_1.2.10    
+ [33] ggrepel_0.9.5               irlba_2.3.5.1              
+ [35] tidytree_0.4.6              vegan_2.6-6.1              
+ [37] svglite_2.1.3               permute_0.9-7              
+ [39] DelayedMatrixStats_1.22.6   getopt_1.20.4              
+ [41] codetools_0.2-20            DelayedArray_0.26.7        
+ [43] DT_0.33                     ggforce_0.4.2              
+ [45] tidyselect_1.2.1            aplot_0.2.3                
+ [47] farver_2.1.2                ScaledMatrix_1.8.1         
+ [49] TSP_1.2-4                   webshot_0.5.5              
+ [51] jsonlite_1.8.8              BiocNeighbors_1.18.0       
+ [53] decontam_1.20.0             tidygraph_1.3.1            
+ [55] iterators_1.0.14            systemfonts_1.1.0          
+ [57] foreach_1.5.2               tools_4.3.1                
+ [59] ggnewscale_0.5.0            ragg_1.3.2                 
+ [61] treeio_1.29.1               Rcpp_1.0.13                
+ [63] glue_1.7.0                  gridExtra_2.3              
+ [65] xfun_0.47                   mgcv_1.9-1                 
+ [67] ca_0.71.1                   withr_3.0.1                
+ [69] BiocManager_1.30.24         fastmap_1.2.0              
+ [71] bluster_1.12.0              fansi_1.0.6                
+ [73] callr_3.7.6                 digest_0.6.37              
+ [75] rsvd_1.0.5                  timechange_0.3.0           
+ [77] R6_2.5.1                    gridGraphics_0.5-1         
+ [79] textshaping_0.4.0           colorspace_2.1-1           
+ [81] RSQLite_2.3.7               utf8_1.2.4                 
+ [83] generics_0.1.3              renv_1.0.7                 
+ [85] data.table_1.15.4           DECIPHER_2.28.0            
+ [87] robustbase_0.99-4           graphlayouts_1.1.1         
+ [89] httr_1.4.7                  htmlwidgets_1.6.4          
+ [91] S4Arrays_1.0.6              whisker_0.4.1              
+ [93] pkgconfig_2.0.3             gtable_0.3.5               
+ [95] registry_0.5-1              blob_1.2.4                 
+ [97] pcaPP_2.0-5                 htmltools_0.5.8.1          
+ [99] logging_0.10-108            scales_1.3.0               
+[101] optparse_1.7.5              ggfun_0.1.5                
+[103] knitr_1.48                  rstudioapi_0.16.0          
+[105] tzdb_0.4.0                  reshape2_1.4.4             
+[107] nlme_3.1-166                cachem_1.1.0               
+[109] parallel_4.3.1              vipor_0.4.7                
+[111] pillar_1.9.0                grid_4.3.1                 
+[113] vctrs_0.6.5                 promises_1.3.0             
+[115] BiocSingular_1.16.0         beachmat_2.16.0            
+[117] cluster_2.1.6               beeswarm_0.4.0             
+[119] evaluate_0.24.0             mvtnorm_1.2-6              
+[121] cli_3.6.3                   compiler_4.3.1             
+[123] rlang_1.1.4                 crayon_1.5.3               
+[125] labeling_0.4.3              ps_1.7.7                   
+[127] getPass_0.2-4               plyr_1.8.9                 
+[129] fs_1.6.4                    ggbeeswarm_0.7.2           
+[131] stringi_1.8.4               BiocParallel_1.34.2        
+[133] assertthat_0.2.1            munsell_0.5.1              
+[135] lazyeval_0.2.2              Matrix_1.5-4.1             
+[137] hms_1.1.3                   patchwork_1.2.0            
+[139] sparseMatrixStats_1.12.2    bit64_4.0.5                
+[141] highr_0.11                  igraph_2.0.3               
+[143] memoise_2.0.1               bslib_0.8.0                
+[145] biglm_0.9-3                 ggtree_3.8.2               
+[147] DEoptimR_1.1-3              bit_4.0.5                  
+[149] ape_5.8                    </code></pre>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+AuthType openid-connect
+Require claim email:malcolm.starkey@monash.edu
+Require claim email:nirmal.bhatt@monash.edu
+Require claim email:gabriel.rodriguez@monash.edu
+Require claim email:andrew.perry@monash.edu
+Require claim email:deanna.deveson@monash.edu
+Require clain email:Laura.Perlaza-Jimenez@monash.edu
+
+# Include this line to allow directory listing for authorized users
+Options +Indexes

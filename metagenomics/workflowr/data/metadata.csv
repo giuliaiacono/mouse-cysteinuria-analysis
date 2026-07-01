@@ -1,0 +1,16 @@
+sample,box,stone_mass_mg,stone_count,stones_total_surface_area
+homo_1,box5,79,39,199.423
+homo_2,box6,38,75,199.268
+homo_3,box7,34,44,155.741
+homo_4,box8,33,96,272.304
+homo_5,box8,68,27,160.7
+het_1,box1,,,
+het_2,box1,,,
+het_3,box1,,,
+het_4,box1,,,
+het_5,box1,,,
+abx_1,box2,,,
+abx_2,box2,,,
+abx_3,box3,,,
+abx_4,box3,,,
+abx_5,box4,,,

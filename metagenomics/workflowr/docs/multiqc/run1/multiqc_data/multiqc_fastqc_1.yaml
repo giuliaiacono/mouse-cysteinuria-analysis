@@ -1,0 +1,300 @@
+Abx-1_S1_L001:
+  '%GC': 41.0
+  Encoding: Sanger / Illumina 1.9
+  File type: Conventional base calls
+  Filename: Abx-1_S1_L001.trimmed_1.gz
+  Sequence length: 17-100
+  Sequences flagged as poor quality: 0.0
+  Total Sequences: 54600367.0
+  adapter_content: pass
+  avg_sequence_length: 97.42573309076842
+  basic_statistics: pass
+  overrepresented_sequences: pass
+  per_base_n_content: pass
+  per_base_sequence_content: fail
+  per_base_sequence_quality: pass
+  per_sequence_gc_content: pass
+  per_sequence_quality_scores: pass
+  sequence_duplication_levels: fail
+  sequence_length_distribution: warn
+  total_deduplicated_percentage: 25.443046290999188
+Abx-2_S2_L001:
+  '%GC': 41.0
+  Encoding: Sanger / Illumina 1.9
+  File type: Conventional base calls
+  Filename: Abx-2_S2_L001.trimmed_1.gz
+  Sequence length: 17-100
+  Sequences flagged as poor quality: 0.0
+  Total Sequences: 50860359.0
+  adapter_content: pass
+  avg_sequence_length: 96.52755683458703
+  basic_statistics: pass
+  overrepresented_sequences: pass
+  per_base_n_content: pass
+  per_base_sequence_content: fail
+  per_base_sequence_quality: pass
+  per_sequence_gc_content: pass
+  per_sequence_quality_scores: pass
+  sequence_duplication_levels: fail
+  sequence_length_distribution: warn
+  total_deduplicated_percentage: 28.33773659538144
+Abx-3_S3_L001:
+  '%GC': 40.0
+  Encoding: Sanger / Illumina 1.9
+  File type: Conventional base calls
+  Filename: Abx-3_S3_L001.trimmed_1.gz
+  Sequence length: 19-100
+  Sequences flagged as poor quality: 0.0
+  Total Sequences: 55715225.0
+  adapter_content: pass
+  avg_sequence_length: 97.06570180771952
+  basic_statistics: pass
+  overrepresented_sequences: pass
+  per_base_n_content: pass
+  per_base_sequence_content: fail
+  per_base_sequence_quality: pass
+  per_sequence_gc_content: pass
+  per_sequence_quality_scores: pass
+  sequence_duplication_levels: fail
+  sequence_length_distribution: warn
+  total_deduplicated_percentage: 23.517312257969724
+Abx-4_S4_L001:
+  '%GC': 40.0
+  Encoding: Sanger / Illumina 1.9
+  File type: Conventional base calls
+  Filename: Abx-4_S4_L001.trimmed_1.gz
+  Sequence length: 16-100
+  Sequences flagged as poor quality: 0.0
+  Total Sequences: 51869345.0
+  adapter_content: pass
+  avg_sequence_length: 97.06298446606564
+  basic_statistics: pass
+  overrepresented_sequences: pass
+  per_base_n_content: pass
+  per_base_sequence_content: fail
+  per_base_sequence_quality: pass
+  per_sequence_gc_content: pass
+  per_sequence_quality_scores: pass
+  sequence_duplication_levels: fail
+  sequence_length_distribution: warn
+  total_deduplicated_percentage: 24.975198919920246
+Abx-5_S5_L001:
+  '%GC': 40.0
+  Encoding: Sanger / Illumina 1.9
+  File type: Conventional base calls
+  Filename: Abx-5_S5_L001.trimmed_1.gz
+  Sequence length: 18-100
+  Sequences flagged as poor quality: 0.0
+  Total Sequences: 52295567.0
+  adapter_content: pass
+  avg_sequence_length: 97.01979068321413
+  basic_statistics: pass
+  overrepresented_sequences: pass
+  per_base_n_content: pass
+  per_base_sequence_content: fail
+  per_base_sequence_quality: pass
+  per_sequence_gc_content: pass
+  per_sequence_quality_scores: pass
+  sequence_duplication_levels: fail
+  sequence_length_distribution: warn
+  total_deduplicated_percentage: 24.587625043946577
+Het-1_S6_L001:
+  '%GC': 53.0
+  Encoding: Sanger / Illumina 1.9
+  File type: Conventional base calls
+  Filename: Het-1_S6_L001.trimmed_2.gz
+  Sequence length: 15-100
+  Sequences flagged as poor quality: 0.0
+  Total Sequences: 71991676.0
+  adapter_content: pass
+  avg_sequence_length: 98.13169186393161
+  basic_statistics: pass
+  overrepresented_sequences: pass
+  per_base_n_content: pass
+  per_base_sequence_content: warn
+  per_base_sequence_quality: pass
+  per_sequence_gc_content: pass
+  per_sequence_quality_scores: pass
+  sequence_duplication_levels: fail
+  sequence_length_distribution: warn
+  total_deduplicated_percentage: 47.30765219529016
+Het-2_S7_L001:
+  '%GC': 55.0
+  Encoding: Sanger / Illumina 1.9
+  File type: Conventional base calls
+  Filename: Het-2_S7_L001.trimmed_2.gz
+  Sequence length: 18-100
+  Sequences flagged as poor quality: 0.0
+  Total Sequences: 68020531.0
+  adapter_content: pass
+  avg_sequence_length: 98.63687553394725
+  basic_statistics: pass
+  overrepresented_sequences: pass
+  per_base_n_content: pass
+  per_base_sequence_content: warn
+  per_base_sequence_quality: pass
+  per_sequence_gc_content: pass
+  per_sequence_quality_scores: pass
+  sequence_duplication_levels: fail
+  sequence_length_distribution: warn
+  total_deduplicated_percentage: 46.28745562766377
+Het-3_S8_L001:
+  '%GC': 54.0
+  Encoding: Sanger / Illumina 1.9
+  File type: Conventional base calls
+  Filename: Het-3_S8_L001.trimmed_2.gz
+  Sequence length: 16-100
+  Sequences flagged as poor quality: 0.0
+  Total Sequences: 61152323.0
+  adapter_content: pass
+  avg_sequence_length: 98.30523772580152
+  basic_statistics: pass
+  overrepresented_sequences: pass
+  per_base_n_content: pass
+  per_base_sequence_content: warn
+  per_base_sequence_quality: pass
+  per_sequence_gc_content: pass
+  per_sequence_quality_scores: pass
+  sequence_duplication_levels: fail
+  sequence_length_distribution: warn
+  total_deduplicated_percentage: 46.69426377382234
+Het-4_S9_L001:
+  '%GC': 54.0
+  Encoding: Sanger / Illumina 1.9
+  File type: Conventional base calls
+  Filename: Het-4_S9_L001.trimmed_2.gz
+  Sequence length: 17-100
+  Sequences flagged as poor quality: 0.0
+  Total Sequences: 50387802.0
+  adapter_content: pass
+  avg_sequence_length: 96.97309428182638
+  basic_statistics: pass
+  overrepresented_sequences: pass
+  per_base_n_content: pass
+  per_base_sequence_content: fail
+  per_base_sequence_quality: pass
+  per_sequence_gc_content: pass
+  per_sequence_quality_scores: pass
+  sequence_duplication_levels: warn
+  sequence_length_distribution: warn
+  total_deduplicated_percentage: 54.092684358388155
+Het-5_S10_L001:
+  '%GC': 54.0
+  Encoding: Sanger / Illumina 1.9
+  File type: Conventional base calls
+  Filename: Het-5_S10_L001.trimmed_1.gz
+  Sequence length: 17-100
+  Sequences flagged as poor quality: 0.0
+  Total Sequences: 74237874.0
+  adapter_content: pass
+  avg_sequence_length: 98.22989992951577
+  basic_statistics: pass
+  overrepresented_sequences: pass
+  per_base_n_content: pass
+  per_base_sequence_content: warn
+  per_base_sequence_quality: pass
+  per_sequence_gc_content: pass
+  per_sequence_quality_scores: pass
+  sequence_duplication_levels: fail
+  sequence_length_distribution: warn
+  total_deduplicated_percentage: 41.669137399119236
+Homo-1_S11_L001:
+  '%GC': 57.0
+  Encoding: Sanger / Illumina 1.9
+  File type: Conventional base calls
+  Filename: Homo-1_S11_L001.trimmed_1.gz
+  Sequence length: 16-100
+  Sequences flagged as poor quality: 0.0
+  Total Sequences: 67941173.0
+  adapter_content: pass
+  avg_sequence_length: 98.43560431316074
+  basic_statistics: pass
+  overrepresented_sequences: pass
+  per_base_n_content: pass
+  per_base_sequence_content: warn
+  per_base_sequence_quality: pass
+  per_sequence_gc_content: pass
+  per_sequence_quality_scores: pass
+  sequence_duplication_levels: fail
+  sequence_length_distribution: warn
+  total_deduplicated_percentage: 47.80763756117093
+Homo-2_S12_L001:
+  '%GC': 54.0
+  Encoding: Sanger / Illumina 1.9
+  File type: Conventional base calls
+  Filename: Homo-2_S12_L001.trimmed_1.gz
+  Sequence length: 17-100
+  Sequences flagged as poor quality: 0.0
+  Total Sequences: 61168721.0
+  adapter_content: pass
+  avg_sequence_length: 98.63057587880577
+  basic_statistics: pass
+  overrepresented_sequences: pass
+  per_base_n_content: pass
+  per_base_sequence_content: warn
+  per_base_sequence_quality: pass
+  per_sequence_gc_content: pass
+  per_sequence_quality_scores: pass
+  sequence_duplication_levels: warn
+  sequence_length_distribution: warn
+  total_deduplicated_percentage: 50.30979216692799
+Homo-3_S13_L001:
+  '%GC': 54.0
+  Encoding: Sanger / Illumina 1.9
+  File type: Conventional base calls
+  Filename: Homo-3_S13_L001.trimmed_2.gz
+  Sequence length: 17-100
+  Sequences flagged as poor quality: 0.0
+  Total Sequences: 59474831.0
+  adapter_content: pass
+  avg_sequence_length: 98.33781567197728
+  basic_statistics: pass
+  overrepresented_sequences: pass
+  per_base_n_content: pass
+  per_base_sequence_content: warn
+  per_base_sequence_quality: pass
+  per_sequence_gc_content: pass
+  per_sequence_quality_scores: pass
+  sequence_duplication_levels: fail
+  sequence_length_distribution: warn
+  total_deduplicated_percentage: 45.00099821674891
+Homo-4_S14_L001:
+  '%GC': 53.0
+  Encoding: Sanger / Illumina 1.9
+  File type: Conventional base calls
+  Filename: Homo-4_S14_L001.trimmed_1.gz
+  Sequence length: 15-100
+  Sequences flagged as poor quality: 0.0
+  Total Sequences: 78430570.0
+  adapter_content: pass
+  avg_sequence_length: 98.09013773583438
+  basic_statistics: pass
+  overrepresented_sequences: pass
+  per_base_n_content: pass
+  per_base_sequence_content: warn
+  per_base_sequence_quality: pass
+  per_sequence_gc_content: pass
+  per_sequence_quality_scores: pass
+  sequence_duplication_levels: fail
+  sequence_length_distribution: warn
+  total_deduplicated_percentage: 48.9515726527273
+Homo-5_S15_L001:
+  '%GC': 53.0
+  Encoding: Sanger / Illumina 1.9
+  File type: Conventional base calls
+  Filename: Homo-5_S15_L001.trimmed_1.gz
+  Sequence length: 17-100
+  Sequences flagged as poor quality: 0.0
+  Total Sequences: 62480470.0
+  adapter_content: pass
+  avg_sequence_length: 98.70596475986817
+  basic_statistics: pass
+  overrepresented_sequences: pass
+  per_base_n_content: pass
+  per_base_sequence_content: warn
+  per_base_sequence_quality: pass
+  per_sequence_gc_content: pass
+  per_sequence_quality_scores: pass
+  sequence_duplication_levels: warn
+  sequence_length_distribution: warn
+  total_deduplicated_percentage: 60.03938386175201

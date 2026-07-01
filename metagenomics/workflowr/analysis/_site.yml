@@ -1,0 +1,15 @@
+name: "analysis"
+output_dir: ../docs
+navbar:
+  title: "Cystinuria Mouse faecal microbiome"
+  left:
+  - text: Home
+    href: index.html
+  - text: About
+    href: about.html
+output:
+  workflowr::wflow_html:
+    toc: yes
+    toc_float: yes
+    theme: cosmo
+    highlight: textmate

@@ -1,0 +1,1719 @@
+---
+title: "Methaphlan taxonomic abundance analysis"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: true
+    toc_float: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setwd, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+
+if (Sys.getenv("TERM_PROGRAM") == "vscode") {
+  try(
+    {
+      .vsc.attach()
+    },
+    silent = TRUE
+  )
+  try(
+    {
+      setwd("workflowr")
+    },
+    silent = TRUE
+  )
+}
+```
+
+```{r report_template}
+htmltools::includeHTML("analysis/index_for_workflowr.html")
+```
+
+```{r data_import}
+library(tidyverse)
+library(purrr)
+library(mia)
+library(miaViz)
+library(scater)
+library(dplyr)
+library(viridis)
+
+f <- stringr::str_glue
+
+source("analysis/rmarkdown_utils.R")
+source("analysis/nfcore_mag_utils.R")
+source("analysis/tse_utils.R")
+```
+
+MetaPhlAn uses (trimmed, host-filtered) reads aligned to a reference database of marker genes 
+to assign taxonomy and estimate relative abundance of taxa.
+Taxonomic labels were converted to the GTDB r202 taxonomy to allow comparison with other analyses.
+
+(MetaPhlAn version 4.0.6, vOct22_CHOCOPhlAnSGB_202212 database).
+
+```{r load_data, include=FALSE, eval=FALSE}
+# # Loading merged tables, from `merge_metaphlan_tables.py --gtdb_profiles`
+# # https://github.com/biobakery/MetaPhlAn/wiki/MetaPhlAn-4#merging-tables
+
+# files <- Sys.glob("../pipeline/metaphlan/results-gtdb-nounclassified/*_metaphlan-gtdb.txt")
+# tses <- c()
+# for (fn in files) {
+#   # print(fn)
+#   sample_name = gsub("_metaphlan-gtdb\\.txt$", "", basename(fn))
+#   tses <- c(tses, loadFromMetaphlanSingle(fn, sample_name, sep=";", skip=1))
+# }
+
+# # Merge single sample TreeSummarizedExperiments into a single one, all assays
+# tse <- mergeSEs(tses, assay.type = assayNames(tses[[1]]))
+
+# # Change NAs to zeros in assays
+# for (a in assayNames(tse)) {
+#   assay_data <- assay(tse, a)
+#   assay_data[is.na(assay_data)] <- 0
+#   assay(tse, a) <- assay_data
+# }
+
+# # tse <- loadFromMetaphlan4GTDB(
+# #     "../pipeline/metaphlan/results/merged_abundance_table-gtdb.txt",
+# #     #sep=";",
+# #     column_suffix = "_metaphlan-gtdb"
+# # )
+
+# # Add the Abx,Het,Homo group names to the TreeSummarizedExperiment
+# group <- gsub("-[1-9]", "", colnames(tse))
+# colData(tse)$group <- group
+```
+
+```{r import_merged_data}
+df <- readr::read_tsv("../pipeline/metaphlan/results-gtdb-nounclassified/merged-gtdb.tsv")
+
+counts <- df %>%
+  dplyr::select(c(ends_with("_counts"))) %>%
+  dplyr::rename_with(~ gsub("_counts$", "", .), ends_with("_counts"))
+
+counts <- as.matrix(counts)
+rownames(counts) <- make.unique(df$clade_name)
+
+relab <- df %>%
+  dplyr::select(c(ends_with("_relative_abundance"))) %>%
+  dplyr::rename_with(~ gsub("_relative_abundance$", "", .), ends_with("_relative_abundance"))
+
+relab <- as.matrix(relab)
+rownames(relab) <- make.unique(df$clade_name)
+
+coverage <- df %>%
+  dplyr::select(c(ends_with("_coverage"))) %>%
+  dplyr::rename_with(~ gsub("_coverage$", "", .), ends_with("_coverage"))
+
+coverage <- as.matrix(coverage)
+rownames(coverage) <- make.unique(df$clade_name)
+
+taxa_labels <- df %>% dplyr::select(
+  clade_name,
+  clade_taxid
+)
+# Split long d_Bacteria;p_Proteo .. etc strings into individual columns
+taxa_labels <- taxa_labels %>%
+  rowwise() %>%
+  do(bind_cols(., split_taxonomy_str(.$clade_name)))
+
+sample_metadata <- data.frame(
+  sample = colnames(counts),
+  group = gsub("-[0-9]+", "", colnames(counts))
+) %>% mutate(group = stringr::str_to_title(group))
+rownames(sample_metadata) <- sample_metadata$sample
+sample_metadata$group <- as.factor(sample_metadata$group)
+
+tse <- TreeSummarizedExperiment(
+  assays = SimpleList(
+    counts = counts
+    # relab.metaphlan = relab,
+    # coverage = coverage
+  ),
+  colData = sample_metadata,
+  rowData = taxa_labels
+)
+
+# Drop Homo-3 ?
+# tse <- tse[, !(tse$sample %in% c("Homo-3"))]
+
+# Compute relabundance
+tse <- transformCounts(tse,
+  assay.type = "counts",
+  method = "relabundance",
+  # pseudocount = 1
+)
+```
+
+```{r raw_table}
+(
+  df %>%
+    mutate(mean_abundance = rowMeans(select(., ends_with("_relative_abundance")), na.rm = TRUE)) %>%
+    arrange(desc(mean_abundance)) %>%
+    show_table(pageLength = 20, escape = FALSE, rownames = FALSE)
+)
+```
+
+```{r settings}
+taxa.level <- "Species"
+taxa.level.short <- "S"
+
+# This sets the feature names to the species
+# Mostly used for plotAbundanceDensity labels
+# features <- rownames(tse)  # save original rownames
+# rownames(tse) <- rowData(tse)[[taxa.level]]
+
+# We can recover originals like:
+# rownames(tse) <- features
+```
+
+## Taxonomy relative abundance
+
+Barplot at `r taxa.level` level:
+
+```{r taxa_barplot}
+source("analysis/tse_utils.R")
+
+height <- 172.5 * 0.75 * 0.7
+height <- height * 0.95 # scale down by 5% after removing group legend
+
+barplot <- (
+  taxa_barplot(tse, taxa.level,
+    n_top = 20,
+    show_group_legend = FALSE
+  )
+  # uncomment if show_group_legend = TRUE
+  #+ theme(legend.position = 'right')
+  #+ theme(legend.position = c(1.2, 2))
+)
+
+barplot
+
+ggsave("docs/plots/Part_A_composition_barplot.tiff", barplot,
+  device = "tiff", compression = "lzw", units = "mm", width = 180,
+  height = height, dpi = 600
+)
+
+ggsave("docs/plots/Part_A_composition_barplot.png", barplot,
+  device = "png", units = "mm", width = 180, height = height, dpi = 600
+)
+
+ggsave("docs/plots/Part_A_composition_barplot.svg", barplot,
+  device = "svg", units = "mm", width = 180, height = height, dpi = 600
+)
+```
+
+Barplot, Abx/Homo and Het/Homo at `r taxa.level` level:
+
+```{r taxa_barplot_hethomo}
+barplot.hethomo <- (
+  taxa_barplot(dropCondition(tse, "group", "Abx"), taxa.level,
+    n_top = 20,
+    show_group_legend = FALSE
+  )
+  # uncomment if show_group_legend = TRUE
+  #+ theme(legend.position = 'right')
+  #+ theme(legend.position = c(1.2, 2))
+)
+
+barplot.hethomo
+
+ggsave("docs/plots/Part_Asplit_composition_barplot.hethomo.tiff", barplot.hethomo,
+  device = "tiff", compression = "lzw", units = "mm", width = 130, height = height, dpi = 600
+)
+
+ggsave("docs/plots/Part_Asplit_composition_barplot.hethomo.png", barplot.hethomo,
+  device = "png", units = "mm", width = 130, height = height, dpi = 600
+)
+
+ggsave("docs/plots/Part_Asplit_composition_barplot.hethomo.svg", barplot.hethomo,
+  device = "svg", units = "mm", width = 130, height = height, dpi = 600
+)
+```
+
+```{r taxa_barplot_abxhomo}
+tse.nohet <- dropCondition(tse, "group", "Het")
+colData(tse.nohet)$group <- factor(colData(tse.nohet)$group,
+  levels = c("Homo", "Abx")
+)
+
+barplot.abxhomo <- (
+  taxa_barplot(tse.nohet, taxa.level,
+    n_top = 20,
+    show_group_legend = FALSE
+  )
+  # uncomment if show_group_legend = TRUE
+  #+ theme(legend.position = 'right')
+  #+ theme(legend.position = c(1.2, 2))
+)
+
+barplot.abxhomo
+
+ggsave("docs/plots/Part_Asplit_composition_barplot.abxhomo.tiff", barplot.abxhomo,
+  device = "tiff", compression = "lzw", units = "mm", width = 130, height = height, dpi = 600
+)
+
+ggsave("docs/plots/Part_Asplit_composition_barplot.abxhomo.png", barplot.abxhomo,
+  device = "png", units = "mm", width = 130, height = height, dpi = 600
+)
+
+ggsave("docs/plots/Part_Asplit_composition_barplot.abxhomo.svg", barplot.abxhomo,
+  device = "svg", units = "mm", width = 130, height = height, dpi = 600
+)
+```
+
+
+Distributions of taxonomic abundances for top taxa, by `r taxa.level`:
+
+```{r abundance_scatter, include=FALSE, eval=FALSE}
+# tse_glom <- mia::agglomerateByRank(tse, rank = taxa.level, onRankOnly = TRUE)
+
+# plotAbundanceDensity(tse_glom,
+#   layout = "jitter", assay.type = "relabundance",
+#   n = 20, point_size = 1, point_shape = 19, point_alpha = 0.5,
+#   colour_by = "group"
+# ) +
+#   scale_x_log10(label = scales::percent) +
+#   ggtitle(f("Relative abundance of top {taxa.level}"))
+```
+
+Top 20 `r taxa.level` relatative abundance distributions:
+```{r abundance_density}
+tse_glom <- mia::agglomerateByRank(tse, rank = taxa.level, onRankOnly = TRUE)
+
+# disable scientific notation (for the x-axis)
+scipen.save <- options()$scipen
+options(scipen = 999)
+
+density.plot <- plotAbundanceDensity(tse_glom,
+  layout = "density", assay.type = "relabundance",
+  n = 20, colour_by = "group", point_alpha = 1 / 10,
+) +
+  # geom_point(aes(y='relabundance', color='group'), size=1, alpha=0.5) +
+  scale_x_log10() +
+  ggtitle(f("Relative abundance density of top {taxa.level}")) +
+  theme(
+    text = element_text(size = 8),
+    axis.title = element_text(size = 8),
+    axis.text.x = element_text(size = 8),
+    axis.title.y = element_text(size = 8),
+    strip.text = element_text(size = 8),
+    legend.text = element_text(size = 8),
+  )
+
+options(scipen = scipen.save)
+
+density.plot
+
+ggsave("docs/plots/Part_B_top_taxa_density_plot.tiff", density.plot,
+  device = "tiff", compression = "lzw", units = "mm", width = 150, height = 150, dpi = 600
+)
+
+ggsave("docs/plots/Part_B_top_taxa_density_plot.png", density.plot,
+  device = "png", units = "mm", width = 150, height = 150, dpi = 600
+)
+
+ggsave("docs/plots/Part_B_top_taxa_density_plot.svg", density.plot,
+  device = "svg", units = "mm", width = 150, height = 150, dpi = 600
+)
+```
+
+Top 20 `r taxa.level` relatative abundance distributions, `Het`/`Homo` and `Abx`/`Homo` only:
+```{r mia_relabundance_density_hethomo}
+# disable scientific notation (for the x-axis)
+scipen.save <- options()$scipen
+options(scipen = 999)
+
+density.plot <- plotAbundanceDensity(dropCondition(tse_glom, "group", "Abx"),
+  layout = "density", assay.type = "relabundance",
+  n = 20, colour_by = "group", point_alpha = 1 / 10,
+) +
+  # geom_point(aes(y='relabundance', color='group'), size=1, alpha=0.5) +
+  scale_x_log10() +
+  ggtitle(f("Relative abundance density of top {taxa.level}")) +
+  theme(
+    text = element_text(size = 8),
+    axis.title = element_text(size = 8),
+    axis.text.x = element_text(size = 8),
+    axis.title.y = element_text(size = 8),
+    strip.text = element_text(size = 8),
+    legend.text = element_text(size = 8),
+    plot.title = element_text(size = 8, hjust = 0.5)
+  )
+
+options(scipen = scipen.save)
+
+w <- 120 # 150
+h <- 100 # 150
+ggsave("docs/plots/Part_Bsplit_top_taxa_density_plot.hethomo.tiff", density.plot,
+  device = "tiff", compression = "lzw", units = "mm", width = w, height = h, dpi = 600
+)
+
+ggsave("docs/plots/Part_Bsplit_top_taxa_density_plot.hethomo.png", density.plot,
+  device = "png", units = "mm", width = w, height = h, dpi = 600
+)
+
+ggsave("docs/plots/Part_Bsplit_top_taxa_density_plot.hethomo.svg", density.plot,
+  device = "svg", units = "mm", width = w, height = h, dpi = 600
+)
+```
+
+```{r mia_relabundance_density_abxhomo}
+# disable scientific notation (for the x-axis)
+scipen.save <- options()$scipen
+options(scipen = 999)
+
+density.plot <- plotAbundanceDensity(dropCondition(tse_glom, "group", "Het"),
+  layout = "density", assay.type = "relabundance",
+  n = 20, colour_by = "group", point_alpha = 1 / 10,
+) +
+  # geom_point(aes(y='relabundance', color='group'), size=1, alpha=0.5) +
+  scale_x_log10() +
+  ggtitle(f("Relative abundance density of top {taxa.level}")) +
+  theme(
+    text = element_text(size = 8),
+    axis.title = element_text(size = 8),
+    axis.text.x = element_text(size = 8),
+    axis.title.y = element_text(size = 8),
+    strip.text = element_text(size = 8),
+    legend.text = element_text(size = 8),
+    plot.title = element_text(size = 8, hjust = 0.5)
+  )
+
+options(scipen = scipen.save)
+
+w <- 120 # 150
+h <- 100 # 150
+ggsave("docs/plots/Part_Bsplit_top_taxa_density_plot.abxhomo.tiff", density.plot,
+  device = "tiff", compression = "lzw", units = "mm", width = w, height = h, dpi = 600
+)
+
+ggsave("docs/plots/Part_Bsplit_top_taxa_density_plot.abxhomo.png", density.plot,
+  device = "png", units = "mm", width = w, height = h, dpi = 600
+)
+
+ggsave("docs/plots/Part_Bsplit_top_taxa_density_plot.abxhomo.svg", density.plot,
+  device = "svg", units = "mm", width = w, height = h, dpi = 600
+)
+```
+
+
+Heatmap with hierarchical clustering based on 20 most abundanant taxa (all samples, and Het/Homo only):
+Color intensity indicates the Z-score of the CLR (centered-log ratio) relative abundance.
+
+```{r top_taxa_clr_z_heatmap}
+# https://microbiome.github.io/OMA/microbiome-community.html#composition-heatmap
+library(mia)
+library(miaViz)
+library(pheatmap)
+
+# Take only Het/Homo - we do this FIRST so the CLR transformation is based on only Het/Homo
+tse_glom.hethomo <- tse_glom[, tse_glom$group %in% c("Het", "Homo")]
+
+# Add clr-transformation
+tse_glom.hethomo <- mia::transformCounts(tse_glom.hethomo,
+  # assay.type = "counts",
+  # assay.type = "depth",
+  assay.type = "relabundance",
+  method = "clr",
+  pseudocount = TRUE
+)
+
+tse_glom.hethomo <- mia::transformCounts(tse_glom.hethomo,
+  assay.type = "clr",
+  MARGIN = "features",
+  method = "z", name = "clr_z"
+)
+
+# Get n most abundant taxa, and subsets the data by them
+top_taxa <- getTopFeatures(
+  tse_glom.hethomo,
+  top = min(nrow(rowData(tse_glom)), 20),
+  assay.type = "relabundance"
+)
+
+tse_glom_top <- tse_glom.hethomo[top_taxa, ]
+
+# Get the assay table
+mat <- assay(tse_glom_top, "clr_z")
+
+# Het/Homo only
+mat <- assay(tse_glom_top[, tse_glom_top$group %in% c("Het", "Homo")], "clr_z")
+# Drop homo_3
+# mat <- assay(tse_glom_top[, tse_glom_top$group %in% c('Het', 'Homo') & (tse_glom_top$sample != "Homo-3")], "clr_z")
+
+set.seed(42)
+# Create the heatmap
+taxa.heatmap.top.clr_z <- pheatmap(mat,
+  clustering_distance_cols = "euclidean",
+  cluster_cols = FALSE,
+  clustering_distance_rows = "euclidean",
+  # kmeans_k=4,
+  # main="Hierarchical clustering of top 20 species (z-transformed CLR)",
+  # cutree_cols = 2,
+  gaps_col = 5,
+  legend = TRUE,
+  cellwidth = 10, cellheight = 10,
+  treeheight_row = 20, treeheight_col = 20,
+  fontsize = 8,
+  angle_col = 90,
+  breaks = seq(-2.5, 2.5, length.out = 101),
+  legend_breaks = seq(-2.5, 2.5, by = 0.5),
+  legend_labels = sprintf("%.1f", seq(-2.5, 2.5, by = 0.5))
+)
+
+# Viridis version
+taxa.heatmap.top.clr_z.v <- pheatmap(mat,
+  clustering_distance_cols = "euclidean",
+  cluster_cols = FALSE,
+  clustering_distance_rows = "euclidean",
+  # kmeans_k=4,
+  # main="Hierarchical clustering of top 20 species (z-transformed CLR)",
+  # cutree_cols = 2,
+  gaps_col = 5,
+  legend = TRUE,
+  cellwidth = 10, cellheight = 10,
+  fontsize = 8,
+  treeheight_row = 20, treeheight_col = 20,
+  angle_col = 90,
+  color = viridis(n = 64, option = "viridis"),
+  breaks = seq(-2.5, 2.5, length.out = 64),
+  legend_breaks = seq(-2.5, 2.5, by = 0.5),
+  legend_labels = sprintf("%.1f", seq(-2.5, 2.5, by = 0.5))
+)
+
+taxa.heatmap.top.clr_z
+
+ggsave("docs/plots/Part_D_top_taxa_clr_z_heatmap.tiff", taxa.heatmap.top.clr_z,
+  device = "tiff", compression = "lzw", units = "mm", width = 180 * 0.75, height = 172.5 * 0.75, dpi = 600
+)
+
+ggsave("docs/plots/Part_D_top_taxa_clr_z_heatmap.png", taxa.heatmap.top.clr_z,
+  device = "png", units = "mm", width = 180 * 0.75, height = 172.5 * 0.75, dpi = 600
+)
+
+ggsave("docs/plots/Part_D_top_taxa_clr_z_heatmap.svg", taxa.heatmap.top.clr_z,
+  device = "svg", units = "mm", width = 180 * 0.75, height = 172.5 * 0.75, dpi = 600
+)
+
+ggsave("docs/plots/Part_D_top_taxa_clr_z_heatmap.v.tiff", taxa.heatmap.top.clr_z.v,
+  device = "tiff", compression = "lzw", units = "mm", width = 180 * 0.75, height = 172.5 * 0.75, dpi = 600
+)
+
+ggsave("docs/plots/Part_D_top_taxa_clr_z_heatmap.v.png", taxa.heatmap.top.clr_z.v,
+  device = "png", units = "mm", width = 180 * 0.75, height = 172.5 * 0.75, dpi = 600
+)
+
+ggsave("docs/plots/Part_D_top_taxa_clr_z_heatmap.v.svg", taxa.heatmap.top.clr_z.v,
+  device = "svg", units = "mm", width = 180 * 0.75, height = 172.5 * 0.75, dpi = 600
+)
+```
+
+
+```{r filtered_counts}
+# Make a new SummarizedExperiment where taxa must have non-zero counts for half the samples
+
+counts.glom <- assay(tse_glom[, tse_glom_top$group %in% c("Het", "Homo")], "counts")
+keep <- counts.glom >= 10
+features_to_keep <- rowSums(keep) >= (ncol(counts.glom) / 2)
+tse_glom.filtered <- tse_glom[features_to_keep, ]
+```
+
+Heatmap with hierarchical clustering based all taxa with at least 10 counts in half the samples (Het/Homo only):
+Color intensity indicates the Z-score of the CLR (centered-log ratio) relative abundance.
+
+```{r all_taxa_clrz_heatmap}
+# https://microbiome.github.io/OMA/microbiome-community.html#composition-heatmap
+library(mia)
+library(miaViz)
+library(pheatmap)
+
+# Take only Het/Homo
+# tse_glom <- tse_glom[, tse_glom$group %in% c("Het", "Homo")]
+
+# Add clr-transformation
+tse_glom.filtered <- mia::transformCounts(tse_glom.filtered,
+  # assay.type = "counts",
+  # assay.type = "depth",
+  assay.type = "relabundance",
+  method = "clr",
+  pseudocount = TRUE
+)
+
+tse_glom.filtered <- mia::transformCounts(tse_glom.filtered,
+  assay.type = "clr",
+  MARGIN = "features",
+  method = "z", name = "clr_z"
+)
+
+# Get n most abundant taxa, and subsets the data by them
+top_taxa <- getTopFeatures(
+  tse_glom.filtered,
+  top = min(nrow(rowData(tse_glom.filtered)), 10000),
+  assay.type = "relabundance"
+)
+
+tse_glom_top <- tse_glom.filtered[top_taxa, ]
+
+# Get the assay table
+mat <- assay(tse_glom_top, "clr_z")
+
+# Het/Homo only
+mat <- assay(tse_glom_top[, tse_glom_top$group %in% c("Het", "Homo")], "clr_z")
+# Drop homo_3
+# mat <- assay(tse_glom_top[, tse_glom_top$group %in% c('Het', 'Homo') & (tse_glom_top$sample != "Homo-3")], "clr_z")
+
+# Create the heatmap
+pheatmap(mat,
+  clustering_distance_cols = "euclidean",
+  clustering_distance_rows = "euclidean",
+  # kmeans_k=4,
+  main = "Hierarchical clustering (z-transformed CLR)",
+  legend = TRUE,
+  cellwidth = 12, cellheight = 12,
+  fontsize = 8
+)
+```
+
+Heatmap with hierarchical clustering using log10-relative abundance based the top 20 taxa (all samples, and Het/Homo only):
+Color intensity indicates the log10 of relative abundance.
+
+```{r top_taxa_abundance_heatmap_log}
+logstyle <- "log10"
+
+tse_glom.hethomo <- mia::transformCounts(tse_glom.hethomo,
+  assay.type = "relabundance",
+  method = logstyle,
+  pseudocount = TRUE,
+  name = f("{logstyle}_relabundance"),
+)
+
+top_taxa <- getTopFeatures(
+  tse_glom.hethomo,
+  top = min(nrow(rowData(tse_glom)), 20),
+  method = "mean",
+  assay.type = "relabundance"
+)
+
+tse_glom_top <- tse_glom.hethomo[top_taxa, ]
+
+mat <- assay(tse_glom_top, f("{logstyle}_relabundance"))
+
+# Het/Homo only
+mat <- assay(tse_glom_top[, tse_glom_top$group %in% c("Het", "Homo")], f("{logstyle}_relabundance"))
+# Drop homo_3
+# mat <- assay(tse_glom[, tse_glom$group %in% c('Het', 'Homo') & (tse_glom$sample != "homo_3")], "clr_z")
+
+# Create the heatmap
+taxa.heatmap.log10relab <- pheatmap(mat,
+  cluster_cols = FALSE,
+  clustering_distance_cols = "euclidean",
+  clustering_distance_rows = "euclidean",
+  # kmeans_k=4,
+  # main="Hierarchical clustering log10 relative abundance (top 20 taxa)",
+  cellwidth = 10, cellheight = 10,
+  treeheight_row = 20, treeheight_col = 20,
+  fontsize = 8,
+  angle_col = 90,
+  breaks = seq(-5, 0, length.out = 101),
+)
+
+taxa.heatmap.log10relab.v <- pheatmap(mat,
+  cluster_cols = FALSE,
+  clustering_distance_cols = "euclidean",
+  clustering_distance_rows = "euclidean",
+  # kmeans_k=4,
+  # main="Hierarchical clustering log10 relative abundance (top 20 taxa)",
+  cellwidth = 10, cellheight = 10,
+  treeheight_row = 20, treeheight_col = 20,
+  fontsize = 8,
+  angle_col = 90,
+  color = viridis(n = 64, option = "viridis"),
+  breaks = seq(-5, 0, length.out = 64),
+)
+
+taxa.heatmap.log10relab
+
+ggsave("docs/plots/Part_Dalt_top_taxa_log_relab_heatmap.tiff", taxa.heatmap.log10relab,
+  device = "tiff", compression = "lzw", units = "mm", width = 180 * 0.75, height = 172.5 * 0.75, dpi = 600
+)
+
+ggsave("docs/plots/Part_Dalt_top_taxa_log_relab_heatmap.png", taxa.heatmap.log10relab,
+  device = "png", units = "mm", width = 180 * 0.75, height = 172.5 * 0.75, dpi = 600
+)
+
+ggsave("docs/plots/Part_Dalt_top_taxa_log_relab_heatmap.v.tiff", taxa.heatmap.log10relab.v,
+  device = "tiff", compression = "lzw", units = "mm", width = 180 * 0.75, height = 172.5 * 0.75, dpi = 600
+)
+
+ggsave("docs/plots/Part_Dalt_top_taxa_log_relab_heatmap.v.png", taxa.heatmap.log10relab.v,
+  device = "png", units = "mm", width = 180 * 0.75, height = 172.5 * 0.75, dpi = 600
+)
+```
+
+Heatmap with hierarchical clustering using log10-relative abundance based all taxa with at least 10 counts in half the samples (all samples, and Het/Homo only):
+Color intensity indicates the log10 of relative abundance.
+
+```{r all_taxa_abundance_heatmap_log}
+logstyle <- "log10"
+
+tse_glom.filtered <- mia::transformCounts(tse_glom.filtered,
+  assay.type = "relabundance",
+  method = logstyle,
+  pseudocount = TRUE,
+  name = f("{logstyle}_relabundance"),
+)
+
+top_taxa <- getTopFeatures(
+  tse_glom.filtered,
+  top = min(nrow(rowData(tse_glom.filtered)), 10000),
+  method = "mean",
+  assay.type = "relabundance"
+)
+
+tse_glom_top <- tse_glom.filtered[top_taxa, ]
+
+mat <- assay(tse_glom_top, f("{logstyle}_relabundance"))
+
+# Het/Homo only
+mat <- assay(tse_glom_top[, tse_glom_top$group %in% c("Het", "Homo")], f("{logstyle}_relabundance"))
+# Drop homo_3
+# mat <- assay(tse_glom[, tse_glom$group %in% c('Het', 'Homo') & (tse_glom$sample != "homo_3")], "clr_z")
+
+# Create the heatmap
+taxa.heatmap.log10relab <- pheatmap(mat,
+  cluster_cols = FALSE,
+  clustering_distance_cols = "euclidean",
+  clustering_distance_rows = "euclidean",
+  # kmeans_k=4,
+  cellwidth = 10, cellheight = 10,
+  fontsize = 8,
+  cutree_cols = 2,
+)
+
+taxa.heatmap.log10relab.v <- pheatmap(mat,
+  cluster_cols = FALSE,
+  clustering_distance_cols = "euclidean",
+  clustering_distance_rows = "euclidean",
+  # kmeans_k=4,
+  cellwidth = 10, cellheight = 10,
+  fontsize = 8,
+  color = viridis(n = 64, option = "viridis"),
+  cutree_cols = 2,
+)
+
+taxa.heatmap.log10relab
+
+ggsave("docs/plots/Part_D_taxa_log_relab_heatmap.tiff", taxa.heatmap.log10relab,
+  device = "tiff", compression = "lzw", units = "mm", dpi = 600, height = 600
+) # , width=180, height=172.5)
+
+ggsave("docs/plots/Part_D_taxa_log_relab_heatmap.png", taxa.heatmap.log10relab,
+  device = "png", units = "mm", dpi = 600, height = 600
+)
+
+ggsave("docs/plots/Part_D_taxa_log_relab_heatmap.v.tiff", taxa.heatmap.log10relab.v,
+  device = "tiff", compression = "lzw", units = "mm", dpi = 600, height = 600
+) # , width=180, height=172.5)
+
+ggsave("docs/plots/Part_D_taxa_log_relab_heatmap.v.png", taxa.heatmap.log10relab.v,
+  device = "png", units = "mm", dpi = 600, height = 600
+)
+```
+
+Heatmap with hierarchical clustering using unnormalized raw counts based all taxa with at least 10 counts in half the samples (all samples, and Het/Homo only):
+Color intensity indicates the counts.
+
+```{r heatmap_counts, include=FALSE, eval=FALSE}
+# top_taxa <- getTopFeatures(
+#   tse_glom,
+#   top = min(nrow(rowData(tse_glom)), 10000),
+#   method = "mean",
+#   assay.type = "counts")
+
+tse_glom_top <- tse_glom.filtered # tse_glom[top_taxa, ]
+
+mat <- assay(tse_glom_top, f("counts"))
+
+# Het/Homo only
+mat <- assay(tse_glom_top[, tse_glom_top$group %in% c("Het", "Homo")], f("counts"))
+# Drop homo_3
+# mat <- assay(tse_glom[, tse_glom$group %in% c('Het', 'Homo') & (tse_glom$sample != "homo_3")], "clr_z")
+
+# Create the heatmap
+pheatmap(mat,
+  clustering_distance_cols = "euclidean",
+  clustering_distance_rows = "euclidean",
+  # kmeans_k=4,
+  cellwidth = 12, cellheight = 12,
+  fontsize = 8
+)
+```
+
+Heatmap with hierarchical clustering based on rank of relative abundance based all taxa with at least 10 counts in half the samples (Het/Homo only):
+Color intensity indicates the rank of the relative abundance for this species.
+
+```{r all_taxa_heatmap_rank}
+tse_glom.filtered <- mia::transformCounts(tse_glom,
+  assay.type = "relabundance",
+  method = "rank",
+  pseudocount = TRUE,
+  name = f("rank_relabundance"),
+)
+
+top_taxa <- getTopFeatures(
+  tse_glom,
+  top = min(nrow(rowData(tse_glom.filtered)), 10000),
+  method = "mean",
+  assay.type = "relabundance"
+)
+
+tse_glom_top <- tse_glom.filtered[top_taxa, ]
+
+mat <- assay(tse_glom_top, f("rank_relabundance"))
+
+# Het/Homo only
+mat <- assay(tse_glom_top[, tse_glom_top$group %in% c("Het", "Homo")], f("rank_relabundance"))
+# Drop homo_3
+# mat <- assay(tse_glom[, tse_glom$group %in% c('Het', 'Homo') & (tse_glom$sample != "homo_3")], "clr_z")
+
+# Create the heatmap
+pheatmap(mat,
+  clustering_distance_cols = "euclidean",
+  clustering_distance_rows = "euclidean",
+  # kmeans_k=4,
+  cellwidth = 12, cellheight = 12,
+  fontsize = 8
+)
+```
+
+### Alpha diversity and richness measure
+```{r alpha_diversity_observed}
+tse <- mia::estimateRichness(tse_glom,
+  assay.type = "counts",
+  index = "observed",
+  name = "observed"
+)
+
+plotColData(tse,
+  "observed",
+  "group",
+  colour_by = "group"
+) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  ggtitle(f("Observed features alpha-diversity ({taxa.level})")) +
+  ylab(expression(Richness[Observed]))
+```
+
+```{r}
+metaphaln.alpha.diversity.df <- as.data.frame(colData(tse))
+write.csv(metaphaln.alpha.diversity.df, "docs/plots/metaphaln_alpha_diversity_observed.csv", row.names = FALSE)
+```
+
+```{r alpha_diversity_chao1, include=FALSE, eval=FALSE}
+# `Chao1` is a measure of richness that estimates the number of species (it gives more weight to low abundance species).
+# Since `Chao1` is just an additive term to total observed features, and depends on singletons (taxa count = 1) and doubletons (taxa count = 2),
+# in this case `Chao1` is identical to the number observed features (we have no singletons).
+
+tse <- mia::estimateRichness(tse_glom,
+  assay.type = "counts",
+  index = "chao1",
+  name = "chao1"
+)
+
+plotColData(tse,
+  "chao1",
+  "group",
+  colour_by = "group"
+) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  ggtitle(f("Chao1 alpha-diversity ({taxa.level})")) +
+  ylab(expression(Richness[Chao1]))
+```
+
+An another measure of diversity within each sample is the Shannon Index, plotted below. 
+We can test if the Shannon Index is significantly different between groups.
+
+```{r alpha_diversity_tests}
+library(ggsignif)
+library(ggplot2)
+library(patchwork)
+
+tse <- mia::estimateDiversity(tse_glom,
+  assay.type = "counts",
+  index = "shannon",
+  name = "shannon"
+)
+
+# Subsets the data (if we only want to compare Homo and Het)
+df <- as.data.frame(colData(tse)[tse$group %in%
+  c("Abx", "Homo", "Het"), ])
+
+df$group <- factor(df$group)
+
+# For significance testing, all different combinations are determined
+comb <- split(
+  t(combn(levels(df$group), 2)),
+  seq(nrow(t(combn(levels(df$group), 2))))
+)
+
+ggplot(df, aes(x = group, y = shannon)) +
+  # Outliers are removed, because otherwise each data point would be plotted twice;
+  # as an outlier of boxplot and as a point of dotplot.
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.2) +
+  geom_signif(comparisons = comb, map_signif_level = FALSE, test = "wilcox.test") +
+  theme(text = element_text(size = 10)) +
+  ggtitle(f("Shannon alpha-diversity ({taxa.level})"))
+
+# Show as a table
+# tse %>% dplyr::select("taxon", "shannon") %>% show_table()
+```
+
+```{r}
+metaphaln.alpha.diversity.df <- as.data.frame(colData(tse))
+write.csv(metaphaln.alpha.diversity.df, "docs/plots/metaphaln_alpha_diversity_shannon.csv", row.names = FALSE)
+```
+
+There doesn't appear to be and significant difference in alpha diversity (Shannon diversity, Wilcoxson Rank-Sum test) between `Het` and `Homo`. 
+The variance in diversity between `Homo` samples is higher than `Het`.
+
+### Beta diversity - Bray-Curtis PCoA
+
+Bray-Curtis dissimilarity quantifies the difference between the composition of groups in the range 0 to 1, where 1 is most dissimilar.
+If both samples share the same taxa at the same relative abundance, their Bray-Curtis dissimilarity is 0. 
+If they share no common taxa, they will have a dissimilarity of 1.
+
+```{r beta_diversity_bray_all}
+# PCoA
+tse_glom <- runMDS(tse_glom,
+  FUN = vegan::vegdist,
+  method = "bray",
+  name = "PCoA_BC",
+  assay.type = "relabundance"
+)
+
+# Create ggplot object
+p <- plotReducedDim(tse_glom, "PCoA_BC",
+  colour_by = "group"
+)
+
+# Calculate explained variance
+e <- attr(reducedDim(tse_glom, "PCoA_BC"), "eig")
+rel_eig <- e / sum(e[e > 0])
+
+# Add explained variance for each axis
+p <- p + labs(
+  x = paste("PCoA 1 (", round(100 * rel_eig[[1]], 1), "%", ")", sep = ""),
+  y = paste("PCoA 2 (", round(100 * rel_eig[[2]], 1), "%", ")", sep = ""),
+  title = "Bray-Curtis index, PCoA",
+  subtitle = "Beta diversity of all samples"
+)
+
+p
+```
+
+
+```{r beta_diversity_bray_het_homo_only}
+# We use Guila's theme for this plot - this requires a bit of messing about
+# since scater::plotReducedDim renames the 'group' to 'colour_by'
+# guila_palette <- c('#7D83F8', '#7DB8F3', 'grey')
+guila_palette <- c("#7DB8F3", "grey")
+names(guila_palette) <- c("Homo", "Het")
+gulia_theme <- theme_classic() +
+  theme(
+    plot.title = element_text(face = "bold"),
+    strip.background = element_rect(fill = "lightgrey", linewidth = 0),
+    strip.text = element_text(face = "bold", colour = "black"),
+    legend.position = "right", legend.justification = "left",
+    text = element_text(size = 8)
+  )
+
+# Drop the Abx condition (and any features that were unique to that condition)
+tse.hh <- dropCondition(tse_glom, group, "Abx")
+
+# PCoA
+tse.hh <- runMDS(tse.hh,
+  FUN = vegan::vegdist,
+  method = "bray",
+  name = "PCoA_BC",
+  assay.type = "relabundance"
+)
+
+permanova.adonis2 <- vegan::adonis2(t(assay(tse.hh, "relabundance")) ~ group,
+  data = colData(tse.hh),
+  permutations = 9999
+)
+# We run adonis2 here, just to get the relevant stats to associate with the PCoA
+# (adonis [deprecated] is run again below, since I've not found an easy way to extract the
+# coefficients from adonis2)
+# Extract stats from PERMANOVA (adonis2) output
+annotation <- paste(paste("SumOfSqs =", round(permanova.adonis2["group", ]$SumOfSqs, )),
+  paste("R2 =", round(permanova.adonis2["group", ]$R2, 3)),
+  paste("p =", round(permanova.adonis2["group", ]$Pr, 3)),
+  sep = " ; "
+)
+
+# Create ggplot object
+p <- scater::plotReducedDim(tse.hh, "PCoA_BC",
+  colour_by = "group"
+)
+
+# Calculate explained variance
+e <- attr(reducedDim(tse.hh, "PCoA_BC"), "eig")
+rel_eig <- e / sum(e[e > 0])
+
+# Add explained variance for each axis
+p <- p + labs(
+  x = paste("PCoA 1 (", round(100 * rel_eig[[1]], 1), "%", ")", sep = ""),
+  y = paste("PCoA 2 (", round(100 * rel_eig[[2]], 1), "%", ")", sep = ""),
+  title = "Bray-Curtis index, PCoA",
+  subtitle = "Beta diversity of Het vs Homo samples"
+) +
+  # Additional theming, point styles to follow Guila's theme
+  geom_point(aes(fill = colour_by), shape = 21, color = "black") +
+  scale_fill_manual(values = guila_palette) +
+  ggforce::geom_mark_hull(aes(fill = colour_by), 
+                expand = unit(1.9, "mm"),
+                radius = unit(2, "mm"),
+                concavity = 4,
+                colour = NA,
+                alpha = 0.2) +
+  # ggforce::geom_mark_ellipse(aes(fill = colour_by),
+  #   expand = unit(2, "mm"),
+  #   radius = unit(1, "mm"),
+  #   n=100,
+  #   tol=0.01,
+  #   colour = NA,
+  #   alpha = 0.2
+  # ) +
+  labs(
+    caption = annotation,
+  ) +
+  guides(
+    colour = "none",
+    fill = guide_legend(title = "Group")
+  ) +
+  gulia_theme
+
+p
+
+# Save the plot in multiple formats
+plot.size <- c(80, 80)
+ggsave("docs/plots/Bray_Curtis_PCoA_HetHomo.tiff", p,
+  device = "tiff", compression = "lzw",
+  units = "mm", width = plot.size[1], height = plot.size[2], dpi = 600
+)
+
+ggsave("docs/plots/Bray_Curtis_PCoA_HetHomo.png", p,
+  device = "png",
+  units = "mm", width = plot.size[1], height = plot.size[2], dpi = 600
+)
+
+ggsave("docs/plots/Bray_Curtis_PCoA_HetHomo.svg", p,
+  device = "svg",
+  units = "mm", width = plot.size[1], height = plot.size[2], dpi = 600
+)
+```
+
+```{r beta_diversity_jaccard_het_homo_only, include=FALSE, eval=FALSE}
+# Drop the Abx condition (and any features that were unique to that condition)
+tse.hh <- dropCondition(tse_glom, group, "Abx")
+
+# PCoA
+tse.hh <- runMDS(tse.hh,
+  FUN = vegan::vegdist,
+  method = "jaccard",
+  name = "PCoA_Jaccard",
+  assay.type = "relabundance"
+)
+
+# Create ggplot object
+p <- plotReducedDim(tse.hh, "PCoA_Jaccard",
+  colour_by = "group"
+)
+
+# Calculate explained variance
+e <- attr(reducedDim(tse.hh, "PCoA_Jaccard"), "eig")
+rel_eig <- e / sum(e[e > 0])
+
+# Add explained variance for each axis
+p <- p + labs(
+  x = paste("PCoA 1 (", round(100 * rel_eig[[1]], 1), "%", ")", sep = ""),
+  y = paste("PCoA 2 (", round(100 * rel_eig[[2]], 1), "%", ")", sep = ""),
+  title = "Jaccard Beta Diversity, PCoA",
+  subtitle = "Het vs Homo samples"
+)
+
+p
+```
+
+When we exclude the `Abx` samples, the `Het` and `Homo` samples show clear seperation based on the first two PCoA dimensions.
+
+### PERMANOVA
+
+PERMANOVA can be used to test which taxa most contribute to the differences in overall relative abundance between `Het` and `Homo` (based on the centroid and dispersion of all taxonomic abundances at the `r taxa.level` level).
+
+```{r permanova}
+library(vegan)
+
+permanova <- vegan::adonis(t(assay(tse.hh, "relabundance")) ~ group,
+  data = colData(tse.hh),
+  permutations = 9999
+)
+
+# P-value
+permanova.p <- as.data.frame(permanova$aov.tab)["group", "Pr(>F)"]
+print(paste0("PERMANOVA composition differences p-value, Het vs Homo: ", permanova.p))
+
+coef <- coefficients(permanova)["group1", ]
+top.coef <- sort(head(coef[rev(order(abs(coef)))], 20))
+
+# Check the homogeneity condition (PERMDISP2)
+tse.hh <- runNMDS(
+  tse.hh,
+  FUN = vegan::vegdist,
+  name = "NMDS_BC",
+  nmdsFUN = "monoMDS",
+  exprs_values = "relabundance",
+  keep_dist = TRUE
+)
+
+# perma.df <- data.frame(
+#   feature=factor(names(coef),unique(names(coef)),
+#   coefficients=coef)
+# )
+
+show_table(data.frame(top.coef) %>% arrange(-top.coef))
+
+ggplot(
+  data.frame(
+    x = top.coef,
+    y = factor(
+      names(top.coef),
+      unique(names(top.coef))
+    )
+  ),
+  aes(x = x, y = y)
+) +
+  geom_bar(stat = "identity") +
+  labs(x = "", y = "coefficient", title = "Top Taxa") +
+  theme_bw()
+```
+
+A PERMANOVA p-value <0.05 (p=0.0071, 9999 permutations) suggests that the centroids and/or dispersion for the 
+Bray-Curis dissimilarity between the groups is different.
+
+The plot of PERMANOVA coefficients, which can be interpreted as an effect size, 
+give an indication of the taxa contributing to the difference between groups 
+(in this case, based on Bray-Curtis dissimilarity).
+
+PERMDISP2 test for homogeneity of group dispersions:
+```{r permadisp2}
+print("PERMDISP2 test for homogeneity of group dispersions: ")
+permadisp <- vegan::betadisper(
+  attr(reducedDim(tse.hh, "NMDS_BC"), "dist"),
+  colData(tse.hh)$group
+)
+anova(permadisp)
+
+permadisp.scores <- scores(permadisp)
+permadisp.scores
+
+TukeyHSD(permadisp)
+
+mean_distances <- permadisp$group.distances
+print("Mean distances to group centroids (as in box plot):")
+print(mean_distances)
+
+png("docs/plots/permadisp2_boxplot_hethomo.png",
+  width = 100, height = 100, units = "mm", res = 300
+)
+boxplot(permadisp, xlab = "Group")
+dev.off()
+
+png("docs/plots/permadisp2_plot_hethomo.png",
+  width = 100, height = 100, units = "mm", res = 300
+)
+plot(permadisp)
+dev.off()
+```
+
+```{r permdisp2_pcoa_to_centroid_plot}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+# Create dataframe for sites with Group column
+sites_df <- as.data.frame(permadisp.scores$sites)
+colnames(sites_df) <- c("PCoA1", "PCoA2") # Explicitly name columns
+sites_df$Group <- c(rep("Het", 5), rep("Homo", 5))
+
+# Create dataframe for centroids
+centroids_df <- as.data.frame(permadisp.scores$centroids)
+colnames(centroids_df) <- c("PCoA1", "PCoA2") # Explicitly name columns
+centroids_df$Group <- rownames(centroids_df)
+
+# Create segments dataframe by joining sites with their corresponding centroids
+segments_df <- sites_df %>%
+  as.data.frame() %>% # Ensure it's a data frame
+  dplyr::left_join(centroids_df %>% as.data.frame(), by = "Group", suffix = c(".site", ".centroid"))
+
+# Create the plot
+p <- ggplot() +
+  # Add segments from points to centroids
+  geom_segment(
+    data = segments_df,
+    aes(
+      x = PCoA1.site, y = PCoA2.site,
+      xend = PCoA1.centroid, yend = PCoA2.centroid,
+      color = Group
+    ),
+    alpha = 0.5
+  ) +
+  # Add points for sites
+  geom_point(
+    data = sites_df,
+    aes(x = PCoA1, y = PCoA2, color = Group),
+    size = 3
+  ) +
+  # Add points for centroids, with show.legend=FALSE
+  geom_point(
+    data = centroids_df,
+    aes(x = PCoA1, y = PCoA2, color = Group),
+    shape = 8, size = 4, show.legend = FALSE
+  ) +
+  # Customize appearance
+  theme_bw() +
+  ggtitle("PERMADISP2 scores from Bray-Curtis PCoA") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+p
+
+# Save the plot in multiple formats
+ggsave("docs/plots/permadisp2_pcoa_to_centroid_plot.tiff", p,
+  device = "tiff", compression = "lzw",
+  units = "mm", width = 100, height = 100, dpi = 600
+)
+
+ggsave("docs/plots/permadisp2_pcoa_to_centroid_plot.png", p,
+  device = "png",
+  units = "mm", width = 100, height = 100, dpi = 600
+)
+
+ggsave("docs/plots/permadisp2_pcoa_to_centroid_plot.svg", p,
+  device = "svg",
+  units = "mm", width = 100, height = 100, dpi = 600
+)
+```
+
+```{r permdisp2_boxplot}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(ggpubr) # for stat_compare_means
+
+# Create dataframe with distances and groups
+distances_df <- data.frame(
+  Distance = permadisp$distances,
+  Group = c(rep("Het", 5), rep("Homo", 5))
+)
+
+# Create the boxplot with consistent colors
+p <- ggplot(distances_df, aes(x = Group, y = Distance, color = Group)) +
+  geom_boxplot(width = 0.5, outlier.shape = NA) +
+  geom_jitter(width = 0.2, size = 3, alpha = 0.6) +
+  stat_compare_means(
+    method = "anova",
+    label.y.npc = 0.95,
+    label = "p.format", # Show actual p-value
+    bracket.size = 0.5,
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = c("Het" = "#729ECE", "Homo" = "#FF9E4A")) +
+  theme_bw() +
+  ggtitle("PERMADISP2 distances to centroid") +
+  ylab("Distance to Centroid") +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "none"
+  ) # Remove legend as it's redundant
+
+p
+
+# Save the plot
+ggsave("docs/plots/permadisp2_distances_boxplot.tiff", p,
+  device = "tiff", compression = "lzw",
+  units = "mm", width = 100, height = 100, dpi = 600
+)
+
+ggsave("docs/plots/permadisp2_distances_boxplot.png", p,
+  device = "png",
+  units = "mm", width = 100, height = 100, dpi = 600
+)
+
+ggsave("docs/plots/permadisp2_distances_boxplot.svg", p,
+  device = "svg",
+  units = "mm", width = 100, height = 100, dpi = 600
+)
+
+# Print the actual ANOVA results
+print(summary(aov(Distance ~ Group, data = distances_df)))
+
+# Write distances dataframe to CSV
+write.csv(distances_df, "docs/plots/permadisp2_distances.csv", row.names = FALSE)
+```
+
+**However**, the PERMDISP2 test for homogeneity of group dispersions fails (p = 0.012), so the dispesions of the groups are different 
+enough that we should interpret the PERMANOVA results with caution.
+
+### ANCOM-BC2 for differential abundance
+
+ANCOM-BC2 fits linear mixed-models to estimate the log-fold change of taxa between groups, 
+and includes terms to account for sampling fraction and per-taxa sequencing efficiency. 
+
+We drop the `Abx` condition - this is both not of interest for the main comparison,
+very different to the other conditions giving many 'significant' differences.
+
+We exclude any taxa that aren't detected in at least 90 % of samples.
+
+#### Species level differential abundance
+
+```{r ancombc2_species}
+# https://microbiome.github.io/OMA/differential-abundance.html#ancom-bc
+
+nocache <- FALSE
+# nocache <- TRUE
+
+library(ANCOMBC)
+
+tse.hh <- tse[, tse$group %in% c("Het", "Homo")]
+tse.hh$group <- droplevels(tse.hh$group)
+
+# Drop the Abx condition (and any features that were unique to that condition)
+# tse.hh <- dropCondition(tse, group, "Abx")
+# tse.hh <- tse.brkn[rowSums(assay(tse.brkn, "counts")) > 0, ]
+# tse.hh <- minCounts(tse.hh, 10)
+
+# Run ANCOM-BC2 on only Het/Homo, excluding Abx
+# We set prv_cut = 0.9 (taxon must be present in 90% of samples) otherwise
+# we get errors related to zero-variance taxa across groups.
+# We can optionally use 'box' as a random effect to account for variation due
+# to 'cage effect', (all `Het` mice were in the same box, others in various boxes).
+ancomb_datafile <- f("data/ancombc2.metaphlan.{taxa.level.short}.rds")
+if (!file.exists(ancomb_datafile) || nocache) {
+  ancombc2_out <- ancombc2(
+    data = tse.hh,
+    assay_name = "counts",
+    fix_formula = "group",
+    # rand_formula = "(1|box)",
+    p_adj_method = "fdr",
+    prv_cut = 0.9,
+    group = "group",
+    tax_level = taxa.level,
+    struc_zero = TRUE,
+    neg_lb = TRUE,
+    global = TRUE
+  )
+  saveRDS(ancombc2_out, file = ancomb_datafile)
+} else {
+  ancombc2_out <- readRDS(ancomb_datafile)
+}
+```
+
+Log-fold changes estimated by ANCOM-BC2.
+We exclude and taxa that failed sensitivity analysis of pseudo-count addition for zero count measurements.
+
+```{r ancombc2_species_lfc_table}
+taxa_lfc <- ancombc2_out$res %>% filter(passed_ss_groupHomo == TRUE)
+
+rownames(taxa_lfc) <- taxa_lfc$taxon
+
+taxa_lfc[[taxa.level]] <- paste0(
+  "<a href=\"https://gtdb.ecogenomic.org/tree?r=",
+  tolower(taxa.level.short), "__", taxa_lfc$taxon, "\" target='_blank'>",
+  taxa_lfc$taxon,
+  "</a>"
+)
+
+taxa_lfc %>%
+  dplyr::select(taxa.level, lfc_groupHomo, q_groupHomo) %>%
+  filter(q_groupHomo < 0.05) %>%
+  arrange(-lfc_groupHomo) %>%
+  show_table(pageLength = 100, escape = FALSE, rownames = FALSE)
+```
+
+The full ANCOM-BC2 result table, including species where FDR > 0.05.
+```{r}
+taxa_lfc %>%
+  dplyr::select(taxa.level, lfc_groupHomo, q_groupHomo, p_groupHomo) %>%
+  arrange(q_groupHomo) %>%
+  show_table(pageLength = 10, escape = FALSE, rownames = FALSE)
+```
+
+```{r mia_relabundance_species_top_lfc}
+# disable scientific notation (for the x-axis)
+scipen.save <- options()$scipen
+options(scipen = 999)
+
+relab_cutoff <- 0.005
+sig <- taxa_lfc %>% filter(q_groupHomo < 0.05)
+sig.taxa <- sapply(sig$taxon, function(x) {
+  str_split(x, ":", simplify = TRUE)[2]
+})
+# n_lines <- nrow(taxa_lfc %>% filter(Het_relabundance_mean > relab_cutoff | Homo_relabundance_mean > relab_cutoff))
+tse.sig.abund <- tse.hh[rowData(tse)[[taxa.level]] %in% sig.taxa, ]
+rownames(tse.sig.abund) <- rowData(tse.sig.abund)[[taxa.level]]
+
+plotAbundanceDensity(tse.sig.abund,
+  layout = "density", assay.type = "relabundance",
+  colour_by = "group", point_alpha = 0.4,
+  # n = length(sig$taxon),
+) +
+  scale_x_log10()
+
+plotAbundanceDensity(tse.sig.abund,
+  layout = "point", assay.type = "relabundance",
+  colour_by = "group", point_alpha = 0.8,
+  # n = length(sig$taxon),
+) +
+  scale_x_log10()
+
+options(scipen = scipen.save)
+```
+
+```{r methaphlan_top_lfc_boxplot, fig.width=8, fig.height=8}
+# sig$species <- sapply(rownames(sig), function (x) { str_split(x, ":", simplify = TRUE)[2]})
+
+sig.long <- meltAssay(tse.sig.abund,
+  assay.type = "relabundance",
+  add_row_data = TRUE, add_col_data = TRUE,
+  sample_name = "sample", feature_name = "species"
+)
+
+sig.long$species <- (
+  factor(sig.long$species,
+    levels = unique(sig.long$species[order(sig.long$relabundance, decreasing = TRUE)])
+))
+
+(
+  ggplot(
+    sig.long,
+    aes(x = relabundance, color = group)
+  ) +
+    # geom_density(alpha = 0.5, adjust=1) +
+    geom_boxplot(width = 0.1, position = position_nudge(y = 1.2), outlier.shape = NA) +
+    # geom_boxplot() +
+    # geom_rug(sides = "b", size = 1, length = unit(0.1, "npc")) +
+    geom_point(aes(y = species), alpha = 0.8, size = 1) +
+    facet_wrap(~species, scales = "free_y", ncol = 1) +
+    # facet_grid(species ~ ., scales = "free_y") +
+    scale_x_log10(labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+    scale_fill_manual(values = scater:::.get_palette("tableau10medium")) +
+    scale_colour_manual(values = scater:::.get_palette("tableau10medium")) +
+    theme_minimal() +
+    theme(
+      panel.grid.major = element_blank(),
+      panel.grid.major.x = element_line(color = "grey", linetype = "dotted"),
+      panel.grid.minor.x = element_line(color = "grey", , linetype = "dotted"),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank(),
+      strip.background = element_blank(),
+      strip.text.x = element_text(size = 10),
+      # strip.text = element_blank(), # remove facet labels
+      axis.text.x = element_text(angle = 90, hjust = 1),
+      axis.text.y = element_blank(), # remove y labels
+      # axis.text.y = element_text(angle = 90, vjust=1, hjust=0.5), # y labels
+      panel.spacing.y = unit(-1, "lines"),
+      axis.line = element_line(color = "black"),
+      axis.line.y = element_line(color = "black"),
+      legend.position = "bottom"
+    ) +
+    labs(
+      x = "Relative abundance",
+      y = "",
+      fill = "group",
+      # title = "Differentially abundant species") +
+    ) +
+    guides(fill = guide_legend(title = "Group")) +
+    ggprism::theme_prism() +
+    theme(axis.text.y = element_blank())
+)
+
+ggsave("docs/plots/Part_E_metaphlan_boxplot_het_homo_plot.tiff",
+  units = "mm", device = "tiff", compression = "lzw",
+  width = 100, height = 100, dpi = 600
+)
+
+ggsave("docs/plots/Part_E_metaphlan_boxplot_het_homo_plot.pdf",
+  device = "pdf", units = "mm",
+  width = 100, height = 100, dpi = 600
+)
+
+write.csv(sig.long, "docs/plots/metaphlan_boxplot_het_homo_plot.csv", row.names = FALSE)
+```
+
+- PDF version: [plots/metaphlan_boxplot_het_homo_plot.pdf](plots/metaphlan_boxplot_het_homo_plot.pdf)
+
+All species with at least 10 counts in 50% of samples, log relative abudance box plots.
+
+```{r methaphlan_all_lfc_boxplot, fig.width=8, fig.height=16}
+# sig$species <- sapply(rownames(sig), function (x) { str_split(x, ":", simplify = TRUE)[2]})
+
+sig.long <- meltAssay(tse_glom.filtered[, tse_glom.filtered$group %in% c("Het", "Homo")],
+  assay.type = "relabundance",
+  add_row_data = TRUE, add_col_data = TRUE,
+  sample_name = "sample", feature_name = "species"
+)
+
+sig.long$species <- (
+  factor(sig.long$species,
+    levels = unique(sig.long$species[order(sig.long$relabundance, decreasing = TRUE)])
+))
+
+ggplot(
+  sig.long,
+  aes(x = relabundance, color = group)
+) +
+  geom_boxplot(width = 0.1, position = position_nudge(y = 1.2), outlier.shape = NA) +
+  geom_point(aes(y = species), alpha = 0.8, size = 1) +
+  facet_wrap(~species, scales = "free_y", ncol = 2, strip.position = "left") +
+  scale_x_log10(labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+  scale_fill_manual(values = scater:::.get_palette("tableau10medium")) +
+  scale_colour_manual(values = scater:::.get_palette("tableau10medium")) +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.major.x = element_line(color = "grey", linetype = "dotted"),
+    panel.grid.minor.x = element_line(color = "grey", , linetype = "dotted"),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_blank(),
+    strip.text.x = element_text(size = 10),
+    strip.text.y.left = element_text(size = 10, angle = 0, hjust = 1),
+    strip.placement = "outside",
+    # strip.text = element_blank(), # remove facet labels
+    axis.text.x = element_text(angle = 90, hjust = 1),
+    axis.text.y = element_blank(), # remove y labels
+    # axis.text.y = element_text(angle = 90, vjust=1, hjust=0.5), # y labels
+    panel.spacing.y = unit(-1, "lines"),
+    axis.line = element_line(color = "black"),
+    axis.line.y = element_line(color = "black"),
+    legend.position = "bottom"
+  ) +
+  labs(
+    x = "Relative abundance",
+    y = "",
+    fill = "group",
+    title = "Differentially abundant species"
+  ) +
+  guides(fill = guide_legend(title = "Group"))
+```
+
+#### Genus level differential abundance
+
+When counts are agglomerated to the Genus level, **no significant differental abundances are found** after multiple testing correction.
+
+Top differentially abundance Genus with `p <= 0.05` (but NOT `FDR <= 0.05`) are are shown for reference.
+
+```{r ancombc2_genus}
+taxa.level <- "Genus"
+taxa.level.short <- "G"
+
+nocache <- FALSE
+# nocache <- TRUE
+
+library(ANCOMBC)
+
+tse.hh.G <- tse[, tse$group %in% c("Het", "Homo")]
+tse.hh.G$group <- droplevels(tse.hh.G$group)
+
+# Agglomerate to Genus level
+tse.hh.G <- mia::agglomerateByRank(tse.hh.G, rank = taxa.level, onRankOnly = TRUE)
+
+# Drop the Abx condition (and any features that were unique to that condition)
+# tse.hh.G <- dropCondition(tse, group, "Abx")
+# tse.hh.G <- tse.brkn[rowSums(assay(tse.brkn, "counts")) > 0, ]
+# tse.hh.G <- minCounts(tse.hh.G, 10)
+
+# Run ANCOM-BC2 on only Het/Homo, excluding Abx
+# We set prv_cut = 0.9 (taxon must be present in 90% of samples) otherwise
+# we get errors related to zero-variance taxa across groups.
+# We can optionally use 'box' as a random effect to account for variation due
+# to 'cage effect', (all `Het` mice were in the same box, others in various boxes).
+ancomb_datafile <- f("data/ancombc2.metaphlan.{taxa.level.short}.rds")
+if (!file.exists(ancomb_datafile) || nocache) {
+  ancombc2_out <- ancombc2(
+    data = tse.hh.G,
+    assay_name = "counts",
+    fix_formula = "group",
+    # rand_formula = "(1|box)",
+    p_adj_method = "fdr",
+    prv_cut = 0.9,
+    group = "group",
+    tax_level = taxa.level,
+    struc_zero = TRUE,
+    neg_lb = TRUE,
+    global = TRUE
+  )
+  saveRDS(ancombc2_out, file = ancomb_datafile)
+} else {
+  ancombc2_out <- readRDS(ancomb_datafile)
+}
+```
+
+```{r ancombc2_genus_lfc_table}
+taxa_lfc <- ancombc2_out$res %>% filter(p_groupHomo <= 0.05)
+
+rownames(taxa_lfc) <- taxa_lfc$taxon
+
+taxa_lfc[[taxa.level]] <- paste0(
+  "<a href=\"https://gtdb.ecogenomic.org/tree?r=",
+  tolower(taxa.level.short), "__", taxa_lfc$taxon, "\" target='_blank'>",
+  taxa_lfc$taxon,
+  "</a>"
+)
+
+taxa_lfc %>%
+  dplyr::select(taxa.level, lfc_groupHomo, q_groupHomo, p_groupHomo) %>%
+  arrange(-lfc_groupHomo) %>%
+  show_table(pageLength = 100, escape = FALSE, rownames = FALSE)
+```
+
+```{r mia_relabundance_genus_top_lfc, eval=FALSE, include=FALSE}
+# disable scientific notation (for the x-axis)
+
+scipen.save <- options()$scipen
+
+options(scipen = 999)
+
+relab_cutoff <- 0.005
+sig <- taxa_lfc
+tse.sig.abund <- tse.hh.G[rowData(tse.hh.G)[[taxa.level]] %in% sig$taxon, ]
+rownames(tse.sig.abund) <- rowData(tse.sig.abund)[[taxa.level]]
+
+plotAbundanceDensity(tse.sig.abund,
+  layout = "density", assay.type = "relabundance",
+  colour_by = "group", point_alpha = 0.4,
+  n = length(sig$taxon),
+) +
+  scale_x_log10()
+
+plotAbundanceDensity(tse.sig.abund,
+  layout = "point", assay.type = "relabundance",
+  colour_by = "group", point_alpha = 0.8,
+  n = length(sig$taxon),
+) +
+  scale_x_log10()
+
+options(scipen = scipen.save)
+```
+
+#### Differential abundance at Order level
+
+After some exploration of DA at different levels, Order seems the most interesting alternative taxonomic level to examine.
+
+```{r ancombc2_order}
+taxa.level <- "Order"
+taxa.level.short <- "O"
+
+nocache <- FALSE
+# nocache <- TRUE
+
+library(ANCOMBC)
+
+tse.hh.O <- tse[, tse$group %in% c("Het", "Homo")]
+tse.hh.O$group <- droplevels(tse.hh.O$group)
+
+# Agglomerate to Genus level
+tse.hh.O <- mia::agglomerateByRank(tse.hh.O, rank = taxa.level, onRankOnly = TRUE)
+
+# Drop the Abx condition (and any features that were unique to that condition)
+# tse.hh.O <- dropCondition(tse, group, "Abx")
+# tse.hh.O <- tse.brkn[rowSums(assay(tse.brkn, "counts")) > 0, ]
+# tse.hh.O <- minCounts(tse.hh.O, 10)
+
+# Run ANCOM-BC2 on only Het/Homo, excluding Abx
+# We set prv_cut = 0.9 (taxon must be present in 90% of samples) otherwise
+# we get errors related to zero-variance taxa across groups.
+# We can optionally use 'box' as a random effect to account for variation due
+# to 'cage effect', (all `Het` mice were in the same box, others in various boxes).
+ancomb_datafile <- f("data/ancombc2.metaphlan.{taxa.level.short}.rds")
+if (!file.exists(ancomb_datafile) || nocache) {
+  ancombc2_out <- ancombc2(
+    data = tse.hh.O,
+    assay_name = "counts",
+    fix_formula = "group",
+    # rand_formula = "(1|box)",
+    p_adj_method = "fdr",
+    prv_cut = 0.9,
+    group = "group",
+    tax_level = taxa.level,
+    struc_zero = TRUE,
+    neg_lb = TRUE,
+    global = TRUE
+  )
+  saveRDS(ancombc2_out, file = ancomb_datafile)
+} else {
+  ancombc2_out <- readRDS(ancomb_datafile)
+}
+```
+
+```{r ancombc2_order_lfc_table}
+taxa_lfc <- ancombc2_out$res %>% filter(p_groupHomo <= 0.05)
+
+rownames(taxa_lfc) <- taxa_lfc$taxon
+
+taxa_lfc[[taxa.level]] <- paste0(
+  "<a href=\"https://gtdb.ecogenomic.org/tree?r=",
+  tolower(taxa.level.short), "__", taxa_lfc$taxon, "\" target='_blank'>",
+  taxa_lfc$taxon,
+  "</a>"
+)
+
+taxa_lfc %>%
+  dplyr::select(taxa.level, lfc_groupHomo, q_groupHomo, p_groupHomo) %>%
+  arrange(-lfc_groupHomo) %>%
+  show_table(pageLength = 100, escape = FALSE, rownames = FALSE)
+```
+
+```{r mia_relabundance_order_top_lfc}
+# disable scientific notation (for the x-axis)
+
+scipen.save <- options()$scipen
+
+options(scipen = 999)
+
+relab_cutoff <- 0.005
+sig <- taxa_lfc
+tse.sig.abund <- tse.hh.O[rowData(tse.hh.O)[[taxa.level]] %in% sig$taxon, ]
+rownames(tse.sig.abund) <- rowData(tse.sig.abund)[[taxa.level]]
+
+plotAbundanceDensity(tse.sig.abund,
+  layout = "density", assay.type = "relabundance",
+  colour_by = "group", point_alpha = 0.4,
+  n = length(sig$taxon),
+) +
+  scale_x_log10()
+
+plotAbundanceDensity(tse.sig.abund,
+  layout = "point", assay.type = "relabundance",
+  colour_by = "group", point_alpha = 0.8,
+  n = length(sig$taxon),
+) +
+  scale_x_log10()
+
+
+options(scipen = scipen.save)
+```
+
+*Christensenellales* (in the class *Clostridia*) is underrepresented in Homo samples, while *Verrucomicrobiales* (parent of family *Akkermansiaceae*) is overrepresented in Het samples.
+
+```{r}
+htmltools::includeHTML("analysis/acknowledging.html")
+```

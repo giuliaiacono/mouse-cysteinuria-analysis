@@ -1,0 +1,45 @@
+Abx-1_S1_L001:
+  Duplicate Reads: 40708370.0
+  Unique Reads: 13891997.0
+Abx-2_S2_L001:
+  Duplicate Reads: 36447684.0
+  Unique Reads: 14412675.0
+Abx-3_S3_L001:
+  Duplicate Reads: 42612501.0
+  Unique Reads: 13102724.0
+Abx-4_S4_L001:
+  Duplicate Reads: 38914872.0
+  Unique Reads: 12954473.0
+Abx-5_S5_L001:
+  Duplicate Reads: 39437329.0
+  Unique Reads: 12858238.0
+Het-1_S6_L001:
+  Duplicate Reads: 37934104.0
+  Unique Reads: 34057572.0
+Het-2_S7_L001:
+  Duplicate Reads: 36535557.0
+  Unique Reads: 31484974.0
+Het-3_S8_L001:
+  Duplicate Reads: 32597695.0
+  Unique Reads: 28554628.0
+Het-4_S9_L001:
+  Duplicate Reads: 23131687.0
+  Unique Reads: 27256115.0
+Het-5_S10_L001:
+  Duplicate Reads: 43303592.0
+  Unique Reads: 30934282.0
+Homo-1_S11_L001:
+  Duplicate Reads: 35460103.0
+  Unique Reads: 32481070.0
+Homo-2_S12_L001:
+  Duplicate Reads: 30394864.0
+  Unique Reads: 30773857.0
+Homo-3_S13_L001:
+  Duplicate Reads: 32710563.0
+  Unique Reads: 26764268.0
+Homo-4_S14_L001:
+  Duplicate Reads: 40037572.0
+  Unique Reads: 38392998.0
+Homo-5_S15_L001:
+  Duplicate Reads: 24967580.0
+  Unique Reads: 37512890.0

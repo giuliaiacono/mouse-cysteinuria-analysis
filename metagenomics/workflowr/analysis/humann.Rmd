@@ -1,0 +1,868 @@
+---
+title: "HUMAnN 3.0 functional and metabolic pathway analysis"
+site: workflowr::wflow_site
+cache: true
+output:
+  workflowr::wflow_html:
+    toc: true
+    toc_float: true
+  html_document:
+    fig_width: 10
+    fig_height: 10
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setwd, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+
+if (Sys.getenv("TERM_PROGRAM") == "vscode") {
+  try(
+    {
+      .vsc.attach()
+    },
+    silent = TRUE
+  )
+  try(
+    {
+      setwd("workflowr")
+    },
+    silent = TRUE
+  )
+}
+```
+
+```{r report_template}
+htmltools::includeHTML("analysis/index_for_workflowr.html")
+```
+
+```{r vars}
+# Project root, relative to the knit working directory (workflowr/).
+# Used to write interactive heatmaps into workflowr/docs/plots/.
+base_path <- ".."
+
+taxa.level <- "Species"
+taxa.level.short <- "S"
+```
+
+```{r libraries}
+library(tidyverse)
+library(stringr)
+library(purrr)
+library(mia)
+library(miaViz)
+library(scater)
+library(dplyr)
+
+f <- stringr::str_glue
+
+source("./analysis/rmarkdown_utils.R")
+```
+
+HUMAnN, like MetaPhlAn, maps reads to a reference database of microbial genomes. The abundance of known gene families (UniRef90) 
+is quantified, and the abundance of _pathways_ of genes is estimated (using the MetaCyc pathways database).
+
+Gene families and pathways can be viewed at the species level, or the community (whole-sample) level - we will focus on community level abundances here.
+Pathway abundances are proportional to the number of complete "copies" of the pathway in the community.
+Relative abundance values are shown here are copies-per-millon (CPM), where the abundances for any one sample sum to 1 million. This helps normalize for library size.
+
+Additional gene family and pathway groupings are available but not shown - these are EggNOG Orthologies, EC numbers, Gene Ontology (GO) anntoations, KEGG Orthologies, PFAM protein families and [MetaCyc Reactions](https://biocyc.org/META/class-tree?object=Reactions).
+
+```{r read_tsvs}
+# We read in the main gene and pathway abundance tables, and cleanup some column names
+# We drop all the taxonomic subdivision rows so we only have 'top level' gene and pathway abundance rows
+
+gene.relab <- readr::read_tsv(
+  # "../pipeline/humann/output/genefamilies.relab.tsv"
+  "../pipeline/humann/output/genefamilies.cpm.tsv"
+)
+
+pathway.relab <- readr::read_tsv(
+  # "../pipeline/humann/output/pathabundance.relab.tsv"
+  "../pipeline/humann/output/pathabundance.cpm.tsv"
+)
+
+# Rename the ugly columns with # in front
+colnames(gene.relab)[colnames(gene.relab) == "# Gene Family"] <- "Gene_Family"
+colnames(pathway.relab)[colnames(pathway.relab) == "# Pathway"] <- "Pathway"
+
+# Simplify sample (column) names
+colnames(gene.relab) <- c(
+  colnames(gene.relab[, 1]),
+  str_extract(colnames(gene.relab[, -1]), "^[^_]+")
+)
+colnames(pathway.relab) <- c(
+  colnames(pathway.relab[, 1]),
+  str_extract(colnames(pathway.relab[, -1]), "^[^_]+")
+)
+
+# abundance & prevalence filter - drop pathway / family rows
+# 20% of samples need to be greater than 0.0001 relative abudance for a given pathway, otherwise the row is dropped
+print(f("Removing low abundance/low prevalence pathways/families (at least 20% of samples must have abundance > 0.0001)"))
+print(f("Pathways before abundance/prevalence filter: {dim(pathway.relab)[1]}"))
+print(f("Gene families before abundance/prevalence filter: {dim(gene.relab)[1]}"))
+pathway.relab <- pathway.relab[apply(pathway.relab, 1, function(x) sum(x > 0.0001) > 0.2 * ncol(pathway.relab)), ]
+gene.relab <- gene.relab[apply(gene.relab, 1, function(x) sum(x > 0.0001) > 0.2 * ncol(gene.relab)), ]
+print(f("Pathways after abundance/prevalence filter: {dim(pathway.relab)[1]}"))
+print(f("Gene families after abundance/prevalence filter: {dim(gene.relab)[1]}"))
+
+# Make a long format of pathway abundances, Pathway, Organism, Sample, relabundance
+pathway.relab.strat.long <- (
+  pathway.relab
+  %>% gather(Sample, relabundance, -Pathway)
+    %>% separate(Pathway, c("Pathway", "Organism"), sep = "\\|", fill = "right")
+    %>% mutate(Group = str_extract(Sample, "^(.*?)(?=-)"))
+    %>% mutate(PathwayID = str_extract(Pathway, "^(.*?)(?=:)"))
+)
+
+# Make a long format of gene family abundances, Gene_Family, Organism, Sample, relabundance
+gene.relab.strat.long <- (
+  gene.relab
+  %>% gather(Sample, relabundance, -Gene_Family)
+    %>% separate(Gene_Family, c("Gene_Family", "Organism"), sep = "\\|", fill = "right")
+    %>% mutate(Group = str_extract(Sample, "^(.*?)(?=-)"))
+)
+
+# Create long dataframes without the species-stratified values, no UNMAPPED/UNINTEGRATED
+pathway.relab.long <- pathway.relab.strat.long %>%
+  filter(is.na(Organism)) %>%
+  select(-Organism) %>%
+  filter(!(grepl("^UN", Pathway)))
+
+gene.relab.long <- gene.relab.strat.long %>%
+  filter(is.na(Organism)) %>%
+  select(-Organism) %>%
+  filter(!(grepl("^UN", Gene_Family)))
+
+# Get rid of all the taxonomic subdivisions, keep just overall abundance
+pathway.relab.strat <- data.frame(pathway.relab)
+gene.relab.strat <- data.frame((gene.relab), row.names = NULL, check.rows = FALSE, check.names = TRUE, stringsAsFactors = default.stringsAsFactors())
+gene.relab <- gene.relab %>% filter(!str_detect(Gene_Family, fixed("|")))
+pathway.relab <- pathway.relab %>% filter(!str_detect(Pathway, fixed("|")))
+
+path_prefix <- "../pipeline/humann/output/genefamilies"
+uniref_level <- "uniref90"
+# We make a named list of each of the regrouped classes
+gene.relab.groups <- list()
+for (grouping in c("eggnog", "go", "ko", "level4ec", "pfam", "rxn")) {
+  g <- readr::read_tsv(
+    f("{path_prefix}_{uniref_level}_{grouping}.relab.tsv")
+  )
+  colnames(g)[colnames(g) == "# Gene Family"] <- "Gene_Family"
+  colnames(g[, -1]) <- c(colnames(g[, 1]), str_extract(colnames(g[, -1]), "^[^_]+"))
+  g <- g %>% filter(!str_detect(Gene_Family, fixed("|")))
+
+  gene.relab.groups[[grouping]] <- g
+}
+```
+
+```{r include=FALSE, eval=FALSE}
+# ## Testing gene family CPM filtering
+
+# gene.relab <- readr::read_tsv(
+#   #"../pipeline/humann/output/genefamilies.relab.tsv.gz"
+#   "../pipeline/humann/output/genefamilies.cpm.tsv.gz"
+# )
+
+# print(f("Gene families before abundance/prevalence filter: {dim(gene.relab)[1]}"))
+# gene.relab <- gene.relab[apply(gene.relab[, -1], 1, function(x) sum(x >= 0.0001) > 0.2 * (ncol(gene.relab) - 1)), ]
+# print(f("Gene families after abundance/prevalence filter (0.0001 threshold): {dim(gene.relab)[1]}"))
+
+
+# gene.relab <- readr::read_tsv(
+#   #"../pipeline/humann/output/genefamilies.relab.tsv.gz"
+#   "../pipeline/humann/output/genefamilies.cpm.tsv.gz"
+# )
+
+# print(f("Gene families before abundance/prevalence filter: {dim(gene.relab)[1]}"))
+# gene.relab <- gene.relab[apply(gene.relab[, -1], 1, function(x) sum(x >= 0.01) > 0.2 * (ncol(gene.relab) - 1)), ]
+# print(f("Gene families after abundance/prevalence filter (0.01 threshold): {dim(gene.relab)[1]}"))
+
+# gene.relab <- readr::read_tsv(
+#   #"../pipeline/humann/output/genefamilies.relab.tsv.gz"
+#   "../pipeline/humann/output/genefamilies.cpm.tsv.gz"
+# )
+# print(f("Gene families before abundance/prevalence filter: {dim(gene.relab)[1]}"))
+# gene.relab <- gene.relab[apply(gene.relab[, -1], 1, function(x) sum(x >= 10) > 0.2 * (ncol(gene.relab) - 1)), ]
+# print(f("Gene families after abundance/prevalence filter (10 cpm threshold): {dim(gene.relab)[1]}"))
+```
+
+Also recorded are the abundance of `UNMAPPED` reads (those that failed to map to any reference genome in the database).
+`UNGROUPED` or `UNINTEGRATED` features are those that aren't present in the grouped database 
+(eg, the UniRef90 family has no annotated reaction in MetaCyc, for instance).
+Reads that map but aren't associated with a gene that has a Uniref90 family are labelled `UniRef90_unknown`.
+
+Percentage unmapped reads (for Uniref90 gene families):
+```{r}
+show_table(data.frame((gene.relab %>% filter(Gene_Family == "UNMAPPED"))[, -1] / 10000), digits = 1)
+```
+
+We can see between ~13% and 43% of reads do not map to the ChocoPhlAn (vOct22) database. 
+This is not unusual, but worth noting this technique does not annotate the entire microbial diversity present in the sample due.
+
+```{r make_sample_metadata_table}
+sample_colnames <- colnames(gene.relab[, -1])
+
+sample_metadata <- data.frame(
+  sample = str_extract(sample_colnames, "^[^_]+"),
+  group = str_extract(sample_colnames, "^[^-]+")
+) %>% mutate(group = stringr::str_to_title(group))
+rownames(sample_metadata) <- sample_metadata$sample
+sample_metadata$group <- as.factor(sample_metadata$group)
+```
+
+```{r mia_loadFromHumann, include=FALSE, eval=FALSE}
+gene.tse <- loadFromHumann(
+  "../pipeline/humann/output/genefamilies.relab.tsv",
+  # colData=sample_metadata,
+  assay.type = "relabundance",
+  removeTaxaPrefixes = TRUE,
+  remove.suffix = TRUE
+)
+
+gene.tse$group <- sample_metadata$group
+
+pathway.tse <- loadFromHumann(
+  "../pipeline/humann/output/pathabundance.relab.tsv",
+  # colData=sample_metadata,
+  assay.type = "relabundance",
+  removeTaxaPrefixes = TRUE,
+  remove.suffix = TRUE
+)
+
+pathway.tse$group <- sample_metadata$group
+```
+
+```{r abundance_scatter, include=FALSE, eval=FALSE}
+tse_glom <- mia::agglomerateByRank(gene.tse, rank = taxa.level, onRankOnly = TRUE)
+
+plotAbundanceDensity(tse_glom,
+  layout = "jitter", assay.type = "relabundance",
+  n = 20, point_size = 1, point_shape = 19, point_alpha = 0.5,
+  colour_by = "group"
+) +
+  scale_x_log10(label = scales::percent) +
+  ggtitle(f("Relative abundance of top {taxa.level}"))
+```
+
+## Metabolic pathways
+
+### Metabolic pathway (MetaCyc) heatmap
+
+A hierarchical clustered heatmap of using the abundance of MetaCyc pathways for each sample.
+To simplify the plot and only show pathways with larger between-sample diffferences, we only 
+show pathways that have high variance between samples (greater than 75th percentle variance).
+We show log2(cpm), where cpm is complete pathway copies per million.
+
+- [plots/pathways_heatmap.html](plots/pathways_heatmap.html)
+
+```{r}
+library(pheatmap)
+library(heatmaply)
+
+pways <- pathway.relab %>% filter((Pathway != "UNMAPPED") & Pathway != "UNINTEGRATED")
+
+# We remove the Abx condition since the pathways are driven almost entirely by Lactococcus specific metabolism
+# This obscures interesting patterns between Het and Homo
+pways <- pways %>% select(-starts_with("Abx"))
+
+# pways <- pways %>% select(-starts_with("Homo-3"))
+
+pways.mat <- as.matrix(pways[, -1])
+rownames(pways.mat) <- pways$Pathway
+
+pways.var <- apply(pways.mat, 1, var) # Calculate variance for each row
+threshold <- quantile(pways.var, 0.75) # Set a threshold, (75th percentle)
+pways.mat <- pways.mat[pways.var > threshold, ]
+
+rownames(pways.mat) <- pways$Pathway[pways.var > threshold]
+
+pathways.heatmap <- pheatmap(log(pways.mat + 1),
+  clustering_distance_cols = "euclidean",
+  clustering_distance_rows = "euclidean",
+  # kmeans_k=4,
+  fontsize_row = 8
+)
+
+hm <- heatmaply(
+  log(pways.mat + 1),
+  k_col = 2, k_row = 2,
+  labels_row = rownames(pways.mat),
+  labRow = rownames(pways.mat),
+  labCol = colnames(pways.mat),
+  fontsize_row = 8
+)
+
+htmlwidgets::saveWidget(hm, file.path(base_path, "workflowr/docs/plots/pathways_heatmap.html"))
+
+# The non-interactive version has too many rows to interpret
+pathways.heatmap
+```
+
+A multidimensional scaling (MDS) plot showing dimensionality reduction of the pathway relativate abundance for each sample.
+
+```{r}
+library(SingleCellExperiment())
+
+pways <- pathway.relab %>% filter((Pathway != "UNMAPPED") & Pathway != "UNINTEGRATED")
+
+pways.mat <- as.matrix(pways[, -1])
+rownames(pways.mat) <- pways$Pathway
+
+pway.se <- SingleCellExperiment(assays = list(relabundance = pways.mat))
+pway.se$group <- str_extract(colnames(pways[, -1]), "^[^-]+")
+
+# Bray-Curtis PCoA
+# pway.mds <- runMDS(pway.se,
+#   FUN = vegan::vegdist,
+#   method = "bray",
+#   name = "PCoA_BC",
+#   assay.type = "relabundance"
+# )
+
+# # # Create ggplot object
+# p <- plotReducedDim(pway.mds, "PCoA_BC",
+#   colour_by = "group"
+# )
+
+# e <- attr(reducedDim(pway.mds, "PCoA_BC"), "eig")
+# rel_eig <- e / sum(e[e > 0])
+
+###
+
+# Regular MDS
+pway.mds <- runMDS(pway.se,
+  name = "MDS",
+  assay.type = "relabundance"
+)
+
+p <- plotReducedDim(pway.mds, "MDS",
+  colour_by = "group"
+)
+
+# Calculate explained variance
+e <- attr(reducedDim(pway.mds, "MDS"), "eig")
+rel_eig <- e / sum(e[e > 0])
+
+# Add explained variance for each axis
+p <- p + labs(
+  x = paste("dim 1 (", round(100 * rel_eig[[1]], 1), "%", ")", sep = ""),
+  y = paste("dim 2 (", round(100 * rel_eig[[2]], 1), "%", ")", sep = ""),
+  # title = "Bray-Curtis Beta Diversity of Pathways, PCoA",
+  subtitle = "All samples"
+)
+
+p
+```
+
+```{r}
+library(SingleCellExperiment())
+
+pways <- pathway.relab %>% filter((Pathway != "UNMAPPED") & Pathway != "UNINTEGRATED")
+
+# We remove the Abx condition since the pathways are driven almost entirely by Lactococcus specific metabolism
+# This obscures interesting patterns between Het and Homo
+pways <- pways %>% select(-starts_with("Abx"))
+
+# pways <- pways %>% select(-starts_with("Homo-3"))
+
+pways.mat <- as.matrix(pways[, -1])
+rownames(pways.mat) <- pways$Pathway
+
+pway.se <- SingleCellExperiment(assays = list(relabundance = pways.mat))
+pway.se$group <- str_extract(colnames(pways[, -1]), "^[^-]+")
+
+# Regular MDS
+pway.mds <- runMDS(pway.se,
+  name = "MDS",
+  assay.type = "relabundance"
+)
+
+p <- plotReducedDim(pway.mds, "MDS",
+  colour_by = "group"
+)
+
+# Calculate explained variance
+e <- attr(reducedDim(pway.mds, "MDS"), "eig")
+rel_eig <- e / sum(e[e > 0])
+
+# Add explained variance for each axis
+p <- p + labs(
+  x = paste("dim 1 (", round(100 * rel_eig[[1]], 1), "%", ")", sep = ""),
+  y = paste("dim 2 (", round(100 * rel_eig[[2]], 1), "%", ")", sep = ""),
+  # title = "Bray-Curtis Beta Diversity of Pathways, PCoA",
+  subtitle = "Het vs Homo samples"
+)
+
+p
+```
+
+The Abx samples are very different and cluster together (not surprising, they are mostly Lactococcus).
+If we look at the Het/Homo samples with reveals more detail - the Het samples cluster together (more similar within-group pathway abundances), while the Homo samples are more dispersed.
+This reflects the higher variance between biological replicates in the Homo samples, as seen in taxonomic abundance analysis previously.
+
+### Differential pathway abundance
+
+We investigate pathways with differential abundance in `Homo` relative to `Het`, using a linear model with log-transformation of CPM abundances (MaAsLin2 method).
+
+```{r maaslin2, include=FALSE}
+## MaAsLin2 generalized linear model analysis
+
+# MaAsLin2 fits generalized linear models to estimate differentially abundance taxa between groups (Het/Homo).
+# In this case, we use arcsine square-root transformed (AST) counts.
+
+library(Maaslin2)
+
+pways <- data.frame(pathway.relab %>% select(-starts_with("Abx")))
+rownames(pways) <- pways$Pathway
+metadata <- data.frame(sample_metadata %>% filter(group != "Abx"))
+colnames(metadata)[colnames(metadata) == "sample"] <- "Sample"
+colnames(metadata)[colnames(metadata) == "group"] <- "Group"
+rownames(metadata) <- metadata$Sample
+
+pathway_name_mappings <- createNameMapping(pways$Pathway)
+
+maaslin2_out <- Maaslin2(
+  input_data = pways[, -1],
+  input_metadata = metadata,
+  output = "docs/maaslin_hethomo_pathway_da",
+  transform = "LOG",
+  # AST is "arcsine square-root transformation"
+  # transform = "AST",
+  fixed_effects = "Group",
+  # you can also fit MLM by specifying random effects
+  # random_effects = c(...),
+  reference = "Group,Het",
+  normalization = "NONE",
+  # normalization = "TSS", # if not already in relabundance units
+  min_abundance = -Inf,
+  standardize = FALSE,
+  # filtering was previously performed
+  min_prevalence = 0,
+  max_pngs = 20,
+  plot_heatmap = TRUE,
+  heatmap_first_n = 20
+)
+
+maaslin2_results <- maaslin2_out$results %>%
+  dplyr::rename(Pathway = feature)
+
+maaslin2_results$Pathway <- convertToOriginalNames(
+  maaslin2_results$Pathway, pathway_name_mappings
+)
+
+# maaslin2_results <- merge(
+#   maaslin2_results,
+#   refined %>%
+#     dplyr::select(bin_id, Genus, Species) %>%
+#     mutate(bin_id = str_replace_all(bin_id, "-", ".")), # maaslin munges feature names ...
+#   by = "bin_id"
+# ) %>%
+#   relocate(bin_id, .after = last_col()) %>%
+#   relocate(c("Species", "Genus"), .before = everything())
+```
+
+#### Full HUMAnN/MaAsLin2 association table
+
+```{r}
+# maaslin2_results <- maaslin2_results %>% mutate(PathwayID = str_split(Pathway, "\\.", simplify = TRUE)[, 1:2] %>% apply(1, paste, collapse = "-"))
+maaslin2_results <- maaslin2_results %>% mutate(PathwayID = str_split(Pathway, ":", simplify = TRUE)[, 1])
+
+# Turn pathways in table into hyperlinks to MetaCyc
+maaslin2_results$PathwayLink <- paste0(
+  "<a href=\"https://metacyc.org/META/NEW-IMAGE?object=",
+  maaslin2_results$PathwayID, "\" target='_blank'>",
+  maaslin2_results$Pathway,
+  "</a>"
+)
+maaslin2_results <- move_column_to_index(maaslin2_results, "PathwayLink", 1)
+
+maaslin2_results %>%
+  select(-c(metadata, value, name, Pathway)) %>%
+  # filter(qval < 0.05) %>%
+  arrange(-coef) %>%
+  arrange(qval) %>%
+  show_table_extra(escape = FALSE) %>%
+  DT::formatStyle(
+    "qval",
+    target = "row",
+    backgroundColor = DT::styleInterval(c(0, 0.05001), c("white", "lightgrey", "white"))
+  )
+```
+
+> - The `qval` is the adjusted p-value - rows with `qval <= 0.05` are highlighted grey.
+> - The `coef` is the model coef, indicating the strength of the association between the pathway and the group (+ve means pathway is more abudant in `Homo`)
+> - The `N` column is the total number of data points.
+> - The `N.not.zero` column is the total of non-zero data points.
+
+#### Significant HUMAnN/MaAsLin2 association table
+
+Here is a filtered version of the same table, showing only associations with a adjusted p-value <= 0.05, and only pathways detected in 90% of samples.
+
+```{r maaslin2_filtered_table}
+maaslin2_results %>%
+  select(-c(metadata, value, name, Pathway)) %>%
+  filter(qval <= 0.05) %>%
+  filter(N.not.zero / N >= 0.9) %>%
+  arrange(-coef) %>%
+  arrange(qval) %>%
+  show_table_extra(escape = FALSE)
+```
+
+General themes for the identified differential pathways are basic energy metabolism (glycolsis and TCA cycle), pyrimidine and purine degradation, and of particular interest, on cysteine biosynthesis pathway.
+
+[PWY-6292 - superpathway of L-cysteine biosynthesis (mammalian)](https://metacyc.org/META/NEW-IMAGE?object=PWY-6292) show significant (FDR=0.045) differential pathway abudance, with more complete pathways detected in the `Homo` microbial communities.
+(Note that although this is annotated as mammalian, the pathway exists in bacteria and archea).
+
+```{r}
+cys.pathway.relab <- pathway.relab.long %>%
+  filter(Group != "Abx") %>%
+  filter(PathwayID == "PWY-6292")
+
+set.seed(42)
+cys.pathway.plot <- (ggplot(cys.pathway.relab, aes(x = Group, y = relabundance, color = Group)) +
+  # geom_boxplot(width = 0.1) +
+  # geom_jitter(width = 0.1) +
+  geom_boxplot(outlier.shape = 2, outlier.size = 0) +
+  geom_jitter(color = "black", width = 0, height = 0) +
+  ylab("Pathway copies per million (CPM)") +
+  ggtitle("Distribution of relative abundance (CPM) values for PWY-6292",
+    subtitle = "superpathway of L-cysteine biosynthesis (mammalian)"
+  ) +
+  scale_fill_manual(values = scater:::.get_palette("tableau10medium")) +
+  scale_colour_manual(values = scater:::.get_palette("tableau10medium")) +
+  theme_minimal() +
+  theme(
+    # panel.grid.major.x = element_blank(),
+    panel.grid = element_blank(),
+  )
+)
+
+cys.pathway.plot
+
+ggsave("docs/plots/humann_boxplot_PWY-6292_het_homo_plot.png", width = 11, height = 10, dpi = 600)
+ggsave("docs/plots/humann_boxplot_PWY-6292_het_homo_plot.pdf", device = "pdf")
+write.csv(cys.pathway.relab, "docs/plots/humann_boxplot_PWY-6292_het_homo_plot.csv", row.names = FALSE)
+```
+
+- PDF version: [plots/humann_boxplot_PWY-6292_het_homo_plot.pdf](plots/humann_boxplot_PWY-6292_het_homo_plot.pdf)
+
+```{r}
+# We also generate a table ofthe CPM values for each of the significant pathways, per sample
+sig_pathways <- maaslin2_results %>%
+  select(-c(metadata, value, name, Pathway)) %>%
+  filter(qval <= 0.05)
+
+sig_pathway_cpms <- data.frame()
+
+for (pathway_id in sig_pathways$PathwayID) {
+  pathway_cpms <- pathway.relab.long %>%
+    filter(Group != "Abx") %>%
+    filter(PathwayID == pathway_id)
+
+  sig_pathway_cpms <- rbind(sig_pathway_cpms, pathway_cpms)
+}
+
+# Convert sig_pathway_cpms to wide format
+sig_pathway_cpms_wide <- sig_pathway_cpms %>%
+  select(Pathway, Sample, relabundance) %>%
+  pivot_wider(names_from = Sample, values_from = relabundance)
+
+# Ensure Pathway is the first column
+sig_pathway_cpms_wide <- sig_pathway_cpms_wide %>%
+  select(Pathway, everything())
+
+
+# Display the significant pathway cpms
+# sig_pathway_cpms_wide %>% show_table_extra(escape = FALSE)
+
+write.csv(sig_pathway_cpms_wide, "docs/plots/humann_sig_pathways_cpms_by_sample.csv", row.names = FALSE)
+```
+
+Which organism(s) is PWY-6292 the pathway most associated with in Het/Homo ?
+
+```{r}
+# show_table(pathway.relab.strat.long %>% filter(Group != "Abx") %>% filter((grepl("PWY-6292", Pathway))))
+show_table(pathway.relab.strat %>% filter((grepl("PWY-6292", Pathway))), digits = 9)
+```
+
+**Lactobacillus reuteri**, and unclassified species.
+
+All siginficant pathways relative abundance box plots:
+```{r}
+sig <- maaslin2_results %>%
+  filter(qval <= 0.05) %>%
+  arrange(-coef)
+
+apply(sig, 1, function(r) {
+  (ggplot(pathway.relab.long
+  %>% filter(Group != "Abx")
+    %>% filter(PathwayID == r["PathwayID"]), aes(x = Group, y = relabundance)) +
+    geom_boxplot() +
+    geom_jitter() +
+    ylab("Pathway copies per million (CPM)") +
+    ggtitle(f("Distribution of relative abundance values (CPM) for {r['PathwayID']}"),
+      subtitle = f("{r['Pathway']} \nFDR={r['qval']}")
+    ) +
+    theme_bw()
+  )
+})
+```
+
+```{r, pathway_density_plot_all, fig.width=11, fig.height=10, out.width="100%", include=FALSE, eval=FALSE}
+# Create the density plot
+ggplot(
+  pathway.relab.long %>% filter(PathwayID %in% sig$PathwayID),
+  aes(x = relabundance, fill = Group, color = Group)
+) +
+  geom_density(alpha = 0.5, adjust = 1) +
+  facet_wrap(~Pathway, scales = "free_y", ncol = 1) +
+  scale_x_log10(labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+  scale_fill_manual(values = scater:::.get_palette("tableau10medium")) +
+  scale_colour_manual(values = scater:::.get_palette("tableau10medium")) +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_blank(),
+    strip.text.x = element_text(size = 10),
+    axis.text.x = element_text(angle = 90, hjust = 1),
+    legend.position = "bottom"
+  ) +
+  labs(
+    x = "Relative abundance", y = "Density", fill = "Group",
+    title = "Relative abundance density of top Pathways (MetaCyc)"
+  ) +
+  guides(fill = guide_legend(title = "Group"))
+
+ggsave("docs/plots/pathway_density_plot.png", width = 11, height = 10, dpi = 300)
+
+# - [plots/pathway_density_plot.png](plots/pathway_density_plot.png)
+```
+
+
+```{r pathway_density_plot_hethomo, fig.width=11, fig.height=10, out.width="100%"}
+# Create the density plot
+ggplot(
+  pathway.relab.long %>% filter(PathwayID %in% sig$PathwayID) %>% filter(Group != "Abx"),
+  aes(x = relabundance, fill = Group, color = Group)
+) +
+  geom_density(alpha = 0.5, adjust = 1) +
+  # geom_jitter(alpha = 0.8, size = 1, width = 0.02) +
+  geom_rug(sides = "b", size = 1, length = unit(0.1, "npc")) +
+  facet_wrap(~Pathway, scales = "free_y", ncol = 1) +
+  scale_x_log10(labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+  scale_fill_manual(values = scater:::.get_palette("tableau10medium")) +
+  scale_colour_manual(values = scater:::.get_palette("tableau10medium")) +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_blank(),
+    strip.text.x = element_text(size = 10),
+    axis.text.x = element_text(angle = 90, hjust = 1),
+    legend.position = "bottom"
+  ) +
+  labs(
+    x = "Relative abundance", y = "Density", fill = "Group",
+    title = "Relative abundance density of top Pathways (MetaCyc)"
+  ) +
+  guides(fill = guide_legend(title = "Group"))
+
+ggsave("docs/plots/pathway_density_het_homo_plot.png", width = 11, height = 10, dpi = 600)
+```
+
+- [plots/pathway_density_het_homo_plot.png](plots/pathway_density_het_homo_plot.png)
+
+```{r, include=FALSE, eval=FALSE}
+# Alternative - faceted box plot
+ggplot(
+  pathway.relab.long %>% filter(PathwayID %in% sig$PathwayID) %>% filter(Group != "Abx"),
+  aes(x = relabundance, color = Group)
+) +
+  # geom_density(alpha = 0.5, adjust=1) +
+  geom_boxplot() +
+  geom_rug(sides = "b", size = 1, length = unit(0.1, "npc")) +
+  facet_wrap(~Pathway, scales = "free_y", ncol = 1) +
+  scale_x_log10(labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+  scale_fill_manual(values = scater:::.get_palette("tableau10medium")) +
+  scale_colour_manual(values = scater:::.get_palette("tableau10medium")) +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_blank(),
+    strip.text.x = element_text(size = 10),
+    axis.text.x = element_text(angle = 90, hjust = 1),
+    legend.position = "bottom"
+  ) +
+  labs(
+    x = "Relative abundance", y = "Density", fill = "Group",
+    title = "Relative abundance density of top Pathways (MetaCyc)"
+  ) +
+  guides(fill = guide_legend(title = "Group"))
+
+ggsave("docs/plots/pathway_density_het_homo_plot.png", width = 11, height = 10, dpi = 600)
+```
+
+
+A heatmap of only the siginficant differentially abundant pathways.
+We show log2(cpm), where cpm is complete pathway copies per million.
+
+```{r pathway_heatmap, out.width="100%"}
+library(pheatmap)
+library(viridis)
+library(RColorBrewer)
+# library(heatmaply)
+
+pways <- (
+  pathway.relab %>%
+    mutate(PathwayID = str_extract(Pathway, "^(.*?)(?=:)")) %>%
+    filter(PathwayID %in% sig$PathwayID) %>%
+    filter((Pathway != "UNMAPPED") & Pathway != "UNINTEGRATED") %>%
+    # simplify long descriptions
+    mutate(
+      Pathway = str_remove(Pathway, "superpathway of\\s*"),
+      Pathway = str_remove(Pathway, "\\s*\\([^\\)]+\\)"),
+      Pathway = str_replace(Pathway, "ation", "'n"),
+    )
+)
+
+# pways <- move_column_to_index(pways, "PathwayID", 1)
+# Drop the PathwayID column we don't need anymore
+pways <- pways %>% select(-PathwayID)
+
+# We remove the Abx condition since the pathways are driven almost entirely by Lactococcus specific metabolism
+# This obscures interesting patterns between Het and Homo
+pways <- pways %>% select(-starts_with("Abx"))
+
+# pways <- pways %>% select(-starts_with("Homo-3"))
+
+pways.mat <- as.matrix(pways[, -1])
+rownames(pways.mat) <- pways$Pathway
+
+# pways.var <- apply(pways.mat, 1, var) # Calculate variance for each row
+# threshold <- quantile(pways.var, 0.75) # Set a threshold, (75th percentle)
+# pways.mat <- pways.mat[pways.var > threshold, ]
+# rownames(pways.mat) <- pways$Pathway[pways.var > threshold]
+
+pathways.sig.heatmap <- pheatmap(log(pways.mat + 1),
+  clustering_distance_cols = "euclidean",
+  clustering_distance_rows = "euclidean",
+  # kmeans_k=4,
+  cutree_cols = 2,
+  treeheight_row = 20, treeheight_col = 20,
+  fontsize = 8,
+  angle_col = 90,
+  breaks = seq(0, 6.0, length.out = 101),
+  legend_breaks = seq(0, 6.0, by = 1),
+  legend_labels = sprintf("%.1f", seq(0, 6.0, by = 1))
+)
+
+pathways.sig.heatmap.v <- pheatmap(log(pways.mat + 1),
+  clustering_distance_cols = "euclidean",
+  clustering_distance_rows = "euclidean",
+  color = viridis(n = 64, option = "viridis"),
+  # color = viridis(n = 64, option = "magma"),
+  cutree_cols = 2,
+  # kmeans_k=4,
+  cellwidth = 10, cellheight = 10,
+  treeheight_row = 20, treeheight_col = 20,
+  fontsize = 8,
+  angle_col = 90,
+  breaks = seq(0, 6.0, length.out = 64),
+  legend_breaks = seq(0, 6.0, by = 1),
+  legend_labels = sprintf("%.1f", seq(0, 6.0, by = 1))
+)
+
+pathways.sig.heatmap
+
+ggsave("docs/plots/Part_F_da_pathways_log2cpm_heatmap.tiff", pathways.sig.heatmap,
+  device = "tiff", compression = "lzw", units = "mm", width = 180, height = 172.5, dpi = 600
+)
+
+ggsave("docs/plots/Part_F_da_pathways_log2cpm_heatmap.v.tiff", pathways.sig.heatmap.v,
+  device = "tiff", compression = "lzw", units = "mm", width = 180, height = 172.5, dpi = 600
+)
+
+ggsave("docs/plots/Part_F_da_pathways_log2cpm_heatmap.svg", pathways.sig.heatmap,
+  device = "svg", units = "mm", width = 180, height = 172.5, dpi = 600
+)
+
+ggsave("docs/plots/Part_F_da_pathways_log2cpm_heatmap.v.svg", pathways.sig.heatmap.v,
+  device = "svg", units = "mm", width = 180, height = 172.5, dpi = 600
+)
+
+ggsave("docs/plots/Part_F_da_pathways_log2cpm_heatmap.png", pathways.sig.heatmap,
+  device = "png", units = "mm", width = 180, height = 172.5, dpi = 600
+)
+
+ggsave("docs/plots/Part_F_da_pathways_log2cpm_heatmap.v.png", pathways.sig.heatmap.v,
+  device = "png", units = "mm", width = 180, height = 172.5, dpi = 600
+)
+
+# hm <- heatmaply(
+#   pways.mat,
+#   k_col = 2, k_row = 2,
+#   labels_row = rownames(pways.mat),
+#   labRow = rownames(pways.mat),
+#   labCol = colnames(pways.mat),
+#   fontsize_row = 8
+# )
+
+# htmlwidgets::saveWidget(hm, file.path(base_path, "workflowr/docs/plots/da_pathways_heatmap.html"))
+```
+
+
+```{r genes_heatmap, eval=FALSE, include=FALSE}
+# ## Gene families
+
+# ### Gene family (UniRef90) heatmap
+
+# A hierarchical clustered heatmap of using the abundance of UniRef90 protein families for each sample.
+# To simplify plot we show only gene families with high variance between samples (greater than 99th percentile).
+
+# - [plots/gene_family_heatmap.html](plots/gene_family_heatmap.html)
+
+
+# library(pheatmap)
+library(heatmaply)
+
+genes <- gene.relab %>% filter((Gene_Family != "UNMAPPED") & Gene_Family != "UNINTEGRATED")
+
+# We remove the Abx condition since the pathways are driven almost entirely by Lactococcus specific metabolism
+# This obscures interesting patterns between Het and Homo
+genes <- genes %>% select(-starts_with("Abx"))
+
+# genes <- genes %>% select(-starts_with("Homo-3"))
+
+genes.mat <- as.matrix(genes[, -1])
+rownames(genes.mat) <- genes$Gene_Family
+
+genes.var <- apply(genes.mat, 1, var) # Calculate variance for each row
+threshold <- quantile(genes.var, 0.99) # Set a threshold, (95th percentle)
+genes.mat <- genes.mat[genes.var > threshold, ]
+
+rownames(genes.mat) <- genes$Gene_Family[genes.var > threshold]
+
+hm <- heatmaply(
+  genes.mat,
+  k_col = 2, k_row = 2,
+  labels_row = rownames(genes.mat),
+  labRow = rownames(genes.mat),
+  labCol = colnames(genes.mat),
+  fontsize_row = 6
+)
+
+htmlwidgets::saveWidget(hm, file.path(base_path, "workflowr/docs/plots/gene_family_heatmap.html"))
+```
+
+
+```{r}
+htmltools::includeHTML("analysis/acknowledging.html")
+```

@@ -1,0 +1,90 @@
+Abx-1_S1_L001_1:
+  Duplicate Reads: 43270846.0
+  Unique Reads: 15543031.0
+Abx-1_S1_L001_2:
+  Duplicate Reads: 44288010.0
+  Unique Reads: 14525867.0
+Abx-2_S2_L001_1:
+  Duplicate Reads: 41657836.0
+  Unique Reads: 21464262.0
+Abx-2_S2_L001_2:
+  Duplicate Reads: 42883608.0
+  Unique Reads: 20238490.0
+Abx-3_S3_L001_1:
+  Duplicate Reads: 46449615.0
+  Unique Reads: 16415233.0
+Abx-3_S3_L001_2:
+  Duplicate Reads: 47814093.0
+  Unique Reads: 15050755.0
+Abx-4_S4_L001_1:
+  Duplicate Reads: 41829053.0
+  Unique Reads: 14440194.0
+Abx-4_S4_L001_2:
+  Duplicate Reads: 42987787.0
+  Unique Reads: 13281460.0
+Abx-5_S5_L001_1:
+  Duplicate Reads: 41897770.0
+  Unique Reads: 13573763.0
+Abx-5_S5_L001_2:
+  Duplicate Reads: 43395478.0
+  Unique Reads: 12076055.0
+Het-1_S6_L001_1:
+  Duplicate Reads: 39090386.0
+  Unique Reads: 36659273.0
+Het-1_S6_L001_2:
+  Duplicate Reads: 39513972.0
+  Unique Reads: 36235687.0
+Het-2_S7_L001_1:
+  Duplicate Reads: 37009909.0
+  Unique Reads: 33169106.0
+Het-2_S7_L001_2:
+  Duplicate Reads: 37559131.0
+  Unique Reads: 32619884.0
+Het-3_S8_L001_1:
+  Duplicate Reads: 33332668.0
+  Unique Reads: 31218634.0
+Het-3_S8_L001_2:
+  Duplicate Reads: 34071213.0
+  Unique Reads: 30480089.0
+Het-4_S9_L001_1:
+  Duplicate Reads: 24919274.0
+  Unique Reads: 31455771.0
+Het-4_S9_L001_2:
+  Duplicate Reads: 25207525.0
+  Unique Reads: 31167520.0
+Het-5_S10_L001_1:
+  Duplicate Reads: 44702781.0
+  Unique Reads: 31763886.0
+Het-5_S10_L001_2:
+  Duplicate Reads: 45329297.0
+  Unique Reads: 31137370.0
+Homo-1_S11_L001_1:
+  Duplicate Reads: 36287557.0
+  Unique Reads: 32182857.0
+Homo-1_S11_L001_2:
+  Duplicate Reads: 36640414.0
+  Unique Reads: 31830000.0
+Homo-2_S12_L001_1:
+  Duplicate Reads: 31014348.0
+  Unique Reads: 30662623.0
+Homo-2_S12_L001_2:
+  Duplicate Reads: 31418988.0
+  Unique Reads: 30257983.0
+Homo-3_S13_L001_1:
+  Duplicate Reads: 33317063.0
+  Unique Reads: 28170668.0
+Homo-3_S13_L001_2:
+  Duplicate Reads: 33788367.0
+  Unique Reads: 27699364.0
+Homo-4_S14_L001_1:
+  Duplicate Reads: 41572441.0
+  Unique Reads: 39791124.0
+Homo-4_S14_L001_2:
+  Duplicate Reads: 42185044.0
+  Unique Reads: 39178521.0
+Homo-5_S15_L001_1:
+  Duplicate Reads: 25830292.0
+  Unique Reads: 39281785.0
+Homo-5_S15_L001_2:
+  Duplicate Reads: 26394246.0
+  Unique Reads: 38717831.0

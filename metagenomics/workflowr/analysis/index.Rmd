@@ -1,0 +1,120 @@
+---
+title: "Home"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r packages, include=FALSE}
+# install.packages("renv")
+
+# renv::install(c("languageserver")) # for vscode
+
+# renv::install(c("tidyverse", "ggplot2", "DT", "kableExtra", "workflowr", "ggsignif", "RColorBrewer", "httpgd", "bioc::phyloseq", "bioc::mia", "bioc::miaViz"), prompt=FALSE)
+
+# renv::install("FrederickHuangLin/ANCOMBC") # github
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+
+source("analysis/rmarkdown_utils.R")
+source("analysis/tse_utils.R")
+
+library(tidyverse)
+library(mia)
+# library(miaTime)
+library(miaViz)
+library(ggplot2)
+library(BiocManager)
+library(Biostrings)
+
+f <- str_glue
+```
+
+```{r report_template}
+htmltools::includeHTML("analysis/index_for_workflowr.html")
+```
+
+# Cystinuria Mouse Gut Microbiome
+## Nirmal Bhatt, Malcolm Starkey
+
+**Author:** Andrew Perry  
+**BIP:** BIP-1131
+**iLab:** MBP-MS-466
+**starting date:** 14-Aug-2023   
+
+---
+
+### Summary
+ 
+**Goal:** To explore the differences between faecal microbiomes of the homozygous cystinuria mice with heterozygotes.
+
+**Data:** Mouse faecal microbiome, short read shotgun WGS.
+
+Three conditions with 5 samples each:
+
+- `Abx` (antibiotic treated)
+- `Het` (heterozygous)
+- `Homo` (homozygous)
+
+Potential covariates:
+
+- all mice are male (so no sex covariate)
+- box locations (some mice were housed together in the same box)
+
+```{r metadata_table}
+metadata <- read.csv('data/metadata.csv')
+show_table(metadata)
+```
+
+The cystinuria includes formation of cysteine stones in the predominantly in the kidney.
+Stone count, mass (mg) and total stone surface area (mm^2) was also provided.
+
+
+### Pipeline overview
+
+Host (Mus musculus) and PhiX reads were depleted from quality-filtered paired-end reads using Bowtie2.
+Taxonomic assignments of the remaining reads were made using MetaPhlAn4 against the ChocoPhlAn database (vOct22).
+
+### Analysis
+
+Data was analysed in R, primarily using the `mia` and `miaViz` Bioconductor pacakges.
+Taxonomic abundance was assessed using MetaPhlAn4, with differential abundance testing via ANCOM-BC2.
+Functional and pathway enrichment was assessed using HUMAnN, with differential pathway abundance testing via MaAsLin2.
+
+- [Raw read QC](multiqc/run1/multiqc_report.html)
+  - Raw sequencing data is of good quality. ~50-80M 100bp paired reads per sample. Most samples have ~3-5% mouse host reads (removed).
+- [MetaPhlAn4 taxonomy and diversity](metaphlan.html)
+- [HUMAnN functional and pathway enrichment](humann.html)
+- [Summary notes & proposed manuscript figures](summary_notes.html)
+
+Higher resolution versions of some key plots can be found in: [plots/](plots/)
+
+```{markdown include=FALSE, eval=FALSE}
+[This paper](https://www.nature.com/articles/s41591-019-0504-5), 16S study, 
+found _Akkermansia muciniphila_ beneficial in mice, potentially helping 
+modulate bile acids.  Uses the LEfSE linear discriminant analyst method for DA. 
+
+- **TODO**: HUMAnN ?
+
+```
+
+```{r}
+htmltools::includeHTML("analysis/acknowledging.html")
+```
+
+
+```{r include=FALSE, eval=FALSE}
+# Never uncomment - infinite loop !
+# rmarkdown::render("workflowr/analysis/index.Rmd", knit_root_dir="/home/andrewperry/projects/nirmal.bhatt/cystinuria_Mouse_microbiome_WGS/")
+
+# or
+# workflowr::wflow_build()
+```
+

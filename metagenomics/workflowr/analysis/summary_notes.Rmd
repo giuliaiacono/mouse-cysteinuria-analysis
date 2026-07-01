@@ -1,0 +1,87 @@
+---
+title: "Summary notes"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: true
+    toc_float: true
+editor_options:
+  chunk_output_type: console
+---
+
+# Background
+
+Cystinuria is (typically) caused by mutations to a dibasic amino acid transporter rBAT (SLCA3A1/SLC7A9) which reduce the reabsorption of cysteine, ornithine, lysine, and arginine, resulting in cysteine-rich kidney stones ([Sadiq & Cil, 2022](https://doi.org/10.5152%2FTurkArchPediatr.2022.22105)).
+
+The mutant mouse strain used in this study are heterozyous (`Het`) or homozygous (`Homo`) to a mutation in this transporter - the `Homo` mice show a cystinuria phenotype and develop kidney stones, when the `Het` mice do not.
+This study examines the gut microbiome of `Het` and `Homo` mice, as well as `Abx` mice which are homozygous mice treated with antibiotics to eliminate most normal gut flora.
+
+# Differential relativate abundances of taxa
+
+The genus [NM07_P-09](https://gtdb.ecogenomic.org/taxon-history?from=R202&to=R220&query=s__NM07-P-09%20sp004793925) is in family *[Atopobiaceae](https://en.wikipedia.org/wiki/Atopobiaceae)* 
+- an anaerobic Gram-positive bacteria first identified in mouse gut ([Wong et al , 2021](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9040815/)). *NM07_P-09 sp004793925*, identified under the GTDB r202 taxonomy, has been renamed to [*Leptogranulimonas caecicola*](https://gtdb.ecogenomic.org/tree?r=s__Leptogranulimonas%20caecicola) [Morinaga et al, 2020](https://www.microbiologyresearch.org/content/journal/ijsem/10.1099/ijsem.0.005596) under the more recent r220 taxonomy (NM07_P09 has also sometimes been called *Muricaecibacterium torontonense*, or when not classified, *Coriobacteriaceae bacterium*)
+This organism was identified as having significantly higher relative abundance in homozygous (`Homo`) samples the MetaPhlAn4 marker-based taxonomic assignment of reads (ANCOM-BC2, log fold-change = 3.7, FDR = 0.030), although is at relatively low abudance overall (~).
+
+*NM07_P-09 sp004793925* was also idenified as differentially abundant using Kraken2/Braken and by quantifying reads mapped to denovo metagenome assembled genomes (MAGs). 
+In other studies, *NM07_P-09 sp004793925* has been idenified as increasing relative abundance in response to cold in mouse feces ([Kieser et al, 2022](https://doi.org/10.1371%2Fjournal.pcbi.1009947)).
+This species has been [characterized to utilize arginine](https://bacdive.dsmz.de/strain/169764), so it's increase in relative abundance in the homozygous (`Homo`) fecal samples may be explained by the increase arginine concentrations in this phenotype.
+
+There are other differential abundanant species from the MetaPhlAn+ANCOMBC2 analysis not discussed here: [Acutalibacter muris](https://gtdb.ecogenomic.org/tree?r=s__Acutalibacter+muris), [Bacteroides caecimuris](https://gtdb.ecogenomic.org/tree?r=s__Bacteroides+caecimuris), [Lactococcus cremoris](https://gtdb.ecogenomic.org/tree?r=s__Lactococcus+cremoris). 
+
+Additionally, CAG-180 sp900540295, Duncaniella muris, UBA7173 sp001689485, were detected in full MAG assembly + GTDBtk analysis + ANCOMBC2 - these were not detected by MetaPhlAn+ANCOMBC2 (_Visual inspection of the relativate abudance distributions shows UBA7173 and Duncaniella are overlapped and less convincing, while CAG-180 (==Fimenecus) looks better_)
+
+See report pages: [MetaPhlAn4 taxonomy and diversity](metaphlan.html)
+
+# Functional and metabolic pathway analysis
+
+General themes for the identified differential pathways are basic energy metabolism (glycolsis and TCA cycle), fatty acid biosynthesis, pyrimidine degradation, and of particular interest, a cysteine biosynthesis pathway.
+
+[PWY-6292](https://metacyc.org/META/NEW-IMAGE?object=PWY-6292) - superpathway of L-cysteine biosynthesis (mammalian) show significant (FDR=0.045) differential pathway abudance, with more complete pathways detected in the Homo microbial communities. (Note that although this is annotated as mammalian, the pathway exists in bacteria and archea).
+The taxonomy associated with genes in this pathway detected in these samples is *Lactobacillus reuteri*, and unclassified species.
+
+See report pages: [HUMAnN functional and pathway enrichment](humann.html)
+
+# Proposed material for manuscript
+
+## Figures
+
+MetaPhlAn4 differental abundance of taxa at the species level.
+
+Use PDF version here: [plots/metaphlan_boxplot_het_homo_plot.pdf](plots/metaphlan_boxplot_het_homo_plot.pdf)
+
+HUMAnN functional and pathway enrichment at the community level - a increase in the relative abundance of _PWY-6292 superpathway of L-cysteine biosynthesis_ in homozygous fecal samples.
+
+Use PDF version here: [plots/humann_boxplot_PWY-6292_het_homo_plot.pdf](plots/humann_boxplot_PWY-6292_het_homo_plot.pdf)
+
+Figure X: (a) Boxplots showing the relative abudance of the differentially abundanant species in the mouse fecal metagenomes for homozygous and heterozygous mice. _NM07-P-09 sp004793925_ (log-fold change=3.70, FDR=0.03) and _Acutalibacter muris_ (log-fold change=2.97, FDR=0.043) show significantly higher relative abundance in homozygous fecal samples, while _Bacteroides caecimuris_ (log-fold change=-4.79, FDR=0.013) and _Lactococcus cremoris_ (log-fold change=-6.89, FDR=0.007) show lower relative abundance.
+(b) Boxplots showing the distribution of relative abudances of the superpathway of L-cysteine biosynthesis (MetaCyc PWY-6292), between homozygous and heterozygous fecal samples. Abundances are expressed as copies per million (CPM). The bacterial communities in the homozygous fecal samples show approximately twice the number of complete copies of PWY-6292, which converts methionine to cysteine.
+
+**TODO**: In text: results for alpha and beta diversity numbers.
+
+## Methods
+
+All raw reads were quality checked using FastQC (Andrews S. (2010). FastQC: a quality control tool for high throughput sequence data, http://www.bioinformatics.babraham.ac.uk/projects/fastqc) and depleated of host (Mus musculus, GRCm38 Ensembl release 102) and PhiX (GCA_002596845.1) reads using Bowtie2 (v2.4.2) ([Langmead et al, 2012](https://doi.org/10.1038/nmeth.1923)), outputting unmapped reads with `--un-conc-gz` for downstream analysis.
+
+We used the MetaPhlAn4 software (v4.0.6) ([Blanco-Miguez et al, 2022](https://doi.org/10.1101/2022.08.22.504593)) with the default ChocoPhlAn database (vOct22) to estimate the taxonomic abudance of species in each sample (homozygous n=5, heterozygous n=5, antibiotic treated homozygous n=5).
+
+(`metaphlan read_1.fastq.gz,read_2.fastq.gz -t rel_ab_w_read_stats --unclassified_estimation --bowtie2db db/vOct22 --bowtie2out ${sample}.bowtie2.bz2 --nproc 8 --input_type fastq --sample_id ${sample} --biom ${sample}_metaphlan.biom -o ${sample}_metaphlan.txt`).
+
+To find dfferentially abundanant species between heterozygous and homozygous samples, we applied the ANCOM-BC2 method ([Lin & Peddada, 2024](https://doi.org/10.1038%2Fs41592-023-02092-7)) using `fdr` false discoverty rate correction for multiple testing ([Benjamini & Hochberg, 1995](https://doi.org/10.1111/j.2517-6161.1995.tb02031.x)). Taxa were required to be detected in 9 out of 10 samples, and we used `struc_zero = TRUE, neg_lb = TRUE` to detect and account for structural zeros.
+
+(`ancombc2(data = tree.summ.expt, assay_name = "counts", fix_formula = "group", p_adj_method = "fdr" prv_cut = 0.9, group = "group", tax_level = "Species", struc_zero = TRUE, neg_lb = TRUE, global = TRUE)`)
+
+For functional and pathway enrichment analysis we used HUMAnN (v3.8) ([Beghini et al, 2021](https://doi.org/10.7554/eLife.65088)), searching for orthologues against Uniref90 (`uniref90_201901b_full`) and quantifying community pathway abudance using the MetaCyc database ([Caspi et al, 2020](https://doi.org/10.1093/nar/gkz862)). We used a linear model as implemented in MaAsLin2 ([Mallick et al, 2021](https://doi.org/10.1371/journal.pcbi.1009442)) to find differentially abundant pathways quantied by HUMAnN, using log-transformed copies-per-million (CPM) values, no minimum prevalence or abundance cutoff, and false discoverty rate correction for multiple testing.
+
+(`humann --input ${sample}_merged.fastq.gz --output output/${sample} --threads 8 --search-mode uniref90 --metaphlan-options \"-t rel_ab --bowtie2db db/vOct22\"`)
+
+We used R (R Core Team (2023). _R: A Language and Environment for Statistical Computing_. R Foundation for Statistical Computing, Vienna, Austria. https://www.R-project.org/), and the Bioconductor packages *mia* (Ernst F, Shetty S, Borman T, Lahti L (2023). mia: Microbiome analysis. doi:10.18129/B9.bioc.mia, R package version 1.10.0, https://bioconductor.org/packages/mia) and *miaViz* (Borman T, Ernst F, Lahti L (2023). miaViz: Microbiome Analysis Plotting and Visualization. doi:10.18129/B9.bioc.miaViz, R package version 1.10.0, https://bioconductor.org/packages/miaViz) for plotting and statistical analysis of the metagenomic data.
+
+## Supplementary data
+
+- Download Excel or CSV of full table from [HUMAnN report](humann.html)
+
+**TODO:**
+
+- Taxonomic barplot (Metaphlan)
+- Alpha / beta diversity plots.
+- ~~Full HuMaNN - MaAsLin2 FDR <= 0.05 table~~

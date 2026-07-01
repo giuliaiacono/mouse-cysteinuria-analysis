@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Summary notes</title>
+
+<script src="site_libs/header-attrs-2.24/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Cystinuria Mouse faecal microbiome</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Summary notes</h1>
+
+</div>
+
+
+<div id="background" class="section level1">
+<h1>Background</h1>
+<p>Cystinuria is (typically) caused by mutations to a dibasic amino acid
+transporter rBAT (SLCA3A1/SLC7A9) which reduce the reabsorption of
+cysteine, ornithine, lysine, and arginine, resulting in cysteine-rich
+kidney stones (<a
+href="https://doi.org/10.5152%2FTurkArchPediatr.2022.22105">Sadiq &amp;
+Cil, 2022</a>).</p>
+<p>The mutant mouse strain used in this study are heterozyous
+(<code>Het</code>) or homozygous (<code>Homo</code>) to a mutation in
+this transporter - the <code>Homo</code> mice show a cystinuria
+phenotype and develop kidney stones, when the <code>Het</code> mice do
+not. This study examines the gut microbiome of <code>Het</code> and
+<code>Homo</code> mice, as well as <code>Abx</code> mice which are
+homozygous mice treated with antibiotics to eliminate most normal gut
+flora.</p>
+</div>
+<div id="differential-relativate-abundances-of-taxa"
+class="section level1">
+<h1>Differential relativate abundances of taxa</h1>
+<p>The genus <a
+href="https://gtdb.ecogenomic.org/taxon-history?from=R202&amp;to=R220&amp;query=s__NM07-P-09%20sp004793925">NM07_P-09</a>
+is in family <em><a
+href="https://en.wikipedia.org/wiki/Atopobiaceae">Atopobiaceae</a></em>
+- an anaerobic Gram-positive bacteria first identified in mouse gut (<a
+href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9040815/">Wong et al
+, 2021</a>). <em>NM07_P-09 sp004793925</em>, identified under the GTDB
+r202 taxonomy, has been renamed to <a
+href="https://gtdb.ecogenomic.org/tree?r=s__Leptogranulimonas%20caecicola"><em>Leptogranulimonas
+caecicola</em></a> <a
+href="https://www.microbiologyresearch.org/content/journal/ijsem/10.1099/ijsem.0.005596">Morinaga
+et al, 2020</a> under the more recent r220 taxonomy (NM07_P09 has also
+sometimes been called <em>Muricaecibacterium torontonense</em>, or when
+not classified, <em>Coriobacteriaceae bacterium</em>) This organism was
+identified as having significantly higher relative abundance in
+homozygous (<code>Homo</code>) samples the MetaPhlAn4 marker-based
+taxonomic assignment of reads (ANCOM-BC2, log fold-change = 3.7, FDR =
+0.030), although is at relatively low abudance overall (~).</p>
+<p><em>NM07_P-09 sp004793925</em> was also idenified as differentially
+abundant using Kraken2/Braken and by quantifying reads mapped to denovo
+metagenome assembled genomes (MAGs). In other studies, <em>NM07_P-09
+sp004793925</em> has been idenified as increasing relative abundance in
+response to cold in mouse feces (<a
+href="https://doi.org/10.1371%2Fjournal.pcbi.1009947">Kieser et al,
+2022</a>). This species has been <a
+href="https://bacdive.dsmz.de/strain/169764">characterized to utilize
+arginine</a>, so it’s increase in relative abundance in the homozygous
+(<code>Homo</code>) fecal samples may be explained by the increase
+arginine concentrations in this phenotype.</p>
+<p>There are other differential abundanant species from the
+MetaPhlAn+ANCOMBC2 analysis not discussed here: <a
+href="https://gtdb.ecogenomic.org/tree?r=s__Acutalibacter+muris">Acutalibacter
+muris</a>, <a
+href="https://gtdb.ecogenomic.org/tree?r=s__Bacteroides+caecimuris">Bacteroides
+caecimuris</a>, <a
+href="https://gtdb.ecogenomic.org/tree?r=s__Lactococcus+cremoris">Lactococcus
+cremoris</a>.</p>
+<p>Additionally, CAG-180 sp900540295, Duncaniella muris, UBA7173
+sp001689485, were detected in full MAG assembly + GTDBtk analysis +
+ANCOMBC2 - these were not detected by MetaPhlAn+ANCOMBC2 (<em>Visual
+inspection of the relativate abudance distributions shows UBA7173 and
+Duncaniella are overlapped and less convincing, while CAG-180
+(==Fimenecus) looks better</em>)</p>
+<p>See report pages: <a href="metaphlan.html">MetaPhlAn4 taxonomy and
+diversity</a></p>
+</div>
+<div id="functional-and-metabolic-pathway-analysis"
+class="section level1">
+<h1>Functional and metabolic pathway analysis</h1>
+<p>General themes for the identified differential pathways are basic
+energy metabolism (glycolsis and TCA cycle), fatty acid biosynthesis,
+pyrimidine degradation, and of particular interest, a cysteine
+biosynthesis pathway.</p>
+<p><a
+href="https://metacyc.org/META/NEW-IMAGE?object=PWY-6292">PWY-6292</a> -
+superpathway of L-cysteine biosynthesis (mammalian) show significant
+(FDR=0.045) differential pathway abudance, with more complete pathways
+detected in the Homo microbial communities. (Note that although this is
+annotated as mammalian, the pathway exists in bacteria and archea). The
+taxonomy associated with genes in this pathway detected in these samples
+is <em>Lactobacillus reuteri</em>, and unclassified species.</p>
+<p>See report pages: <a href="humann.html">HUMAnN functional and pathway
+enrichment</a></p>
+</div>
+<div id="proposed-material-for-manuscript" class="section level1">
+<h1>Proposed material for manuscript</h1>
+<div id="figures" class="section level2">
+<h2>Figures</h2>
+<p>MetaPhlAn4 differental abundance of taxa at the species level.</p>
+<p>Use PDF version here: <a
+href="plots/metaphlan_boxplot_het_homo_plot.pdf">plots/metaphlan_boxplot_het_homo_plot.pdf</a></p>
+<p>HUMAnN functional and pathway enrichment at the community level - a
+increase in the relative abundance of <em>PWY-6292 superpathway of
+L-cysteine biosynthesis</em> in homozygous fecal samples.</p>
+<p>Use PDF version here: <a
+href="plots/humann_boxplot_PWY-6292_het_homo_plot.pdf">plots/humann_boxplot_PWY-6292_het_homo_plot.pdf</a></p>
+<p>Figure X: (a) Boxplots showing the relative abudance of the
+differentially abundanant species in the mouse fecal metagenomes for
+homozygous and heterozygous mice. <em>NM07-P-09 sp004793925</em>
+(log-fold change=3.70, FDR=0.03) and <em>Acutalibacter muris</em>
+(log-fold change=2.97, FDR=0.043) show significantly higher relative
+abundance in homozygous fecal samples, while <em>Bacteroides
+caecimuris</em> (log-fold change=-4.79, FDR=0.013) and <em>Lactococcus
+cremoris</em> (log-fold change=-6.89, FDR=0.007) show lower relative
+abundance. (b) Boxplots showing the distribution of relative abudances
+of the superpathway of L-cysteine biosynthesis (MetaCyc PWY-6292),
+between homozygous and heterozygous fecal samples. Abundances are
+expressed as copies per million (CPM). The bacterial communities in the
+homozygous fecal samples show approximately twice the number of complete
+copies of PWY-6292, which converts methionine to cysteine.</p>
+<p><strong>TODO</strong>: In text: results for alpha and beta diversity
+numbers.</p>
+</div>
+<div id="methods" class="section level2">
+<h2>Methods</h2>
+<p>All raw reads were quality checked using FastQC (Andrews S. (2010).
+FastQC: a quality control tool for high throughput sequence data, <a
+href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc"
+class="uri">http://www.bioinformatics.babraham.ac.uk/projects/fastqc</a>)
+and depleated of host (Mus musculus, GRCm38 Ensembl release 102) and
+PhiX (GCA_002596845.1) reads using Bowtie2 (v2.4.2) (<a
+href="https://doi.org/10.1038/nmeth.1923">Langmead et al, 2012</a>),
+outputting unmapped reads with <code>--un-conc-gz</code> for downstream
+analysis.</p>
+<p>We used the MetaPhlAn4 software (v4.0.6) (<a
+href="https://doi.org/10.1101/2022.08.22.504593">Blanco-Miguez et al,
+2022</a>) with the default ChocoPhlAn database (vOct22) to estimate the
+taxonomic abudance of species in each sample (homozygous n=5,
+heterozygous n=5, antibiotic treated homozygous n=5).</p>
+<p>(<code>metaphlan read_1.fastq.gz,read_2.fastq.gz -t rel_ab_w_read_stats --unclassified_estimation --bowtie2db db/vOct22 --bowtie2out ${sample}.bowtie2.bz2 --nproc 8 --input_type fastq --sample_id ${sample} --biom ${sample}_metaphlan.biom -o ${sample}_metaphlan.txt</code>).</p>
+<p>To find dfferentially abundanant species between heterozygous and
+homozygous samples, we applied the ANCOM-BC2 method (<a
+href="https://doi.org/10.1038%2Fs41592-023-02092-7">Lin &amp; Peddada,
+2024</a>) using <code>fdr</code> false discoverty rate correction for
+multiple testing (<a
+href="https://doi.org/10.1111/j.2517-6161.1995.tb02031.x">Benjamini
+&amp; Hochberg, 1995</a>). Taxa were required to be detected in 9 out of
+10 samples, and we used <code>struc_zero = TRUE, neg_lb = TRUE</code> to
+detect and account for structural zeros.</p>
+<p>(<code>ancombc2(data = tree.summ.expt, assay_name = "counts", fix_formula = "group", p_adj_method = "fdr" prv_cut = 0.9, group = "group", tax_level = "Species", struc_zero = TRUE, neg_lb = TRUE, global = TRUE)</code>)</p>
+<p>For functional and pathway enrichment analysis we used HUMAnN (v3.8)
+(<a href="https://doi.org/10.7554/eLife.65088">Beghini et al, 2021</a>),
+searching for orthologues against Uniref90
+(<code>uniref90_201901b_full</code>) and quantifying community pathway
+abudance using the MetaCyc database (<a
+href="https://doi.org/10.1093/nar/gkz862">Caspi et al, 2020</a>). We
+used a linear model as implemented in MaAsLin2 (<a
+href="https://doi.org/10.1371/journal.pcbi.1009442">Mallick et al,
+2021</a>) to find differentially abundant pathways quantied by HUMAnN,
+using log-transformed copies-per-million (CPM) values, no minimum
+prevalence or abundance cutoff, and false discoverty rate correction for
+multiple testing.</p>
+<p>(<code>humann --input ${sample}_merged.fastq.gz --output output/${sample} --threads 8 --search-mode uniref90 --metaphlan-options \"-t rel_ab --bowtie2db db/vOct22\"</code>)</p>
+<p>We used R (R Core Team (2023). <em>R: A Language and Environment for
+Statistical Computing</em>. R Foundation for Statistical Computing,
+Vienna, Austria. <a href="https://www.R-project.org/"
+class="uri">https://www.R-project.org/</a>), and the Bioconductor
+packages <em>mia</em> (Ernst F, Shetty S, Borman T, Lahti L (2023). mia:
+Microbiome analysis. <a href="doi:10.18129/B9.bioc.mia"
+class="uri">doi:10.18129/B9.bioc.mia</a>, R package version 1.10.0, <a
+href="https://bioconductor.org/packages/mia"
+class="uri">https://bioconductor.org/packages/mia</a>) and
+<em>miaViz</em> (Borman T, Ernst F, Lahti L (2023). miaViz: Microbiome
+Analysis Plotting and Visualization. <a
+href="doi:10.18129/B9.bioc.miaViz"
+class="uri">doi:10.18129/B9.bioc.miaViz</a>, R package version 1.10.0,
+<a href="https://bioconductor.org/packages/miaViz"
+class="uri">https://bioconductor.org/packages/miaViz</a>) for plotting
+and statistical analysis of the metagenomic data.</p>
+</div>
+<div id="supplementary-data" class="section level2">
+<h2>Supplementary data</h2>
+<ul>
+<li>Download Excel or CSV of full table from <a
+href="humann.html">HUMAnN report</a></li>
+</ul>
+<p><strong>TODO:</strong></p>
+<ul>
+<li>Taxonomic barplot (Metaphlan)</li>
+<li>Alpha / beta diversity plots.</li>
+<li><del>Full HuMaNN - MaAsLin2 FDR &lt;= 0.05 table</del></li>
+</ul>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+Abx-1_S1_L001.host_removed:
+  PE reads mapped concordantly (discarded): 4213457.0
+  PE reads not mapped concordantly (kept): 54600367.0
+Abx-2_S2_L001.host_removed:
+  PE reads mapped concordantly (discarded): 12261680.0
+  PE reads not mapped concordantly (kept): 50860359.0
+Abx-3_S3_L001.host_removed:
+  PE reads mapped concordantly (discarded): 7149567.0
+  PE reads not mapped concordantly (kept): 55715225.0
+Abx-4_S4_L001.host_removed:
+  PE reads mapped concordantly (discarded): 4399732.0
+  PE reads not mapped concordantly (kept): 51869345.0
+Abx-5_S5_L001.host_removed:
+  PE reads mapped concordantly (discarded): 3175901.0
+  PE reads not mapped concordantly (kept): 52295567.0
+Het-1_S6_L001.host_removed:
+  PE reads mapped concordantly (discarded): 3757893.0
+  PE reads not mapped concordantly (kept): 71991676.0
+Het-2_S7_L001.host_removed:
+  PE reads mapped concordantly (discarded): 2158402.0
+  PE reads not mapped concordantly (kept): 68020531.0
+Het-3_S8_L001.host_removed:
+  PE reads mapped concordantly (discarded): 3398910.0
+  PE reads not mapped concordantly (kept): 61152323.0
+Het-4_S9_L001.host_removed:
+  PE reads mapped concordantly (discarded): 5987168.0
+  PE reads not mapped concordantly (kept): 50387802.0
+Het-5_S10_L001.host_removed:
+  PE reads mapped concordantly (discarded): 2228712.0
+  PE reads not mapped concordantly (kept): 74237874.0
+Homo-1_S11_L001.host_removed:
+  PE reads mapped concordantly (discarded): 529103.0
+  PE reads not mapped concordantly (kept): 67941173.0
+Homo-2_S12_L001.host_removed:
+  PE reads mapped concordantly (discarded): 508172.0
+  PE reads not mapped concordantly (kept): 61168721.0
+Homo-3_S13_L001.host_removed:
+  PE reads mapped concordantly (discarded): 2012837.0
+  PE reads not mapped concordantly (kept): 59474831.0
+Homo-4_S14_L001.host_removed:
+  PE reads mapped concordantly (discarded): 2932906.0
+  PE reads not mapped concordantly (kept): 78430570.0
+Homo-5_S15_L001.host_removed:
+  PE reads mapped concordantly (discarded): 2631545.0
+  PE reads not mapped concordantly (kept): 62480470.0
